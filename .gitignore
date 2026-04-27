@@ -176,3 +176,4 @@ NGA_W2.pickle
 poetry.lock
 **/archive*
 /dump
+/.claude

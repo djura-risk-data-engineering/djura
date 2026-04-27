@@ -40,6 +40,8 @@ dependencies = [
     "numba (>=0.59)",
     "xgboost (>=1.7)",
     "statsmodels (>=0.14.6,<0.15.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "pydantic (>=2.13.3,<3.0.0)",
 ]
 
 [project.urls]
