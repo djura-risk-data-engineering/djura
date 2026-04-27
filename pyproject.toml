@@ -5,7 +5,7 @@ description = "Scientific Python toolkit for earthquake engineering: GCIM-based 
 authors = [
     { name = "Djura | Risk - Data - Engineering S.r.l.", email = "info@djura.it" },
 ]
-readme = "README.md"
+readme = "ReadMe.md"
 license = "AGPL-3.0-later"
 license-files = ["LICENSE"]
 requires-python = ">=3.10,<3.14"
