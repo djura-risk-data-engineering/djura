@@ -13,7 +13,7 @@ from ..base import GMPE
 from .. import const
 from ..imt import PGA, PGV, SA, IMT
 from ..contexts import Context
-from ...utilities import get_fault_type_dummy_variables
+from ..utils import get_fault_type_dummy_variables
 
 
 def _compute_distance(ctx, C):

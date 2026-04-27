@@ -16,15 +16,7 @@ e.g.::
     from djura.record_selection.gsim.imt import SA, PGA
     from djura.record_selection.gsim.contexts import Context
 """
-# flake8: noqa
-from . import base, coeffs_table, const, contexts, imt, utils, models
-
-__all__ = [
-    "base",
-    "coeffs_table",
-    "const",
-    "contexts",
-    "imt",
-    "utils",
-    "models",
-]
+# Submodules are intentionally NOT eagerly imported here: importing
+# `.models` pulls in every GMM (some of which require optional deps like
+# `shapely`). Import what you need explicitly, e.g.
+# `from djura.record_selection.gsim import contexts`.

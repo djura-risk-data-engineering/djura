@@ -8,7 +8,7 @@ import re
 from math import log
 from scipy.interpolate import interp1d
 import numpy as np
-from ..utilities import RecordBuilder
+from .utils import RecordBuilder
 from .imt import from_string
 
 SA_LIKE_PREFIXES = ['SA', 'EA', 'FA', 'DR']
