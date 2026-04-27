@@ -1,4 +1,4 @@
-"""djura — scientific toolkit for earthquake engineering."""
+"""djura - scientific toolkit for earthquake engineering."""
 from importlib import import_module
 
 __version__ = "0.1.0"
@@ -13,10 +13,13 @@ __citation__ = """\
 }
 """ % __version__
 
-_SUBMODULES = ("record_selection", "hazard_consistency", "vulnerability_modeller", "slf")
+_SUBMODULES = ("record_selection", "hazard_consistency",
+               "vulnerability_modeller", "slf")
 
 
-def cite(submodule: str | None = None, style: str = "bibtex", all: bool = False) -> str:
+def cite(
+    submodule: str | None = None, style: str = "bibtex", all: bool = False
+) -> str:
     """Return citation text for djura or a specific submodule.
 
     Parameters
@@ -32,7 +35,8 @@ def cite(submodule: str | None = None, style: str = "bibtex", all: bool = False)
         concatenated.
     """
     if style != "bibtex":
-        raise ValueError(f"Unsupported style: {style!r}. Only 'bibtex' is supported.")
+        raise ValueError(
+            f"Unsupported style: {style!r}. Only 'bibtex' is supported.")
 
     if all:
         parts = [__citation__]

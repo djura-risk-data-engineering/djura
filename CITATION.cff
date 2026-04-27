@@ -1,0 +1,76 @@
+cff-version: 1.2.0
+message: >-
+  If you use djura in academic or research work, please cite the package
+  itself and the relevant submodule paper(s). Use `djura.cite(all=True)`
+  in Python to print all citations.
+title: "djura: Scientific Python toolkit for earthquake engineering"
+type: software
+version: 0.1.0
+authors:
+  - family-names: Shahnazaryan
+    given-names: Davit
+    affiliation: "IUSS Pavia"
+  - family-names: Ozsarac
+    given-names: Volkan
+  - family-names: O'Reilly
+    given-names: Gerard J.
+license: AGPL-3.0-only
+repository-code: "https://github.com/davitshahnazaryan3/djura"
+
+references:
+  - type: article
+    title: >-
+      Next-generation non-linear and collapse prediction models for
+      short- to long-period systems via machine learning methods
+    authors:
+      - family-names: Shahnazaryan
+        given-names: Davit
+      - family-names: O'Reilly
+        given-names: Gerard J.
+    journal: Engineering Structures
+    volume: 306
+    start: 117801
+    year: 2024
+    doi: 10.1016/j.engstruct.2024.117801
+    notes: "Submodule: djura.vulnerability_modeller"
+
+  - type: article
+    title: "Companion vulnerability modelling paper (DOI-only)"
+    authors:
+      - family-names: Shahnazaryan
+        given-names: Davit
+      - family-names: O'Reilly
+        given-names: Gerard J.
+    year: 2024
+    doi: 10.1177/87552930241245940
+    notes: "Submodule: djura.vulnerability_modeller"
+
+  - type: conference-paper
+    title: >-
+      DJURA Ground Motion Record Selector: A Software Solution for
+      Earthquake Engineering
+    authors:
+      - family-names: Shahnazaryan
+        given-names: Davit
+      - family-names: Ozsarac
+        given-names: Volkan
+      - family-names: O'Reilly
+        given-names: Gerard J.
+    conference:
+      name: COMPDYN 2025
+    year: 2025
+    notes: "Submodules: djura.record_selection, djura.hazard_consistency"
+
+  - type: conference-paper
+    title: >-
+      The Role of Story Loss Functions in Regional Seismic Vulnerability
+      Modelling and Risk Assessment
+    authors:
+      - family-names: Shahnazaryan
+        given-names: Davit
+      - family-names: Ozsarac
+        given-names: Volkan
+      - family-names: O'Reilly
+        given-names: Gerard J.
+    year: 2025
+    notes: "Submodule: djura.slf"
