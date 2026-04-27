@@ -1,0 +1,96 @@
+{
+    "SA": {
+        "AristeidouEtAl2024": {},
+        "AbrahamsonEtAl2014": {},
+        "AkkarBommer2010": {},
+        "AtkinsonBoore2006": {},
+        "BindiEtAl2011": {},
+        "BooreAtkinson2008": {},
+        "BooreAtkinson2011": {},
+        "BooreEtAl2020": {},
+        "BozorgniaCampbell2016": {},
+        "CampbellBozorgnia2014": {},
+        "DerrasEtAl2014": {},
+        "DerrasEtAl2014RhypoGermany": {},
+        "KothaEtAl2020": {},
+        "KothaEtAl2020ESHM20": {},
+        "ESHM20Craton": {},
+        "BCHydroESHM20SInter": {},
+        "AbrahamsonEtAl2015SInter": {},
+        "LanzanoLuzi2019shallow": {},
+        "LanzanoLuzi2019deep": {},
+        "CauzziFaccioli2008": {},
+        "FaccioliEtAl2010": {},
+        "BCHydroESHM20SSlab": {}
+    },
+    "Sa_avg2": {
+        "AristeidouEtAl2024": {}
+    },
+    "Sa_avg3": {
+        "AristeidouEtAl2024": {}
+    },
+    "PGA": {
+        "AristeidouEtAl2024": {},
+        "AbrahamsonEtAl2014": {},
+        "AkkarBommer2010": {},
+        "AtkinsonBoore2006": {},
+        "BindiEtAl2011": {},
+        "BooreAtkinson2008": {},
+        "BooreAtkinson2011": {},
+        "BooreEtAl2020": {},
+        "BozorgniaCampbell2016": {},
+        "CampbellBozorgnia2014": {},
+        "DerrasEtAl2014": {},
+        "DerrasEtAl2014RhypoGermany": {},
+        "KothaEtAl2020": {},
+        "KothaEtAl2020ESHM20": {},
+        "ESHM20Craton": {},
+        "BCHydroESHM20SInter": {},
+        "AbrahamsonEtAl2015SInter": {},
+        "LanzanoLuzi2019shallow": {},
+        "LanzanoLuzi2019deep": {},
+        "CauzziFaccioli2008": {},
+        "FaccioliEtAl2010": {},
+        "BCHydroESHM20SSlab": {}
+    },
+    "PGV": {
+        "AristeidouEtAl2024": {},
+        "AbrahamsonEtAl2014": {},
+        "AkkarBommer2010": {},
+        "AtkinsonBoore2006": {},
+        "BindiEtAl2011": {},
+        "BooreAtkinson2008": {},
+        "BooreAtkinson2011": {},
+        "BooreEtAl2020": {},
+        "CampbellBozorgnia2014": {},
+        "DerrasEtAl2014": {},
+        "DerrasEtAl2014RhypoGermany": {},
+        "KothaEtAl2020": {},
+        "KothaEtAl2020ESHM20": {},
+        "LanzanoLuzi2019shallow": {},
+        "LanzanoLuzi2019deep": {},
+        "CauzziFaccioli2008": {},
+        "FaccioliEtAl2010": {}
+    },
+    "PGD": {
+        "CampbellBozorgnia2008": {},
+        "AristeidouEtAl2024": {}
+    },
+    "Ds575": {
+        "AfshariStewart2016": {},
+        "AfshariStewart2016Japan": {},
+        "VanHoutteEtAl2018RSD": {},
+        "AbrahamsonSilva1996": {},
+        "AristeidouEtAl2024": {}
+    },
+    "Ds595": {
+        "AfshariStewart2016": {},
+        "AfshariStewart2016Japan": {},
+        "BommerEtAl2009RSD": {},
+        "AbrahamsonSilva1996": {},
+        "AristeidouEtAl2024": {}
+    },
+    "FIV3": {
+        "AristeidouEtAl2024": {}
+    }
+}
