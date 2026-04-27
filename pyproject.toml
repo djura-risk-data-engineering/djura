@@ -1,20 +1,59 @@
 [project]
 name = "djura"
 version = "0.1.0"
-description = ""
+description = "Scientific Python toolkit for earthquake engineering: GCIM-based ground motion record selection, hazard consistency, vulnerability modelling, and storey loss functions."
 authors = [
-    {name = "Davit Shahnazaryan",email = "davit.shahnazaryan@iusspavia.it"}
+    { name = "Djura | Risk - Data - Engineering S.r.l.", email = "info@djura.it" },
 ]
 readme = "README.md"
-requires-python = ">=3.10"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
+requires-python = ">=3.10,<3.14"
+keywords = [
+    "earthquake-engineering",
+    "seismic-hazard",
+    "ground-motion-selection",
+    "gcim",
+    "vulnerability",
+    "fragility",
+    "storey-loss-function",
+    "performance-based-engineering",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 dependencies = [
-    "scipy (==1.14.1)",
-    "numba (==0.59.0)",
-    "pandas (==2.2.3)",
-    "numpy (==1.26.4)",
-    "xgboost (==1.7.6)"
+    "numpy (>=1.26)",
+    "scipy (>=1.14)",
+    "pandas (>=2.2)",
+    "numba (>=0.59)",
+    "xgboost (>=1.7)",
 ]
 
+[project.urls]
+Homepage = "https://github.com/davitshahnazaryan3/djura"
+Repository = "https://github.com/davitshahnazaryan3/djura"
+Issues = "https://github.com/davitshahnazaryan3/djura/issues"
+Changelog = "https://github.com/davitshahnazaryan3/djura/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+plot = ["matplotlib (>=3.9)"]
+hdf5 = ["h5py (>=3.12)"]
+all = ["matplotlib (>=3.9)", "h5py (>=3.12)"]
+
+[tool.poetry]
+packages = [{ include = "djura", from = "src" }]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -24,5 +63,19 @@ build-backend = "poetry.core.masonry.api"
 dev = [
     "pytest (>=9.0.3,<10.0.0)",
     "pytest-cov (>=7.1.0,<8.0.0)",
-    "flake8 (>=7.3.0,<8.0.0)"
+    "flake8 (>=7.3.0,<8.0.0)",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/djura"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "@overload",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "@(abc\\.)?abstractmethod",
 ]
