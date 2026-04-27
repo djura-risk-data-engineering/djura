@@ -1,0 +1,28 @@
+[project]
+name = "djura"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Davit Shahnazaryan",email = "davit.shahnazaryan@iusspavia.it"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "scipy (==1.14.1)",
+    "numba (==0.59.0)",
+    "pandas (==2.2.3)",
+    "numpy (==1.26.4)",
+    "xgboost (==1.7.6)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.3,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)",
+    "flake8 (>=7.3.0,<8.0.0)"
+]
