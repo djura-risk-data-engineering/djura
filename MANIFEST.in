@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+include CITATION.cff
+include CHANGELOG.md
+include CLA.md
+include pyproject.toml
+recursive-include src/djura *.py
+recursive-exclude tests *
