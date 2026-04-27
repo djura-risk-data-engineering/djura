@@ -6,7 +6,7 @@ authors = [
     { name = "Djura | Risk - Data - Engineering S.r.l.", email = "info@djura.it" },
 ]
 readme = "README.md"
-license = "AGPL-3.0-only"
+license = "AGPL-3.0-later"
 license-files = ["LICENSE"]
 requires-python = ">=3.10,<3.14"
 keywords = [
@@ -39,6 +39,7 @@ dependencies = [
     "pandas (>=2.2)",
     "numba (>=0.59)",
     "xgboost (>=1.7)",
+    "statsmodels (>=0.14.6,<0.15.0)",
 ]
 
 [project.urls]

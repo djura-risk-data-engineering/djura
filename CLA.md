@@ -1,7 +1,7 @@
 # Contributor License Agreement (CLA)
 
 Thank you for your interest in contributing to **djura** ("the Project"),
-maintained by Davit Shahnazaryan ("the Maintainer"). This Contributor
+maintained by Djura | Risk - Data - Engineering ("the Maintainer"). This Contributor
 License Agreement ("Agreement") clarifies the intellectual property license
 granted with Contributions from any person or entity to the Maintainer.
 You must agree to this Agreement before your Contributions can be accepted.

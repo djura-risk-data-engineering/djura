@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/davitshahnazaryan3/djura/actions/workflows/ci.yml/badge.svg)](https://github.com/davitshahnazaryan3/djura/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.10%E2%80%933.13-blue.svg)](https://www.python.org/)
-[![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+[![License: AGPL v3+](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
 **djura** is a scientific Python toolkit for earthquake engineering. It bundles
 into a single installable package the core algorithms used across the DJURA
@@ -90,5 +90,13 @@ offer a separate commercial license alongside AGPL-3.0.
 
 ## License
 
-Licensed under the GNU Affero General Public License v3.0 only
-(SPDX: `AGPL-3.0-only`). See [LICENSE](LICENSE) for the full text.
+Copyright © 2025–2026 Djura | Risk - Data - Engineering S.r.l.
+
+Licensed under the GNU Affero General Public License v3.0 or later
+(SPDX: `AGPL-3.0-or-later`). See [LICENSE](LICENSE) for the full text.
+
+This package vendors a subset of code adapted from the
+[OpenQuake Engine](https://github.com/gem/oq-engine) (© GEM Foundation,
+AGPL-3.0-or-later); see
+[`src/djura/record_selection/gsim/NOTICE.md`](src/djura/record_selection/gsim/NOTICE.md)
+for attribution details.
