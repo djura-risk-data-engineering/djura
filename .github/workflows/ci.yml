@@ -53,7 +53,5 @@ jobs:
         run: poetry run flake8 src tests
 
       - name: Run tests
-        run: poetry run pytest \
-          --cov=djura \
-          --cov-report=term-missing \
-          -m "not slow"
+        run: |
+          poetry run pytest --cov=djura --cov-report=term-missing -m "not slow"
