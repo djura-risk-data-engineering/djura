@@ -1,0 +1,110 @@
+[
+    {
+        "id": 1,
+        "DEPENDANT ON ITEM": "5",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    },
+    {
+        "id": 2,
+        "DEPENDANT ON ITEM": "5",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS3",
+            "DS3",
+            "DS3",
+            "DS3"
+        ]
+    },
+    {
+        "id": 3,
+        "DEPENDANT ON ITEM": "5",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    },
+    {
+        "id": 4,
+        "DEPENDANT ON ITEM": "5",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    },
+    {
+        "id": 5,
+        "DEPENDANT ON ITEM": "INDEPENDENT",
+        "MIN DS": [
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT"
+        ]
+    },
+    {
+        "id": 6,
+        "DEPENDANT ON ITEM": "INDEPENDENT",
+        "MIN DS": [
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT"
+        ]
+    },
+    {
+        "id": 7,
+        "DEPENDANT ON ITEM": "5",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    },
+    {
+        "id": 8,
+        "DEPENDANT ON ITEM": "5",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    },
+    {
+        "id": 9,
+        "DEPENDANT ON ITEM": "5",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    }
+]

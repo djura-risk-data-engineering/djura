@@ -1,0 +1,158 @@
+[
+    {
+        "id": 1,
+        "DEPENDANT ON ITEM": "INDEPENDENT",
+        "MIN DS": [
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT"
+        ]
+    },
+    {
+        "id": 2,
+        "DEPENDANT ON ITEM": "INDEPENDENT",
+        "MIN DS": [
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT"
+        ]
+    },
+    {
+        "id": 3,
+        "DEPENDANT ON ITEM": "INDEPENDENT",
+        "MIN DS": [
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT"
+        ]
+    },
+    {
+        "id": 4,
+        "DEPENDANT ON ITEM": "1",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS3",
+            "DS4",
+            "DS4",
+            "DS4"
+        ]
+    },
+    {
+        "id": 5,
+        "DEPENDANT ON ITEM": "2",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS3",
+            "DS3",
+            "DS3",
+            "DS3"
+        ]
+    },
+    {
+        "id": 6,
+        "DEPENDANT ON ITEM": "1",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS2",
+            "DS3",
+            "DS3"
+        ]
+    },
+    {
+        "id": 7,
+        "DEPENDANT ON ITEM": "2",
+        "MIN DS": [
+            "Undamaged",
+            "DS3",
+            "DS3",
+            "DS4",
+            "DS4",
+            "DS4"
+        ]
+    },
+    {
+        "id": 8,
+        "DEPENDANT ON ITEM": "2",
+        "MIN DS": [
+            "Undamaged",
+            "DS3",
+            "DS3",
+            "DS4",
+            "DS4",
+            "DS4"
+        ]
+    },
+    {
+        "id": 9,
+        "DEPENDANT ON ITEM": "2",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    },
+    {
+        "id": 10,
+        "DEPENDANT ON ITEM": "2",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    },
+    {
+        "id": 11,
+        "DEPENDANT ON ITEM": "2",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    },
+    {
+        "id": 12,
+        "DEPENDANT ON ITEM": "2",
+        "MIN DS": [
+            "Undamaged",
+            "Undamaged",
+            "Undamaged",
+            "DS1",
+            "DS1",
+            "DS1"
+        ]
+    },
+    {
+        "id": 13,
+        "DEPENDANT ON ITEM": "INDEPENDENT",
+        "MIN DS": [
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT",
+            "INDEPENDENT"
+        ]
+    }
+]

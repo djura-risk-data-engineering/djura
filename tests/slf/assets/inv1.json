@@ -1,0 +1,30 @@
+[
+  {
+    "id": 0,
+    "name": "0",
+    "EDP": "PSD",
+    "Component": "NS",
+    "Group": "",
+    "Quantity": 1,
+    "damage-states": 3,
+    "median-demand": [0.005, 0.017, 0.028],
+    "total-dispersion": [0.6, 0.6, 0.6],
+    "repair-cost": [683, 5868, 36399],
+    "cost-dispersion": [0.1, 0.1, 0.1],
+    "best-fit": [null, null, null]
+  },
+  {
+    "id": 1,
+    "name": "1",
+    "EDP": "PFA",
+    "Component": "NS",
+    "Group": "",
+    "Quantity": 1,
+    "damage-states": 1,
+    "median-demand": [1],
+    "total-dispersion": [0.4],
+    "repair-cost": [583],
+    "cost-dispersion": [0.1],
+    "best-fit": [null]
+  }
+]

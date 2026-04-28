@@ -1,0 +1,22 @@
+[
+    {
+        "id": 0,
+        "DEPENDANT ON ITEM": "Independent",
+        "MIN DS": [
+            "undamaged",
+            "undamaged",
+            "undamaged",
+            "undamaged"
+        ]
+    },
+    {
+        "id": 1,
+        "DEPENDANT ON ITEM": "Independent",
+        "MIN DS": [
+            "undamaged",
+            "undamaged",
+            "undamaged",
+            "undamaged"
+        ]
+    }
+]
