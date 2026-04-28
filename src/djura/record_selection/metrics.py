@@ -3,6 +3,9 @@ import numpy as np
 from scipy import integrate
 from scipy.stats import lognorm
 
+_trapezoid = np.trapezoid if np.lib.NumpyVersion(np.__version__) >= "2.0.0" \
+    else np.trapz
+
 
 def hellinger_distance(mu1, sigma1, mu2, sigma2, method="quadrature"):
     """
@@ -27,6 +30,7 @@ def hellinger_distance(mu1, sigma1, mu2, sigma2, method="quadrature"):
     float : Hellinger distance (between 0 and 1)
     """
     messages = {"warnings": [], "errors": []}
+    h = np.nan
 
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
@@ -50,7 +54,7 @@ def hellinger_distance(mu1, sigma1, mu2, sigma2, method="quadrature"):
                 f2 = lognorm.pdf(x, s=sigma2, scale=np.exp(mu2))
 
                 integrand = (np.sqrt(f1) - np.sqrt(f2)) ** 2
-                result = np.trapz(integrand, x)
+                result = _trapezoid(integrand, x)
                 h = np.sqrt(0.5 * result)
 
             elif method.lower() == "closed-form":
