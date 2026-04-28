@@ -17,7 +17,8 @@ from .. import const
 from ..imt import IMT
 from ..contexts import Context
 from .chiou_youngs_2008 import ChiouYoungs2008, _get_ln_y_ref
-from .chiou_youngs_2008_swiss_coeffs import COEFFS_FS_ROCK_SWISS01, COEFFS_FS_ROCK_SWISS06, COEFFS_FS_ROCK_SWISS04
+from .chiou_youngs_2008_swiss_coeffs import (
+    COEFFS_FS_ROCK_SWISS01, COEFFS_FS_ROCK_SWISS06, COEFFS_FS_ROCK_SWISS04)
 from .utils_swiss_gmpe import _apply_adjustments
 
 def get_nl(C, ln_y_ref, exp1, exp2):

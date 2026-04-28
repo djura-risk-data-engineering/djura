@@ -1,4 +1,7 @@
-"""djura.fragility_converter - conversion of fragility and vulnerability models across intensity measures."""
+"""
+djura.fragility_converter - conversion of fragility and vulnerability
+models across intensity measures.
+"""
 
 __citation__ = (
     "@article{oreilly2025fragility,\n"
