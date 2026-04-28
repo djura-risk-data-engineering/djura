@@ -44,6 +44,7 @@ dependencies = [
     "pydantic (>=2.13.3,<3.0.0)",
     "shapely (>=2.1.2,<3.0.0)",
     "h5py (>=3.16.0,<4.0.0)",
+    "requests (>=2.32)",
 ]
 
 [project.urls]
