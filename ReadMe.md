@@ -20,6 +20,7 @@ copyleft scientific tools (e.g. `openquake.engine`).
 | --------------------------------- | --------------------------------------------------------- |
 | `djura.record_selection`          | GCIM-based ground motion record selection                 |
 | `djura.hazard_consistency`        | Hazard-consistent intensity measure analysis              |
+| `djura.fragility_converter`       | Fragility/vulnerability model conversion across IMs       |
 | `djura.vulnerability_modeller`    | Seismic vulnerability and loss modelling (incl. ML models)|
 | `djura.slf`                       | Storey loss function generation                           |
 
@@ -77,6 +78,7 @@ print(djura.cite(all=True))
 | `hazard_consistency`            | Shahnazaryan, D., Ozsarac, V., & O'Reilly, G. J. (2025). *DJURA Ground Motion Record Selector: A Software Solution for Earthquake Engineering*. COMPDYN 2025.                   |
 | `vulnerability_modeller`        | Shahnazaryan, D., & O'Reilly, G. J. (2024). *Next-generation non-linear and collapse prediction models for short- to long-period systems via machine learning methods*. **Engineering Structures**, 306, 117801. doi:[10.1016/j.engstruct.2024.117801](https://doi.org/10.1016/j.engstruct.2024.117801) |
 | `vulnerability_modeller`        | Companion paper, doi:[10.1177/87552930241245940](https://doi.org/10.1177/87552930241245940)                                                                                      |
+| `fragility_converter`           | O'Reilly, G. J., Ozsarac, V., & Shahnazaryan, D. (2025). *Conversion of seismic fragility and vulnerability models to alternative intensity measures for regional risk analysis*. **Earthquake Spectra** (Under Review). |
 | `slf`                           | Shahnazaryan, D., Ozsarac, V., & O'Reilly, G. J. (2025). *The Role of Story Loss Functions in Regional Seismic Vulnerability Modelling and Risk Assessment*.                    |
 
 A `CITATION.cff` file is provided so that GitHub renders a "Cite this repository" button automatically.
