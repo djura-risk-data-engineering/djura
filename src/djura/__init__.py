@@ -8,13 +8,13 @@ __citation__ = """\
   author  = {Shahnazaryan, Davit and Ozsarac, Volkan and O'Reilly, Gerard J.},
   title   = {djura: Scientific Python toolkit for earthquake engineering},
   year    = {2025},
-  url     = {https://github.com/davitshahnazaryan3/djura},
+  url     = {https://github.com/djura-risk-data-engineering/djura},
   version = {%s}
 }
 """ % __version__
 
 _SUBMODULES = ("record_selection", "hazard_consistency",
-               "vulnerability_modeller", "slf")
+               "vulnerability_modeller", "slf", "fragility_converter")
 
 
 def cite(
