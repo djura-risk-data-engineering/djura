@@ -48,7 +48,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `hazard.Europe` — fetches European seismic hazard data from the
     EFEHR web service (SHARE model).
   - Pydantic input schemas for hazard model validation (`models.py`).
-- **`djura.fragility_converter`** — third scientific submodule migrated in:
+- **`djura.edp_im`** — third scientific submodule migrated in:
+  - `EDPIMModel` / `EDPIMInfillModel` / `EDPIMIsolModel` — XGBoost-based
+    ML models predicting EDP-IM relationships for bare-frame, infilled,
+    and isolated structural systems.
+  - `BackboneModel` — backbone curve generation from predicted EDP-IM
+    relationships.
+  - `XGBPredict` — low-level XGBoost inference wrapper with Pydantic
+    input validation and built-in scalers.
+  - References: Shahnazaryan, D. & O'Reilly, G. J. (2024).
+    *Next-generation non-linear and collapse prediction models.*
+    **Engineering Structures**, 306, 117801.
+    doi:[10.1016/j.engstruct.2024.117801](https://doi.org/10.1016/j.engstruct.2024.117801);
+- **`djura.fragility_converter`** — fourth scientific submodule migrated in:
   - `FF` / `IMModel` — converts fragility functions from one intensity
     measure to another using ground motion model-based IM relationships.
   - `FFApproximate` — approximate conversion method for fragility and
@@ -57,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     *Conversion of seismic fragility and vulnerability models to
     alternative intensity measures for regional risk analysis.*
     **Earthquake Spectra** (Under Review).
-- **`djura.slf`** — fourth scientific submodule migrated in:
+- **`djura.slf`** — fifth scientific submodule migrated in:
   - `SLF` — generates storey loss functions via Monte Carlo simulation,
     fragility-based damage-state assignment, cost sampling, and
     regression fitting (Weibull and Papadopoulos methods).
