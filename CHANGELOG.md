@@ -57,6 +57,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     *Conversion of seismic fragility and vulnerability models to
     alternative intensity measures for regional risk analysis.*
     **Earthquake Spectra** (Under Review).
+- **`djura.slf`** — fourth scientific submodule migrated in:
+  - `SLF` — generates storey loss functions via Monte Carlo simulation,
+    fragility-based damage-state assignment, cost sampling, and
+    regression fitting (Weibull and Papadopoulos methods).
+  - Pydantic input schemas for components, fragility, damage states,
+    costs, simulation settings, and fitted loss models (`models.py`).
+  - Regression helpers (`regression_methods.py`) and aggregation
+    utilities (`utilities.py`).
 
 ### Changed
 
