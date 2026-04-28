@@ -36,6 +36,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     weights, TBEC2018 parameter table) shipped with the wheel.
   - Helpers, metrics, plotting, data readers, and Pydantic input
     models for GMM validation.
+- **`djura.hazard_consistency`** — second scientific submodule migrated in:
+  - `HazardModel` — reads hazard curves, fits power-law hazard models,
+    and derives return periods, PoEs, MAFEs, and IM levels for given
+    limit states.
+  - `HazardFit` — hazard curve fitting and mean annual frequency of
+    exceedance (MAFE) calculations, including SAC/FEMA and
+    least-squares approaches.
+  - `HazardConsistency` — checks consistency between selected ground
+    motion records and target hazard curves.
+  - `hazard.Europe` — fetches European seismic hazard data from the
+    EFEHR web service (SHARE model).
+  - Pydantic input schemas for hazard model validation (`models.py`).
+
+### Changed
+
+- Added `h5py`, `shapely`, `pyyaml`, `pydantic`, and `requests` as
+  core runtime dependencies (required by vendored GMMs, record-selection
+  I/O, and hazard web-service queries).
 
 ### Notes
 
