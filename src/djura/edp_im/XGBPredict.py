@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-import joblib
 
 import numpy as np
 import xgboost as xgb
@@ -170,8 +169,9 @@ class XGBPredict:
             )
 
         # Read the XGB model
-        model = joblib.load(
-            path / f"models/{self.parameter}_xgb{method}.sav")
+        model = xgb.Booster()
+        model.load_model(
+            str(path / f"models/{self.parameter}_xgb{method}.ubj"))
 
         dispersions = json.load(open(
             path / f"models/{self.parameter}_xgb{method}_dispersions.json"))

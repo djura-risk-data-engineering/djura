@@ -21,7 +21,7 @@ def to_json_serializable(data):
         return [to_json_serializable(item) for item in data]
     elif isinstance(data, np.ndarray):
         return data.tolist()
-    elif isinstance(data, np.float_):
+    elif isinstance(data, np.float64):
         return float(data)
     elif isinstance(data, np.float32):
         return float(data)
