@@ -34,7 +34,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
-    "numpy (>=1.26)",
+    "numpy (>=1.26,<2.0)",
     "scipy (>=1.14)",
     "pandas (>=2.2)",
     "numba (>=0.59)",
