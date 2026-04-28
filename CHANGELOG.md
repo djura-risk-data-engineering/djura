@@ -48,6 +48,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `hazard.Europe` — fetches European seismic hazard data from the
     EFEHR web service (SHARE model).
   - Pydantic input schemas for hazard model validation (`models.py`).
+- **`djura.fragility_converter`** — third scientific submodule migrated in:
+  - `FF` / `IMModel` — converts fragility functions from one intensity
+    measure to another using ground motion model-based IM relationships.
+  - `FFApproximate` — approximate conversion method for fragility and
+    vulnerability models targeting regional risk workflows.
+  - Reference: O'Reilly, G. J., Ozsarac, V., & Shahnazaryan, D. (2025).
+    *Conversion of seismic fragility and vulnerability models to
+    alternative intensity measures for regional risk analysis.*
+    **Earthquake Spectra** (Under Review).
 
 ### Changed
 
