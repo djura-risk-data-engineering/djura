@@ -163,7 +163,7 @@ def apply_conversion(imc, imt):
 
 IMC.apply_conversion = apply_conversion
 
-ampcode_dt = (np.string_, 4)
+ampcode_dt = (np.bytes_, 4)
 
 site_param_dt = {
     'sids': np.uint32,
@@ -176,8 +176,8 @@ site_param_dt = {
     'vs30measured': bool,
     'z1pt0': np.float64,
     'z2pt5': np.float64,
-    'siteclass': (np.string_, 1),
-    'geohash': (np.string_, 6),
+    'siteclass': (np.bytes_, 1),
+    'geohash': (np.bytes_, 6),
     'z1pt4': np.float64,
     'backarc': np.uint8,  # 0=forearc,1=backarc,2=alongarc
     'xvf': np.float64,
@@ -186,10 +186,10 @@ site_param_dt = {
 
     # Parameters for site amplification
     'ampcode': ampcode_dt,
-    'ec8': (np.string_, 1),
-    'ec8_p18': (np.string_, 2),
+    'ec8': (np.bytes_, 1),
+    'ec8_p18': (np.bytes_, 2),
     'h800': np.float64,
-    'geology': (np.string_, 20),
+    'geology': (np.bytes_, 20),
     'amplfactor': np.float64,
     'fpeak': np.float64,
     # Fundamental period and and amplitude of HVRSR spectra
@@ -203,8 +203,8 @@ site_param_dt = {
     'dry_density': np.float64,
     'Fs': np.float64,
     'crit_accel': np.float64,
-    'unit': (np.string_, 5),
-    'liq_susc_cat': (np.string_, 2),
+    'unit': (np.bytes_, 5),
+    'liq_susc_cat': (np.bytes_, 2),
     'dw': np.float64,
     'yield_acceleration': np.float64,
     'slope': np.float64,
@@ -224,7 +224,7 @@ site_param_dt = {
     'T_eq': np.float64,
 
     # other parameters
-    'custom_site_id': (np.string_, 8),
+    'custom_site_id': (np.bytes_, 8),
     'region': np.uint32,
     'in_cshm': bool  # used in mcverry
 }

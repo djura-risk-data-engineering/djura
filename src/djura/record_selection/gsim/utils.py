@@ -91,7 +91,7 @@ class RecordBuilder(object):
             self.names.append(name)
             self.values.append(value)
             if isinstance(value, (str, bytes)):
-                tp = (np.string_, len(value) or 1)
+                tp = (np.bytes_, len(value) or 1)
             elif isinstance(value, np.ndarray):
                 tp = (value.dtype, len(value))
             else:
