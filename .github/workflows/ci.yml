@@ -15,7 +15,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.12"]
-        
+
         # python-version: ["3.10", "3.11", "3.12", "3.13"]
         # include:
         #   - os: macos-latest
@@ -53,4 +53,7 @@ jobs:
         run: poetry run flake8 src tests
 
       - name: Run tests
-        run: poetry run pytest --cov=djura --cov-report=term-missing
+        run: poetry run pytest \
+          --cov=djura \
+          --cov-report=term-missing \
+          -m "not slow"

@@ -8,7 +8,7 @@ from djura.slf.utilities import filter_args
 path = Path(__file__).resolve().parent
 
 
-class TestAPI:
+class TestSLF:
 
     @pytest.mark.parametrize(
         "filename, filecorr, corr, grouping, regression, seed",
