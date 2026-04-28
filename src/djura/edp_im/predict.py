@@ -188,7 +188,7 @@ def edp_im(data: EDPIMModel):
 
     elif method != "shahnazaryan-oreilly" and im_type == "sa":
         module = importlib.import_module(
-            f"src.edp_im.r_mu_t.{method}")
+            f"djura.edp_im.r_mu_t.{method}")
         func = getattr(module, 'make_prediction', None)
 
     if not module:
@@ -682,7 +682,7 @@ def _process_group_bilin(items, method, hysteresis, im_type, results):
     elif method != "shahnazaryan-oreilly" and im_type == "sa":
         # Only SA (R)
         try:
-            module = importlib.import_module(f"src.edp_im.r_mu_t.{method}")
+            module = importlib.import_module(f"djura.edp_im.r_mu_t.{method}")
             func = getattr(module, 'make_prediction', None)
 
             if not func:
