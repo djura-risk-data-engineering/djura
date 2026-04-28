@@ -13,7 +13,7 @@ __citation__ = """\
 }
 """ % __version__
 
-_SUBMODULES = ("record_selection", "hazard_consistency",
+_SUBMODULES = ("record_selection", "hazard_consistency", "edp_im",
                "vulnerability_modeller", "slf", "fragility_converter")
 
 
