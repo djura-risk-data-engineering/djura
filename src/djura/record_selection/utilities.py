@@ -1,8 +1,7 @@
-from typing import List, Union
+from typing import List
 from pathlib import Path
 from datetime import datetime
 import json
-import pickle
 import inspect
 import warnings
 import bisect
@@ -13,7 +12,8 @@ import numpy as np
 from scipy.stats import lognorm, kstest, norm, binom
 from scipy.optimize import curve_fit, minimize
 
-from .helpers import to_json_serializable
+from ..utilities import (     # noqa: F401 (re-exported)
+    to_json_serializable, export_results, read_json)
 
 
 def random_multivariate_normal(
@@ -239,43 +239,6 @@ def inspect_file_for_classes(module):
     class_names = [cls[0] for cls in classes]
 
     return class_names
-
-
-def read_json(filename: Union[Path, dict]):
-    if isinstance(filename, Path) or isinstance(filename, str):
-        filename = Path(filename)
-
-        with open(filename) as f:
-            filename = json.load(f)
-
-    return filename
-
-
-def export_results(filepath: Path, data, filetype: str):
-    """Exports results to file
-
-    Parameters
-    ----------
-    filepath : Path
-        Path where to export data to
-    data : any
-        Data to be stored
-    filetype : str
-        Filetype, e.g. npy, json, pkl, csv
-    """
-    if filetype == "json":
-        data = to_json_serializable(data)
-
-    if filetype == "npy":
-        np.save(f"{filepath}.npy", data)
-    elif filetype == "pkl" or filetype == "pickle":
-        with open(f"{filepath}.pickle", 'wb') as handle:
-            pickle.dump(data, handle)
-    elif filetype == "json":
-        with open(f"{filepath}.json", "w") as json_file:
-            json.dump(data, json_file)
-    elif filetype == "csv":
-        data.to_csv(f"{filepath}.csv", index=False)
 
 
 def remove_path(directory: Path):

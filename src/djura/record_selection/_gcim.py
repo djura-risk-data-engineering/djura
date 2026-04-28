@@ -3,7 +3,7 @@ from scipy.interpolate import interp1d
 import warnings
 import numpy as np
 
-from .helpers import get_func_args
+from ..utilities import get_func_args
 
 from .utilities import get_period_im, get_list_id, select_func_args, \
     select_function
