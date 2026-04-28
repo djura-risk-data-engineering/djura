@@ -56,10 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     relationships.
   - `XGBPredict` — low-level XGBoost inference wrapper with Pydantic
     input validation and built-in scalers.
-  - References: Shahnazaryan, D. & O'Reilly, G. J. (2024).
-    *Next-generation non-linear and collapse prediction models.*
-    **Engineering Structures**, 306, 117801.
-    doi:[10.1016/j.engstruct.2024.117801](https://doi.org/10.1016/j.engstruct.2024.117801);
 - **`djura.fragility_converter`** — fourth scientific submodule migrated in:
   - `FF` / `IMModel` — converts fragility functions from one intensity
     measure to another using ground motion model-based IM relationships.
@@ -78,11 +74,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Regression helpers (`regression_methods.py`) and aggregation
     utilities (`utilities.py`).
 
+- **`djura.vulnerability_modeller`** — sixth scientific submodule
+  migrated in:
+  - `_VulnerabilityModeller` — transforms demand distributions,
+    defines capacity curves, and computes EDP-loss via SLF integration.
+  - `Backbone` / `SPOModel` / `DispForceModel` — SPO-based backbone
+    curve generation for bare-frame and infilled systems.
+  - `Demands` — demand model for MDOF systems.
+  - `EAL` — expected annual loss computation from limit-state ELR/MAFE
+    pairs using an analytical loss-curve fit.
+  - `VMMDOF` — MDOF vulnerability modelling with SLF-based loss
+    disaggregation.
+  - `PFAProfile` — peak floor acceleration profile estimation.
+  - Fragility fitting utilities (`fragility.py`) and hazard model
+    helpers (`hazard_model.py`).
+
 ### Changed
 
-- Added `h5py`, `shapely`, `pyyaml`, `pydantic`, and `requests` as
-  core runtime dependencies (required by vendored GMMs, record-selection
-  I/O, and hazard web-service queries).
+- Added `h5py`, `shapely`, `pyyaml`, `pydantic`, `requests`, `joblib`,
+  and `pwlf` as core runtime dependencies (required by vendored GMMs,
+  record-selection I/O, hazard web-service queries, and backbone
+  curve fitting).
+- Enforced 79-character line limit across all non-vendored Python
+  files; long import lines in `gsim/models/__init__.py` wrapped with
+  parenthesised multi-line form; invalid escape sequence in
+  `vulnerability_modeller/eal.py` fixed.
 
 ### Notes
 
