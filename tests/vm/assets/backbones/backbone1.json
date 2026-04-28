@@ -1,0 +1,7 @@
+{
+  "damping": 0.075,
+  "ductility": 3,
+  "hardening_ratio": 0.05,
+  "period": 1,
+  "ductility_f": 8
+}

@@ -1,0 +1,11 @@
+[
+    {
+        "period": 1.0,
+        "ductility": 4.0,
+        "heights": [3.5, 3.0, 3.0, 3.0, 3.0],
+        "cy": 0.2,
+        "hardening_ratio": 0.02,
+        "damping": 5,
+        "ductility_f": 6
+    }
+]

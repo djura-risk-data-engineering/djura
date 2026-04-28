@@ -1,0 +1,7 @@
+{
+  "damping": 0.075,
+  "sdof": false,
+  "mstar": 800,
+  "force": [1636.5, 1731, 0.0],
+  "displacement": [0.063, 0.217, 0.32]
+}
