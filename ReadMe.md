@@ -71,6 +71,14 @@ clear_cache()            # delete the cached file to force a re-download
 
 The cache lives at `~/.cache/djura/NGA_W2_v2.pickle`.
 
+The dataset is derived from the
+[NGA-West2 Ground Motion Database](https://ngawest2.berkeley.edu)
+(PEER, UC Berkeley). It contains metadata only — no waveform records —
+and has been extended with fields computed by this project. See
+[`src/djura/record_selection/assets/ATTRIBUTION.md`](src/djura/record_selection/assets/ATTRIBUTION.md)
+for full attribution and instructions on downloading the underlying
+waveforms from PEER.
+
 ### Publishing a new data release (maintainers)
 
 The release is produced by the `release-data` GitHub Actions workflow,
