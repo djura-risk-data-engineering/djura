@@ -6,3 +6,7 @@ include CLA.md
 include pyproject.toml
 recursive-include src/djura *.py
 recursive-exclude tests *
+global-exclude *.pickle
+global-exclude *.pkl
+global-exclude *.pkl.gz
+global-exclude *.pickle.gz

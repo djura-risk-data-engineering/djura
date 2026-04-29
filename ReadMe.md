@@ -56,6 +56,34 @@ from djura import slf
 
 (Per-submodule quickstarts will be added as code is migrated in.)
 
+## Bundled dataset (NGA-West2)
+
+The NGA-West2 metadata pickle (~107 MB uncompressed) is **not** shipped
+inside the wheel. It is hosted as a gzip-compressed asset on a GitHub
+Release and downloaded automatically the first time it is needed:
+
+```python
+from djura.data_loader import load_data, clear_cache
+
+data = load_data()       # downloads on first call, then loads from cache
+clear_cache()            # delete the cached file to force a re-download
+```
+
+The cache lives at `~/.cache/djura/NGA_W2_v2.pickle`.
+
+### Publishing a new data release (maintainers)
+
+The release is produced by the `release-data` GitHub Actions workflow,
+which compresses the pickle and uploads it to a tagged GitHub Release.
+Trigger it manually with the GitHub CLI:
+
+```bash
+gh workflow run release-data.yml -f version=data-v1
+```
+
+After the release is published, update `GITHUB_RELEASE_URL` in
+`src/djura/data_loader.py` to point at the new tag.
+
 ## How to cite
 
 If you use **djura** in academic or research work, please cite the package

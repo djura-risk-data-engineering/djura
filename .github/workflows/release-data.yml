@@ -1,0 +1,41 @@
+name: Release data asset
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag for the data asset (e.g. data-v1)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Verify pickle exists
+        run: |
+          test -f src/djura/record_selection/assets/NGA_W2_v2.pickle \
+            || { echo "Pickle not found at src/djura/record_selection/assets/NGA_W2_v2.pickle"; exit 1; }
+
+      - name: Compress pickle
+        run: |
+          gzip -9 -c src/djura/record_selection/assets/NGA_W2_v2.pickle \
+            > NGA_W2_v2.pickle.gz
+          ls -lh NGA_W2_v2.pickle.gz
+
+      - name: Create release and upload asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ inputs.version }}" \
+            --title "Data release ${{ inputs.version }}" \
+            --notes "Compressed NGA-West2 dataset for djura. Consumed by djura.data_loader.load_data()." \
+            NGA_W2_v2.pickle.gz
