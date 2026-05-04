@@ -127,8 +127,8 @@ class GmpeIndirectAvgSA(GMPE):
             except IndexError:
                 mean_i = params[0]
                 sigma_i = params[1]
-            mean_sa[imt_i] = mean_i
-            sigma_sa[imt_i] = sigma_i
+            mean_sa[imt_i] = np.asarray(mean_i).flat[0]
+            sigma_sa[imt_i] = np.asarray(sigma_i).flat[0]
 
         if apply_interpolation:
             from scipy.interpolate import interp1d

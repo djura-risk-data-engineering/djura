@@ -891,13 +891,7 @@ class _GCIM:
             range between 0 and 1.
             For phi_b close to .5 returns a step function 1 1 1 1 .5 0 0 0 0 0.
         """
-        if isinstance(epsilon, float) or len(epsilon) > 1:
-            from scipy.special import ndtr
-        else:
-            from math import erf
-
-            def ndtr(z):
-                return 0.5 * (1.0 + erf(z * (0.5**0.5)))
+        from scipy.special import ndtr
 
         # notation from
         # http://en.wikipedia.org/wiki/Truncated_normal_distribution.
