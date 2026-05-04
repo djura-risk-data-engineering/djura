@@ -9,8 +9,7 @@ from ._gcim_unconditional import _GCIMUnconditional
 from .utilities import get_list_id, get_periods_ims, get_period_im
 from .constants import DB_CAUSAL_PARS, SUPPORTED_IM_DESCRIPTORS, \
     CORRELATION_MODELS, SUPPORTED_IM_COMPONENTS
-from .data_reader import read_metadata
-from ..data_loader import load_data
+from ..data_loader import get_nga_west2
 
 
 class GCIM:
@@ -73,7 +72,6 @@ class GCIM:
 
     def __init__(
         self,
-        metadata: Union[Path, dict] = None,
         data: Union[Path, str, dict] = None,
         conditional: bool = None,
         records: dict = None,
@@ -86,8 +84,6 @@ class GCIM:
 
         Parameters
         ----------
-        metadata : Union[Path, dict]
-            Database containing ground motion metadata
         data : Union[Path, str, dict], optional
             File containing information on input arguments,
             Can concern both create() and select() methods,
@@ -130,10 +126,7 @@ class GCIM:
         self._parent: Union[_GCIMConditional, _GCIMUnconditional] = \
             _GCIMUnconditional(None)
 
-        if metadata is None:
-            self.metadata = load_data()
-        else:
-            self.metadata = read_metadata(metadata)
+        self.metadata = get_nga_west2()
 
         if records is not None:
             self.records = records

@@ -6,6 +6,7 @@ first use into a per-user cache directory.
 """
 
 import gzip
+import os
 import pickle
 import shutil
 import urllib.error
@@ -77,5 +78,27 @@ def clear_cache() -> None:
     """
     Remove the cached dataset so it is re-downloaded on next ``load_data()``.
     """
+    global _nga_west2
+    _nga_west2 = None
     cache = _cache_path()
     cache.unlink(missing_ok=True)
+
+
+_nga_west2: Any = None
+
+
+def get_nga_west2() -> Any:
+    """Return the NGA-West2 metadata, loading it at most once per process.
+
+    Override the source by setting the ``DJURA_METADATA_PATH`` environment
+    variable to the path of a custom pickle file.
+    """
+    global _nga_west2
+    if _nga_west2 is None:
+        custom = os.environ.get("DJURA_METADATA_PATH")
+        if custom:
+            with open(custom, "rb") as f:
+                _nga_west2 = pickle.load(f)
+        else:
+            _nga_west2 = load_data()
+    return _nga_west2
