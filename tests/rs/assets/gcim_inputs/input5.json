@@ -1,0 +1,77 @@
+{
+    "gmms": [
+      {
+        "Ds575": {
+          "names": [
+            "VanHoutteEtAl2018RSD"
+          ],
+          "weights": [
+            1
+          ]
+        }
+      },
+      {
+        "SA": {
+          "names": [
+            "AristeidouEtAl2024"
+          ],
+          "weights": [
+            1
+          ]
+        }
+      }
+    ],
+    "site-parameters": {
+      "vs30": 500,
+      "z2pt5": 2,
+      "soil": 0,
+      "mechanism": "normal fault"
+    },
+    "ruptures": [
+      {
+        "mag": 6.3,
+        "rjb": 10,
+        "weight": 0.6,
+        "rrup": 12,
+        "d_hyp": 10,
+        "rx": 120,
+        "ztor": 0
+      }
+    ],
+    "imi": [
+      "SA(0.05s)",
+      "SA(0.075s)",
+      "SA(0.1s)",
+      "SA(0.15s)",
+      "SA(0.2s)",
+      "SA(0.25s)",
+      "SA(0.3s)",
+      "SA(0.4s)",
+      "SA(0.5s)",
+      "SA(0.75s)",
+      "SA(1.0s)",
+      "SA(1.3s)",
+      "SA(1.5s)",
+      "SA(2.0s)",
+      "Ds575"
+    ],
+    "im-star": {
+      "type": "SA(1.)",
+      "value": 0.7,
+      "gmms": {
+        "names": [
+          "AristeidouEtAl2024"
+        ],
+        "weights": [
+          1
+        ]
+      }
+    },
+    "nreplicate": 1,
+    "num_records": 40,
+    "context_limits": {},
+    "seed": 0,
+    "ks_alpha": 0.05,
+    "im_weights": [],
+    "max_scaling_factor": 3
+  }

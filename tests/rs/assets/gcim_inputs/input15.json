@@ -1,0 +1,49 @@
+{
+    "gmms": [
+      {
+        "FIV3": {
+          "names": [
+            "DavalosEtAl2020"
+          ],
+          "weights": [
+            1.0
+          ]
+        }
+      }
+    ],
+    "site-parameters": {
+    },
+    "ruptures": [
+      {
+        "mag": 6.3,
+        "rjb": 10,
+        "weight": 1.0
+      }
+    ],
+    "imi": [
+      "FIV3(0.15s)",
+      "FIV3(0.2s)",
+      "FIV3(0.25s)",
+      "FIV3(0.3s)",
+      "FIV3(0.4s)",
+      "FIV3(0.5s)",
+      "FIV3(0.75s)",
+      "FIV3(1.0s)",
+      "FIV3(1.3s)",
+      "FIV3(1.5s)",
+      "FIV3(2.0s)"
+    ],
+    "im-star": {
+      "type": "FIV3(0.75)",
+      "value": 45
+    },
+    "num-components": 2,
+    "component-definition": "RotD50",
+    "nreplicate": 1,
+    "num_records": 40,
+    "context_limits": {},
+    "seed": 0,
+    "ks_alpha": 0.05,
+    "im_weights": [],
+    "max_scaling_factor": 3
+  }
