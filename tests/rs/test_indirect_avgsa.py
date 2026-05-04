@@ -1,13 +1,38 @@
+"""
+DEV:
+To run the test locally
+
+```sh
+export DJURA_METADATA_PATH=src/djura/record_selection/assets/NGA_W2_v2.pickle
+pytest -m slow
+```
+
+PowerShell (Windows):
+
+```powershell
+$env:DJURA_METADATA_PATH = `
+    "src/djura/record_selection/assets/NGA_W2_v2.pickle"
+pytest -m slow
+```
+
+CMD (Windows):
+
+```cmd
+set DJURA_METADATA_PATH=src/djura/record_selection/assets/NGA_W2_v2.pickle
+pytest -m slow
+```
+"""
+
 import pytest
 from pathlib import Path
 
-from src.gcim import GCIM
+from djura.record_selection.gcim import GCIM
 
 path = Path(__file__).resolve().parent
 
 
+@pytest.mark.slow
 class TestIndirectAvgSa:
-    metadata = path.parents[0] / "src/assets/NGA_W2_v2.pickle"
 
     @pytest.mark.parametrize(
         "filename", [
@@ -17,7 +42,7 @@ class TestIndirectAvgSa:
     def test_gsim(self, filename):
         input_file = path / f"assets/gcim_inputs/{filename}.json"
 
-        gcim = GCIM(self.metadata, input_file, conditional=True)
+        gcim = GCIM(input_file, conditional=True)
 
         gcim.create()
         import numpy as np
