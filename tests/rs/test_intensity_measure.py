@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 import numpy as np
 
-from src.intensity_measure import IntensityMeasure
+from djura.record_selection.intensity_measure import IntensityMeasure
 
 path = Path(__file__).resolve().parent
 
