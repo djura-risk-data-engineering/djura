@@ -1,0 +1,52 @@
+name: Publish to PyPI
+
+# Uncomment the trigger below when ready to publish.
+# on:
+#   push:
+#     tags:
+#       - "v*.*.*"
+
+# Placeholder trigger — remove once the real trigger above is enabled.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run only (no upload)"
+        required: false
+        default: "true"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Poetry
+        run: pipx install poetry
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Build
+        run: poetry build
+
+      - name: Publish
+        # Remove the condition below (and the dry_run input above) when
+        # switching to the tag-based trigger.
+        if: ${{ github.event.inputs.dry_run == 'false' }}
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+        run: poetry publish
