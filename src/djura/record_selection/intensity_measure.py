@@ -6,6 +6,10 @@ from scipy.signal import butter, lfilter, find_peaks
 from scipy.integrate import cumulative_trapezoid, trapezoid
 
 
+_trapezoid = np.trapezoid if np.lib.NumpyVersion(np.__version__) >= "2.0.0" \
+    else np.trapz
+
+
 class IntensityMeasure:
     # Acceleration of gravity in [m/s2]
     g = 9.81
@@ -535,7 +539,7 @@ class IntensityMeasure:
         abs_acc = np.abs(acc) * self.g
         time = dt * np.arange(0, len(acc), 1)
 
-        return np.trapz(abs_acc, time)
+        return _trapezoid(abs_acc, time)
 
     def sa_to_sd(self, sa: float, period: float) -> float:
         """Convert to spectral displacement (Sd) from pseudo spectral
