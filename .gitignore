@@ -168,7 +168,6 @@ src/assets/flatfile*
 temp.py
 .archive/
 _plotters
-NGA_W2.pickle
 /tests/code_outputs
 /tests/gcim_outputs
 /tests/applications*
@@ -179,7 +178,7 @@ poetry.lock
 /.claude
 
 # Large data assets (distributed via GitHub Releases, see src/djura/data_loader.py)
-*.pickle
-*.pkl
-*.pickle.gz
-*.pkl.gz
+src/**/*.pickle
+src/**/*.pkl
+src/**/*.pickle.gz
+src/**/*.pkl.gz

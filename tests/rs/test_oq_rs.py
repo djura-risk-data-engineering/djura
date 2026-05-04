@@ -1,22 +1,45 @@
-# flake8: noqa
-import pytest
-from pathlib import Path
+"""
+DEV:
+To run the test locally
+
+```sh
+export DJURA_METADATA_PATH=src/djura/record_selection/assets/NGA_W2_v2.pickle
+pytest -m slow
+```
+
+PowerShell (Windows):
+
+```powershell
+$env:DJURA_METADATA_PATH = `
+    "src/djura/record_selection/assets/NGA_W2_v2.pickle"
+pytest -m slow
+```
+
+CMD (Windows):
+
+```cmd
+set DJURA_METADATA_PATH=src/djura/record_selection/assets/NGA_W2_v2.pickle
+pytest -m slow
+```
+"""
+
 import json
 import pickle
+from pathlib import Path
+
+import pytest
 from numpy import exp
 
-from src.utilities import export_results
-from src.gcim import GCIM
+from djura.record_selection.gcim import GCIM
 
 path = Path(__file__).resolve().parent
 
 
+@pytest.mark.slow
 class TestOQRS:
-    metadata = path.parents[0] / "src/assets/NGA_W2_v2.pickle"
-
     """
-    Reads preprocessed OQ disaggregation data and performs record selection 
-    using the generated context information. 
+    Reads preprocessed OQ disaggregation data and performs record selection
+    using the generated context information.
 
     If input data is provided for Djura record selection,
     it will be overridden by the OQ disaggregation data.
@@ -28,12 +51,13 @@ class TestOQRS:
         ]
     )
     def test_oq_dis_select(self, filename, imt, n_rups, n_leafs, im_star):
-        og_input = json.load(open(path / "assets/oq_dis/input.json"))
+        with open(path / "assets/oq_dis/input.json", encoding="utf-8") as f:
+            og_input = json.load(f)
 
-        with open(path / f"assets/oq_dis/{filename}.pickle", 'rb') as f:
+        with open(path / f"assets/oq_dis/{filename}.pickle", "rb") as f:
             oq_data = pickle.load(f)
 
-        gcim = GCIM(self.metadata, og_input, conditional=True,
+        gcim = GCIM(og_input, conditional=True,
                     dis_oq=oq_data, poe_for_selection=0.1)
 
         # Number of logic tree leafs for each IM (SA for example)
@@ -70,13 +94,14 @@ class TestOQRS:
         assert pytest.approx(im_star, abs=0.1) == im_star_value
 
     def test_ctx(self):
-        og_input = json.load(open(path / "assets/oq_dis/input.json"))
+        with open(path / "assets/oq_dis/input.json", encoding="utf-8") as f:
+            og_input = json.load(f)
 
-        with open(path / "assets/oq_dis/ctx.pickle", 'rb') as f:
+        with open(path / "assets/oq_dis/ctx.pickle", "rb") as f:
             oq_data = pickle.load(f)
 
         oq_data['im_ref'] = "SA(0.5)"
 
-        gcim = GCIM(self.metadata, og_input, conditional=True,
+        gcim = GCIM(og_input, conditional=True,
                     dis_oq=oq_data, poe_for_selection=0.0025)
         gcim.create()
