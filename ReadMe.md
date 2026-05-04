@@ -31,13 +31,25 @@ copyleft scientific tools (e.g. `openquake.engine`).
 pip install djura
 ```
 
-Optional extras:
+**Optional runtime extras:**
 
 ```bash
 pip install "djura[plot]"   # adds matplotlib
 pip install "djura[hdf5]"   # adds h5py
 pip install "djura[all]"    # all of the above
 ```
+
+**For contributors** — install development and/or documentation dependencies
+using Poetry dependency groups:
+
+```bash
+poetry install --with dev        # testing and linting (pytest, flake8)
+poetry install --with docs       # Sphinx + furo for building the docs
+poetry install --with dev,docs   # everything
+```
+
+> `sphinx-autodoc-typehints` in the `docs` group requires Python ≥ 3.12
+> and is skipped automatically on earlier versions.
 
 ## Quickstart
 

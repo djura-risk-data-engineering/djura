@@ -74,6 +74,11 @@ dev = [
     "flake8 (>=7.3.0,<8.0.0)",
     "schema (>=0.7.8,<0.8.0)",
 ]
+docs = [
+    "sphinx (>=7.0)",
+    "furo (>=2024.0)",
+    "sphinx-autodoc-typehints>=3.10; python_version >= '3.12'",
+]
 
 [tool.coverage.run]
 branch = true
