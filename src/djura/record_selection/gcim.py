@@ -10,6 +10,7 @@ from .utilities import get_list_id, get_periods_ims, get_period_im
 from .constants import DB_CAUSAL_PARS, SUPPORTED_IM_DESCRIPTORS, \
     CORRELATION_MODELS, SUPPORTED_IM_COMPONENTS
 from .data_reader import read_metadata
+from ..data_loader import load_data
 
 
 class GCIM:
@@ -129,7 +130,9 @@ class GCIM:
         self._parent: Union[_GCIMConditional, _GCIMUnconditional] = \
             _GCIMUnconditional(None)
 
-        if metadata is not None:
+        if metadata is None:
+            self.metadata = load_data()
+        else:
             self.metadata = read_metadata(metadata)
 
         if records is not None:
