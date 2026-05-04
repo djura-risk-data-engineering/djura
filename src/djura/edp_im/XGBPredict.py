@@ -212,11 +212,10 @@ class XGBPredict:
         Returns
         ----------
         PredictionSchema
-            Predictions in dict type
-            {
-                median (R, ro_2 or ro_3, or ductility),
-                dispersion
-            }
+            Predictions in dict type::
+
+                {"median": float,  # R, ro_2, ro_3, or ductility
+                 "dispersion": float}
         """
         self._verify_input(period, damping, hardening_ratio, ductility)
 

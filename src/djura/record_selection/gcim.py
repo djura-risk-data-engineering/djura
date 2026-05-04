@@ -397,44 +397,43 @@ class GCIM:
             Required, if 'data' was not provided for GCIM object
             Overrides global 'self.data', by default None
 
-        Required parameters of 'data'
-        ----------
+        **Required parameters of** ``data``
+
         ruptures : List[dict]
             Rupture scenarios with hazard context parameters and
-            GMM associations
-            For example,
+            GMM associations. Example::
+
                 [
-                    {"mag": float, "weight": Optional[float]},
-                    "gmms": Optional[ID]
-                    {"mag": 5, "weight": Optional[float]},
-                    "gmms": Optional[ID]
+                    {"mag": float, "weight": Optional[float],
+                                   "gmms": Optional[ID]},
+                    {"mag": 5,     "weight": Optional[float],
+                                   "gmms": Optional[ID]},
                 ]
-            "mag" is just one example of context parameter;
-            "weight" refers to rupture weight;
-            If "weight" is not provided, one must provide the
-            "total-weights" of GMMs under "gmms" key;
-            The sum of all "weights" must be 1.0;
+
+            ``mag`` is one example context parameter; ``weight`` is the rupture
+            weight (sum must be 1.0). If omitted, provide ``total-weights``
+            under the ``gmms`` key instead.
         gmms : List[dict]
-            Ground motion models associated with each IM type
-            of interest.
-            The weights are optional, if left empty, one must provide
-            total weights under subkey "weights" under "ruptures" key
-            Example,
+            Ground motion models associated with each IM type.
+            The weights are optional; if omitted, provide total weights under
+            the ``weights`` sub-key of each ``ruptures`` entry. Example::
+
                 [
                     {"ID": Optional[int],
-                    im1: {"names": List[str],
-                          "weights": Optional[List],
-                          "total-weights": Optional[List]},
-                    im2: {...}},
+                     im1: {"names": List[str],
+                           "weights": Optional[List],
+                           "total-weights": Optional[List]},
+                     im2: {...}},
                     {"ID": Optional[int], ...}
                 ]
-            If ID not provided, it will be inferred based on list index
-            The sum of all "weights" must be 1.0 for each IM type
-            The sum of all "total-weights" must be 1.0 for each IM type
-            "total-weights" = "gmms":"weights" x "ruptures":"weights"
 
-        Required context parameters
-        ----------
+            If ``ID`` is not provided it is inferred from the list index.
+            The sum of ``weights`` (and of ``total-weights``) must be 1.0
+            per IM type.
+            ``total-weights`` = ``gmms.weights`` × ``ruptures.weights``
+
+        **Required context parameters**
+
         vs30: float
             Average shear-wave velocity of the site, [m/s]
         mag : float
@@ -442,8 +441,8 @@ class GCIM:
         rjb : float
             Closest distance to surface projection of coseismic rupture [km]
 
-        Optional context parameters
-        ----------
+        **Optional context parameters**
+
         vs30measured : bool
             vs30 type, True (measured) or False (inferred)
         z1pt0 : float
@@ -485,8 +484,8 @@ class GCIM:
         z_tor : float
             Depth to the top of the rupture plane, by default 1
 
-        Optional parameters of 'data'
-        ---------
+        **Optional parameters of** ``data``
+
         num-components : int, optional
             1 for single-component selection and arbitrary component sigma.
             2 for two-component selection and average component sigma,
@@ -495,28 +494,24 @@ class GCIM:
             The spectra definition, 'GeoMean', 'RotD50', 'RotD100'. Necessary
             if num-components = 2, by default 'RotD50'
         imi : List[str], optional
-            IMis to be used for GCIM distribution creation,
-            by default
-                [SA(0.05s)', 'SA(0.075s)', 'SA(0.1s)', 'SA(0.15s)',
-                'SA(0.2s)', 'SA(0.25s)', 'SA(0.3s)', 'SA(0.4s)',
-                'SA(0.5s)', 'SA(0.75s)', 'SA(1.0s)', 'SA(1.3s)',
-                'SA(1.5s)', 'SA(2.0s)']
+            IMis to be used for GCIM distribution creation. Default::
 
-        Required parameters of 'data' associated with conditional-based GCIM
-        ----------
+                ['SA(0.05s)', 'SA(0.075s)', 'SA(0.1s)', 'SA(0.15s)',
+                 'SA(0.2s)', 'SA(0.25s)', 'SA(0.3s)', 'SA(0.4s)',
+                 'SA(0.5s)', 'SA(0.75s)', 'SA(1.0s)', 'SA(1.3s)',
+                 'SA(1.5s)', 'SA(2.0s)']
+
+        **Required parameters of** ``data`` **(conditional GCIM only)**
+
         im-star : dict
-            keys include:
-            "type" : IM type, e.g., 'SA' or 'FIV3'
-            "value" : Value of conditioning intensity measure level
-            "period" : Conditioning period [sec]
-                Not required for period-independent IMs
-            Example,
-            {
-                "type": str,
-                "value": float,
-                "period": Optional(float),
-            }
-            if None, target is unconditional spectrum;
+            Conditioning IM descriptor. Keys: ``type`` (IM type, e.g.
+            ``'SA'``), ``value`` (conditioning level), ``period``
+            (conditioning period in seconds; not required for
+            period-independent IMs). Example::
+
+                {"type": str, "value": float, "period": Optional[float]}
+
+            If ``None``, the target is an unconditional spectrum;
             If not None, target is conditional spectrum unless overriden by
             **self.conditional** parameter;
 
@@ -529,13 +524,14 @@ class GCIM:
         'im-star' : dict
             Conditional IM descriptors, same as input "im-star"
         'target' : dict
-            Target multivariate GCIM distribution,
-            Keys:
-            - 'mu_lnIMi': mean for all rupture scenarios and GMMs
-            - 'sigma_lnIMi': stdv for all rupture scenarios and GMMs
-            - 'cov_lnIMi': covariance matrix for all rupture scenarios and GMMs
-            - 'IMi': ground motion intensity measures (IMs)
-            - 'correlations': correlation matrices between all IMi types
+            Target multivariate GCIM distribution. Keys:
+
+            - ``mu_lnIMi``: mean for all rupture scenarios and GMMs
+            - ``sigma_lnIMi``: stdv for all rupture scenarios and GMMs
+            - ``cov_lnIMi``: covariance matrix for all rupture scenarios and
+            GMMs
+            - ``IMi``: ground motion intensity measures (IMs)
+            - ``correlations``: correlation matrices between all IMi types
         'data' : dict
             Extra information during intermediate calculations
             mu_lnIMi_rup, sigma_lnIMi_rup, cov_lnIMi_rup, mu_lnIMj_rup,
@@ -577,8 +573,8 @@ class GCIM:
             Required if run with no previous run of 'create'
             by default None
 
-        Parameters of data
-        ----------
+        **Parameters of** ``data``
+
         nrun : int, optional
             Number of separate runs, by default 1
         nreplicate : int, optional
@@ -599,14 +595,10 @@ class GCIM:
             Weights of IMs, must match the number of items under self.data.imi
             by default 1.0 for each IM type
         context_limits : dict, optional
-            The limiting values on different context parameters,
-            by default None
-            The keys must be present in metadata file
-            Example, {
-                "magnitude": [6, 7]
-                _Will consider ground motions associated with events of
-                magnitude 6 to 7 only_
-            }
+            Limiting values on context parameters; keys must be present
+            in the metadata. By default ``None``. Example::
+
+                {"magnitude": [6, 7]}  # events of magnitude 6–7 only
         max_scaling_factor : float, optional
             Maximum scaling factor allowed, by default 1,
             i.e. no scaling allowed
