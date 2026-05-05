@@ -52,10 +52,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/davitshahnazaryan3/djura"
-Repository = "https://github.com/davitshahnazaryan3/djura"
-Issues = "https://github.com/davitshahnazaryan3/djura/issues"
-Changelog = "https://github.com/davitshahnazaryan3/djura/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/djura-risk-data-engineering/djura"
+Repository = "https://github.com/djura-risk-data-engineering/djura"
+Issues = "https://github.com/djura-risk-data-engineering/djura/issues"
+Changelog = "https://github.com/djura-risk-data-engineering/djura/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 plot = ["matplotlib (>=3.9)"]
