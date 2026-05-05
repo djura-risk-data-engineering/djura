@@ -62,6 +62,22 @@ all = ["matplotlib (>=3.9)", "h5py (>=3.12)"]
 
 [tool.poetry]
 packages = [{ include = "djura", from = "src" }]
+exclude = [
+    "dump",
+    "htmlcov",
+    "venv",
+    ".venv",
+    "tests",
+    "docs",
+    "**/__pycache__",
+    "**/*.pyc",
+    "**/*.pickle",
+    "**/*.pkl",
+    "**/*.pickle.gz",
+    "**/*.pkl.gz",
+    "**/.env",
+    "**/.env.*",
+]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
