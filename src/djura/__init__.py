@@ -1,7 +1,11 @@
 """djura - scientific toolkit for earthquake engineering."""
 from importlib import import_module
+from importlib.metadata import PackageNotFoundError, version as _pkg_version
 
-__version__ = "0.1.0"
+try:
+    __version__ = _pkg_version("djura")
+except PackageNotFoundError:
+    __version__ = "0.0.0+unknown"
 
 __citation__ = """\
 @software{djura,

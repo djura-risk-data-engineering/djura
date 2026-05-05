@@ -24,6 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Full history + tags are required for poetry-dynamic-versioning
+          # to derive the version from the git tag.
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
@@ -33,11 +37,29 @@ jobs:
       - name: Install Poetry
         run: pipx install poetry
 
+      - name: Install poetry-dynamic-versioning plugin
+        run: pipx inject poetry "poetry-dynamic-versioning[plugin]"
+
       - name: Configure Poetry
         run: poetry config virtualenvs.in-project true
 
       - name: Build sdist and wheel
         run: poetry build
+
+      - name: Assert built version matches git tag
+        # Only enforced when triggered by a tag push; manual dispatch builds
+        # produce dev versions and skip the check.
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          set -euo pipefail
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          BUILT_VERSION=$(ls dist/*.tar.gz | sed -E 's@.*/djura-(.+)\.tar\.gz@\1@')
+          echo "Tag:   $TAG_VERSION"
+          echo "Built: $BUILT_VERSION"
+          if [ "$TAG_VERSION" != "$BUILT_VERSION" ]; then
+            echo "::error::git tag ($TAG_VERSION) does not match built version ($BUILT_VERSION)"
+            exit 1
+          fi
 
       - name: Inspect sdist contents (fail on suspicious paths)
         run: |

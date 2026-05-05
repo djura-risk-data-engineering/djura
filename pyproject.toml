@@ -1,6 +1,8 @@
 [project]
 name = "djura"
-version = "0.1.0"
+# Version is set dynamically from git tags by poetry-dynamic-versioning.
+# The placeholder below is overwritten at build time; do not bump it by hand.
+dynamic = ["version"]
 description = "Scientific Python toolkit for earthquake engineering: GCIM-based ground motion record selection, hazard consistency, vulnerability modelling, and storey loss functions."
 authors = [
     { name = "Djura | Risk - Data - Engineering S.r.l.", email = "info@djura.it" },
@@ -80,8 +82,24 @@ exclude = [
 ]
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=2.0.0,<3.0.0", "poetry-dynamic-versioning>=1.4.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
+# Match tags like v1.2.3 or v1.2.3rc1; the leading "v" is stripped.
+pattern = "default-unprefixed"
+# When building from a non-tagged commit, append a dev/local segment so
+# wheels uploaded by accident never collide with a real release.
+format-jinja = """
+    {%- if distance == 0 -%}
+        {{ base }}
+    {%- else -%}
+        {{ base }}.dev{{ distance }}+g{{ commit }}
+    {%- endif -%}
+"""
 
 [dependency-groups]
 dev = [
