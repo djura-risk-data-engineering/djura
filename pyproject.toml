@@ -61,6 +61,7 @@ xgboost = ["xgboost (>=1.7)"]
 all = ["matplotlib (>=3.9)", "h5py (>=3.16,<4)", "xgboost (>=1.7)"]
 
 [tool.poetry]
+version = "0.0.0"
 packages = [{ include = "djura", from = "src" }]
 include = [{ path = "src/djura/py.typed" }]
 exclude = [
