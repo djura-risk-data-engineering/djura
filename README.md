@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/djura-risk-data-engineering/djura/actions/workflows/ci.yml/badge.svg)](https://github.com/djura-risk-data-engineering/djura/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/djura)](https://pypi.org/p/djura)
+[![Docs](https://readthedocs.org/projects/djura/badge/?version=latest)](https://djura.readthedocs.io)
 [![Python](https://img.shields.io/badge/python-3.10%E2%80%933.13-blue.svg)](https://www.python.org/)
 [![License: AGPL v3+](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
