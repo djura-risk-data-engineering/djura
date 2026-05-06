@@ -35,10 +35,10 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
-    "numpy (>=1.26)",
-    "scipy (>=1.14)",
-    "pandas (>=2.2)",
-    "numba (>=0.59)",
+    "numpy (>=2.2.6)",
+    "scipy (>=1.15.3)",
+    "pandas (>=2.3.3)",
+    "numba (>=0.65.1)",
     "statsmodels (>=0.14.6,<0.15.0)",
     "pyyaml (>=6.0.3,<7.0.0)",
     "pydantic (>=2.13.3,<3.0.0)",
@@ -57,8 +57,8 @@ Changelog = "https://github.com/djura-risk-data-engineering/djura/blob/main/CHAN
 [project.optional-dependencies]
 plot = ["matplotlib (>=3.9)"]
 hdf5 = ["h5py (>=3.16,<4)"]
-xgboost = ["xgboost (>=1.7)"]
-all = ["matplotlib (>=3.9)", "h5py (>=3.16,<4)", "xgboost (>=1.7)"]
+xgboost = ["xgboost (>=3.2.0)"]
+all = ["matplotlib (>=3.9)", "h5py (>=3.16,<4)", "xgboost (>=3.2.0)"]
 
 [tool.poetry]
 packages = [{ include = "djura", from = "src" }]
