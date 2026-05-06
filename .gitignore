@@ -182,3 +182,5 @@ src/**/*.pickle
 src/**/*.pkl
 src/**/*.pickle.gz
 src/**/*.pkl.gz
+
+add_license_headers.py

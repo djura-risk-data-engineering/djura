@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 """djura - scientific toolkit for earthquake engineering."""
 from importlib import import_module
 from importlib.metadata import PackageNotFoundError, version as _pkg_version

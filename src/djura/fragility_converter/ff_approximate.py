@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 from pathlib import Path
 from typing import List, Union
 from scipy.integrate import simpson

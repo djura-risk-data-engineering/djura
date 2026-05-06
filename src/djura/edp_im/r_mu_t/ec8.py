@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 def make_prediction(
         dynamic_ductility: float, period: float, period_c: float) -> float:
     """This implements the R-mu-T relationship provided in Annex B of

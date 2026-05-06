@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 SUPPORTED_IM_DESCRIPTORS = {
     "SA": "Spectral acceleration [g]",
     "Sa_avg2": "Average spectral acceleration, n=10, bounds=[0.2T, 2.0T] [g]",

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 def make_prediction(dynamic_ductility: float, period: float, ah: float):
     """This implements the R-mu-T relationship proposed by
     Krawinkler and Nassar (1992)

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 """Download, cache, and load the bundled NGA-West2 pickle dataset.
 
 The dataset is too large (>100 MB) to ship inside the wheel, so it is

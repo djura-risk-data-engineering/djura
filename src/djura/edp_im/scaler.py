@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 class MinMaxScaler:
     def __init__(self, lower_bound, upper_bound) -> None:
         self.lower_bound = lower_bound
