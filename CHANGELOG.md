@@ -91,10 +91,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Added `h5py`, `shapely`, `pyyaml`, `pydantic`, `requests`, `joblib`,
-  and `pwlf` as core runtime dependencies (required by vendored GMMs,
-  record-selection I/O, hazard web-service queries, and backbone
-  curve fitting).
+- Added `shapely`, `pyyaml`, `pydantic`, `joblib`, and `pwlf` as core
+  runtime dependencies (required by vendored GMMs, record-selection I/O,
+  and backbone curve fitting). `h5py` and `xgboost` are optional extras
+  (`djura[hdf5]` and `djura[xgboost]` respectively).
 - Enforced 79-character line limit across all non-vendored Python
   files; long import lines in `gsim/models/__init__.py` wrapped with
   parenthesised multi-line form; invalid escape sequence in
