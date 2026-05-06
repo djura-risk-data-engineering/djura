@@ -20,20 +20,23 @@ DATA_FILENAME = "NGA_W2_v2.pickle"
 
 # Update both constants (and re-run the release-data workflow) when the
 # dataset changes. Compute the new hash with:
-#   python -c "import hashlib,sys; print(hashlib.file_digest(open(sys.argv[1],'rb'),'sha256').hexdigest())" NGA_W2_v2.pickle.gz
+#   python -c "import hashlib,sys; \
+#     print(hashlib.file_digest(open(sys.argv[1],'rb'),'sha256').hexdigest())" \
+#     NGA_W2_v2.pickle.gz
 GITHUB_RELEASE_URL = (
-    "https://github.com/djura-risk-data-engineering/djura/releases/download/"
-    "data-v1/NGA_W2_v2.pickle.gz"
+    "https://github.com/djura-risk-data-engineering/djura"
+    "/releases/download/data-v1/NGA_W2_v2.pickle.gz"
 )
 EXPECTED_SHA256 = (
     # SHA-256 of the compressed .gz asset at the URL above.
-    # Fill this in by running the command in the comment above against the
-    # actual release asset, then commit the result.
+    # Fill this in by running the command above against the actual release
+    # asset, then commit the result.
     ""
 )
 
 # Refuse downloads larger than 500 MB (uncompressed pickle is ~107 MB).
 _MAX_DOWNLOAD_BYTES = 500 * 1024 * 1024
+_MB = 1024 ** 2
 
 
 def _cache_dir() -> Path:
@@ -65,21 +68,22 @@ def _download_and_extract(dest: Path) -> None:
                 if downloaded > _MAX_DOWNLOAD_BYTES:
                     raise RuntimeError(
                         f"Download from {url} exceeded "
-                        f"{_MAX_DOWNLOAD_BYTES // (1024**2)} MB limit — "
+                        f"{_MAX_DOWNLOAD_BYTES // _MB} MB limit — "
                         "aborting."
                     )
                 out.write(chunk)
     except urllib.error.HTTPError as e:
         tmp_gz.unlink(missing_ok=True)
         raise RuntimeError(
-            f"Failed to download dataset from {url} (HTTP {e.code}). "
-            "Make sure the GitHub Release exists and the asset is public."
+            f"Failed to download dataset from {url} "
+            f"(HTTP {e.code}). Make sure the GitHub Release "
+            "exists and the asset is public."
         ) from e
     except urllib.error.URLError as e:
         tmp_gz.unlink(missing_ok=True)
         raise RuntimeError(
-            f"Failed to download dataset from {url}: {e.reason}. "
-            "Check your network connection."
+            f"Failed to download dataset from {url}: "
+            f"{e.reason}. Check your network connection."
         ) from e
 
     if EXPECTED_SHA256:
@@ -87,17 +91,19 @@ def _download_and_extract(dest: Path) -> None:
         if actual != EXPECTED_SHA256:
             tmp_gz.unlink(missing_ok=True)
             raise RuntimeError(
-                f"SHA-256 mismatch for downloaded asset.\n"
+                "SHA-256 mismatch for downloaded asset.\n"
                 f"  expected: {EXPECTED_SHA256}\n"
                 f"  actual:   {actual}\n"
                 "The file may be corrupted or tampered with. "
-                "Delete the partial download and try again, or report the "
-                "issue at https://github.com/djura-risk-data-engineering/djura/issues"
+                "Delete the partial download and try again, or "
+                "report the issue at https://github.com/"
+                "djura-risk-data-engineering/djura/issues"
             )
 
     tmp_pkl = dest.with_suffix(dest.suffix + ".part")
     try:
-        with gzip.open(tmp_gz, "rb") as gz_in, open(tmp_pkl, "wb") as pkl_out:
+        with gzip.open(tmp_gz, "rb") as gz_in, \
+                open(tmp_pkl, "wb") as pkl_out:
             shutil.copyfileobj(gz_in, pkl_out)
         tmp_pkl.replace(dest)
     finally:
@@ -106,7 +112,8 @@ def _download_and_extract(dest: Path) -> None:
 
 
 def load_data() -> Any:
-    """Return the deserialized dataset, downloading and caching it if needed."""
+    """Return the deserialized dataset, downloading and caching it if needed.
+    """
     cache = _cache_path()
     if not cache.exists():
         _download_and_extract(cache)
@@ -115,8 +122,7 @@ def load_data() -> Any:
 
 
 def clear_cache() -> None:
-    """
-    Remove the cached dataset so it is re-downloaded on next ``load_data()``.
+    """Remove the cached dataset so it is re-downloaded on next load_data().
     """
     global _nga_west2
     _nga_west2 = None
