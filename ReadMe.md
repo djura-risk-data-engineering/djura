@@ -11,8 +11,14 @@ measure analysis, structural vulnerability modelling, and storey loss function
 generation — with no web-server, database, or cloud-storage dependencies.
 
 The package is intended for **research and educational use**, and is released
-under the **GNU AGPL-3.0** license so that it composes cleanly with other
-copyleft scientific tools (e.g. `openquake.engine`).
+under the **GNU AGPL-3.0-or-later** license so that it composes cleanly with
+other copyleft scientific tools (e.g. `openquake.engine`).
+
+> **AGPL-3.0 notice** - If you use `djura` as part of a network-accessible
+> service (API, web application, SaaS backend), the AGPL requires that you
+> make the complete corresponding source code available to your users. Running
+> `djura` in a private research environment or on your own workstation is not
+> affected. See the [LICENSE](LICENSE) file for the full terms.
 
 ## Submodules
 
