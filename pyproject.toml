@@ -62,6 +62,7 @@ all = ["matplotlib (>=3.9)", "h5py (>=3.16,<4)"]
 
 [tool.poetry]
 packages = [{ include = "djura", from = "src" }]
+include = [{ path = "src/djura/py.typed" }]
 exclude = [
     "dump",
     "htmlcov",
