@@ -55,10 +55,10 @@ Issues = "https://github.com/djura-risk-data-engineering/djura/issues"
 Changelog = "https://github.com/djura-risk-data-engineering/djura/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
-plot = ["matplotlib (>=3.9)"]
+plot = ["matplotlib (>=3.10.9)"]
 hdf5 = ["h5py (>=3.16,<4)"]
 xgboost = ["xgboost (>=1.7)"]
-all = ["matplotlib (>=3.9)", "h5py (>=3.16,<4)", "xgboost (>=1.7)"]
+all = ["matplotlib (>=3.10.9)", "h5py (>=3.16,<4)", "xgboost (>=1.7)"]
 
 [tool.poetry]
 packages = [{ include = "djura", from = "src" }]
