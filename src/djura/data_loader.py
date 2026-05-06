@@ -21,8 +21,8 @@ DATA_FILENAME = "NGA_W2_v2.pickle"
 # Update both constants (and re-run the release-data workflow) when the
 # dataset changes. Compute the new hash with:
 #   python -c "import hashlib,sys; \
-#     print(hashlib.file_digest(open(sys.argv[1],'rb'),'sha256').hexdigest())" \
-#     NGA_W2_v2.pickle.gz
+#   print(hashlib.file_digest(open(sys.argv[1],'rb'),'sha256').hexdigest())" \
+#   NGA_W2_v2.pickle.gz
 GITHUB_RELEASE_URL = (
     "https://github.com/djura-risk-data-engineering/djura"
     "/releases/download/data-v1/NGA_W2_v2.pickle.gz"
