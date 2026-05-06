@@ -105,19 +105,15 @@ class HazardFit:
 
         Returns
         -------
-        dict:
-            s : List
-                Original IM range
-            mafe : List
-                Original MAFE
-            s_fit : List
-                Fitted IM range
-            mafe_fit : List
-                Fitted MAFE
-            coef : List[float]
-                SAC/FEMA-compatible coefficients, [k0, k1, k2]
-            return_periods : List[float]
+        dict
+            Dictionary with keys:
 
+            - ``s``: Original IM range
+            - ``mafe``: Original MAFE
+            - ``s_fit``: Fitted IM range
+            - ``mafe_fit``: Fitted MAFE
+            - ``coef``: SAC/FEMA-compatible coefficients ``[k0, k1, k2]``
+            - ``return_periods``: Return periods used for fitting
         """
         if return_periods is None:
             # Assign default values

@@ -530,8 +530,8 @@ class GCIM:
 
             - ``mu_lnIMi``: mean for all rupture scenarios and GMMs
             - ``sigma_lnIMi``: stdv for all rupture scenarios and GMMs
-            - ``cov_lnIMi``: covariance matrix for all rupture scenarios and
-            GMMs
+            - ``cov_lnIMi``: covariance matrix for all rupture scenarios
+              and GMMs
             - ``IMi``: ground motion intensity measures (IMs)
             - ``correlations``: correlation matrices between all IMi types
 
