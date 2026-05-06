@@ -2,10 +2,21 @@ import json
 from pathlib import Path
 
 import numpy as np
-import xgboost as xgb
 from pydantic import BaseModel
 from scipy.interpolate import interp1d
 from .scaler import MinMaxScaler
+
+
+def _require_xgboost():
+    try:
+        import xgboost as xgb
+    except ImportError as exc:
+        raise ImportError(
+            "XGBPredict requires xgboost. "
+            "Install it with: pip install 'djura[xgboost]'"
+        ) from exc
+    xgb.set_config(verbosity=0)
+    return xgb
 
 
 path = Path(__file__).parent.resolve()
@@ -98,6 +109,7 @@ class XGBPredict:
         # feature order
         # period, damping, hardening_ratio, ductility, actual_ductility_end
         # feature_names = scaler.get_feature_names_out()
+        xgb = _require_xgboost()
         if not self.collapse:
             # Add dynamic ductility for non-collapse predictions
             xgb_input = np.array([[period, damping, hardening_ratio,
@@ -169,6 +181,7 @@ class XGBPredict:
             )
 
         # Read the XGB model
+        xgb = _require_xgboost()
         model = xgb.Booster()
         model.load_model(
             str(path / f"models/{self.parameter}_xgb{method}.ubj"))
@@ -243,6 +256,7 @@ class XGBPredict:
             raise ValueError(
                 "Dynamic ductility not provided for non-collapse predictions")
 
+        xgb = _require_xgboost()
         x = scaler.transform(xgb_input)
         matrix = xgb.DMatrix(x)
         median = np.expm1(model.predict(matrix))

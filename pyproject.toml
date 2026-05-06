@@ -7,7 +7,7 @@ description = "Scientific Python toolkit for earthquake engineering: GCIM-based 
 authors = [
     { name = "Djura | Risk - Data - Engineering S.r.l.", email = "info@djura.it" },
 ]
-readme = "ReadMe.md"
+readme = "README.md"
 license = "AGPL-3.0-later"
 license-files = ["LICENSE"]
 requires-python = ">=3.10,<3.14"
@@ -39,7 +39,6 @@ dependencies = [
     "scipy (>=1.14)",
     "pandas (>=2.2)",
     "numba (>=0.59)",
-    "xgboost (>=1.7)",
     "statsmodels (>=0.14.6,<0.15.0)",
     "pyyaml (>=6.0.3,<7.0.0)",
     "pydantic (>=2.13.3,<3.0.0)",
@@ -58,7 +57,8 @@ Changelog = "https://github.com/djura-risk-data-engineering/djura/blob/main/CHAN
 [project.optional-dependencies]
 plot = ["matplotlib (>=3.9)"]
 hdf5 = ["h5py (>=3.16,<4)"]
-all = ["matplotlib (>=3.9)", "h5py (>=3.16,<4)"]
+xgboost = ["xgboost (>=1.7)"]
+all = ["matplotlib (>=3.9)", "h5py (>=3.16,<4)", "xgboost (>=1.7)"]
 
 [tool.poetry]
 packages = [{ include = "djura", from = "src" }]

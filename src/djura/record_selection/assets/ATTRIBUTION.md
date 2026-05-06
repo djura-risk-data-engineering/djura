@@ -53,4 +53,4 @@ downloading and redistributing waveform data.
 
 If you use this metadata in academic or engineering work, please cite
 the NGA-West2 project alongside any `djura` references; see the project
-[README](../../../../ReadMe.md) and `CITATION.cff` for details.
+[README](../../../../README.md) and `CITATION.cff` for details.
