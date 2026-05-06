@@ -45,7 +45,6 @@ dependencies = [
     "pyyaml (>=6.0.3,<7.0.0)",
     "pydantic (>=2.13.3,<3.0.0)",
     "shapely (>=2.1.2,<3.0.0)",
-    "h5py (>=3.16.0,<4.0.0)",
     "requests (>=2.32)",
     "joblib (>=1.5.3,<2.0.0)",
     "pwlf (>=2.5.2,<3.0.0)",
@@ -59,8 +58,8 @@ Changelog = "https://github.com/djura-risk-data-engineering/djura/blob/main/CHAN
 
 [project.optional-dependencies]
 plot = ["matplotlib (>=3.9)"]
-hdf5 = ["h5py (>=3.12)"]
-all = ["matplotlib (>=3.9)", "h5py (>=3.12)"]
+hdf5 = ["h5py (>=3.16,<4)"]
+all = ["matplotlib (>=3.9)", "h5py (>=3.16,<4)"]
 
 [tool.poetry]
 packages = [{ include = "djura", from = "src" }]

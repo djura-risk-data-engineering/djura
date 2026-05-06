@@ -5,8 +5,10 @@
 If you believe you have found a security vulnerability in `djura`, please
 report it privately. **Do not open a public GitHub issue.**
 
-- **Email:** info@djura.it (or info@djura.it if the former is unavailable)
-- **GitHub Security Advisories:** https://github.com/djura-risk-data-engineering/djura/security/advisories/new
+- **Email:** info@djura.it
+
+Encrypted reports are welcome; contact us at the address above to exchange a
+PGP key if needed.
 
 Please include:
 

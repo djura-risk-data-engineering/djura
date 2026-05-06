@@ -8,7 +8,17 @@ import numpy as np
 from ..base import GMPE
 from ..const import TRT, StdDev
 from .. import imt as imt_module
-import h5py
+
+
+def _require_h5py():
+    try:
+        import h5py
+    except ImportError as exc:
+        raise ImportError(
+            "Reading GMPE tables requires h5py. "
+            "Install it with: pip install 'djura[hdf5]'"
+        ) from exc
+    return h5py
 
 
 _get_mean = CallableDict()
@@ -182,6 +192,7 @@ class GMPETable(GMPE):
         the tables from hdf5 and hold them in memory.
         """
         self.gmpe_table = self.filename = gmpe_table
+        h5py = _require_h5py()
         # populated by the ContextManager once imts and magnitudes are known
         with h5py.File(self.filename, "r") as fle:
             self.distance_type = decode(fle["Distances"].attrs["metric"])
