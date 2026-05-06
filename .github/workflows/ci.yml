@@ -57,7 +57,7 @@ jobs:
           key: nga-west2-data-v1
 
       - name: Install dependencies
-        run: poetry install --with dev --no-interaction
+        run: poetry install --with dev --without docs --no-interaction
 
       - name: Lint (flake8)
         run: poetry run flake8 src tests
