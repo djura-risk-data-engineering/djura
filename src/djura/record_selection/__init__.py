@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 """djura.record_selection - GCIM-based ground motion record selection."""
+from .gcim import GCIM
+
+__all__ = ["GCIM", "cite"]
 
 __citation__ = (
     "@inproceedings{shahnazaryan2025djuraRS,\n"

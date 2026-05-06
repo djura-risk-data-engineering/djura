@@ -3,6 +3,16 @@
 """
 djura.edp_im - EDP-IM relationship prediction using machine learning models.
 """
+from .predict import EDPIMModel, EDPIMInfillModel, EDPIMIsolModel
+from .predict import edp_im, edp_im_infill, edp_im_isol
+from .predict import BackboneModel
+
+__all__ = [
+    "EDPIMModel", "EDPIMInfillModel", "EDPIMIsolModel",
+    "BackboneModel",
+    "edp_im", "edp_im_infill", "edp_im_isol",
+    "cite",
+]
 
 __citation__ = (
     "@article{shahnazaryan2024nextgen,\n"
