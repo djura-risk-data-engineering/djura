@@ -89,6 +89,7 @@ build-backend = "poetry_dynamic_versioning.backend"
 enable = true
 vcs = "git"
 style = "pep440"
+fallback-version = "0.0.0"
 # Match tags like v1.2.3 or v1.2.3rc1; the leading "v" is stripped.
 pattern = "default-unprefixed"
 # When building from a non-tagged commit, append a dev/local segment so
