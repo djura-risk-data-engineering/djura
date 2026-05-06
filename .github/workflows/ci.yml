@@ -64,3 +64,29 @@ jobs:
       - name: Run tests
         run: |
           poetry run pytest --cov=djura --cov-report=term-missing -m "not slow"
+
+  build-check:
+    name: Build & metadata check
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry + dynamic versioning plugin
+        run: pipx install poetry && pipx inject poetry "poetry-dynamic-versioning[plugin]"
+
+      - name: Build sdist and wheel
+        run: poetry build
+
+      - name: Check metadata and README rendering
+        run: |
+          pipx install twine
+          twine check --strict dist/*
