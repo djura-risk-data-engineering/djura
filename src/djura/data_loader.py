@@ -31,7 +31,7 @@ EXPECTED_SHA256 = (
     # SHA-256 of the compressed .gz asset at the URL above.
     # Fill this in by running the command above against the actual release
     # asset, then commit the result.
-    ""
+    "21cdc4519483e5f1187ebf69d04c9643fa771507f30026f39886c6e29af3aa4e"
 )
 
 # Refuse downloads larger than 500 MB (uncompressed pickle is ~107 MB).
