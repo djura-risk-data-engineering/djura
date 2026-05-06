@@ -59,7 +59,8 @@ def slf_aggregator(*args) -> list:
     module and creates interpolation functions for the EDP vs Loss
     relationships
 
-    Each argument must have a specific structure
+    Each argument must have a specific structure::
+
         {
             'group name': {
                 'Directionality': null,

@@ -1,7 +1,15 @@
 import os
 import sys
+import warnings
 
 sys.path.insert(0, os.path.abspath("../../src"))
+
+# np.bool FutureWarning originates inside sphinx_autodoc_typehints internals.
+warnings.filterwarnings(
+    "ignore",
+    message=".*np\\.bool.*",
+    category=FutureWarning,
+)
 
 project = "djura"
 copyright = "2025–2026, Djura | Risk - Data - Engineering S.r.l."
@@ -52,3 +60,11 @@ intersphinx_mapping = {
 html_theme = "furo"
 html_static_path = ["_static"]
 html_title = "djura"
+
+# Suppress warnings from third-party library internals that we cannot fix.
+suppress_warnings = [
+    # pydantic v2 forward references (JsonValue) inspected by autodoc
+    "sphinx_autodoc_typehints.forward_reference",
+    # pydantic classmethod subscript issue on Python 3.12
+    "sphinx_autodoc_typehints.guarded_import",
+]

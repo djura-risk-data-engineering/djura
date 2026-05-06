@@ -117,6 +117,7 @@ class HazardFit:
             coef : List[float]
                 SAC/FEMA-compatible coefficients, [k0, k1, k2]
             return_periods : List[float]
+
         """
         if return_periods is None:
             # Assign default values

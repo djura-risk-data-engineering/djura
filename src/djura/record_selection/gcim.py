@@ -534,6 +534,7 @@ class GCIM:
             GMMs
             - ``IMi``: ground motion intensity measures (IMs)
             - ``correlations``: correlation matrices between all IMi types
+
         'data' : dict
             Extra information during intermediate calculations
             mu_lnIMi_rup, sigma_lnIMi_rup, cov_lnIMi_rup, mu_lnIMj_rup,
