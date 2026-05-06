@@ -31,7 +31,6 @@ try:
 except ImportError:
     pass
 
-templates_path = ["_templates"]
 exclude_patterns = []
 
 # Napoleon — NumPy-style docstrings
@@ -58,7 +57,6 @@ intersphinx_mapping = {
 }
 
 html_theme = "furo"
-html_static_path = ["_static"]
 html_title = "djura"
 
 # Suppress warnings from third-party library internals that we cannot fix.
