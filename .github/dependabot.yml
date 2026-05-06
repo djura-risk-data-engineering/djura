@@ -1,20 +1,3 @@
 version: 2
-updates:
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
-    groups:
-      scientific:
-        patterns: ["numpy", "scipy", "pandas", "numba", "statsmodels", "xgboost"]
-      dev-tools:
-        patterns: ["pytest*", "flake8*", "sphinx*", "furo*"]
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
+# Uncomment when ready to enable automated dependency updates.
+updates: []
