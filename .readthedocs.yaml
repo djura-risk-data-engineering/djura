@@ -4,11 +4,15 @@ build:
   os: ubuntu-24.04
   tools:
     python: "3.12"
-  commands:
-    - pip install poetry
-    - poetry install --with docs --without dev --no-interaction
-    - python -m sphinx docs/source $READTHEDOCS_OUTPUT/html
 
 sphinx:
   configuration: docs/source/conf.py
   fail_on_warning: true
+
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - plot
+    - requirements: docs/requirements.txt
