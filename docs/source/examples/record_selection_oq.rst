@@ -22,7 +22,9 @@ You need two files produced by an OQ PSHA run:
   Download: `input.json <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/rs/assets/oq_dis/input.json>`_
 * **Context pickle**: the preprocessed OQ disaggregation context
   (``ctx_<poe>_<imt>.pickle``), produced by djura's OQ post-processing
-  utilities.
+  utilities. Downloads:
+  `ctx_80_AvgSA(0.5).pickle <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/rs/assets/oq_dis/ctx_80_AvgSA(0.5).pickle>`_,
+  `ctx.pickle <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/rs/assets/oq_dis/ctx.pickle>`_
 
 Base input file
 ---------------
