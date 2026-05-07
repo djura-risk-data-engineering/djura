@@ -9,3 +9,4 @@ self-contained and can be run locally after ``pip install djura``.
 
    record_selection
    record_selection_oq
+   hazard_consistency
