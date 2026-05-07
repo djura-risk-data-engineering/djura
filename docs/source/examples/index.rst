@@ -12,3 +12,4 @@ self-contained and can be run locally after ``pip install djura``.
    hazard_consistency
    fragility_converter
    slf
+   vulnerability_modeller
