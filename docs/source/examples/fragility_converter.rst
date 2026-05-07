@@ -110,6 +110,50 @@ file that already encodes the IM correlation structure for the site.
     ff = FFApproximate(im1, im2, data=approx_input)
     im2_probs, im2_range = ff.create()
 
+Accuracy metrics
+----------------
+
+After conversion, the output ``im2_probs`` and ``im2_range`` can be
+compared against a reference fragility curve by fitting a lognormal CDF
+to the converted probabilities and computing the Hellinger distance
+between the fitted and reference parameters.
+
+.. code-block:: python
+
+    import numpy as np
+    from djura.record_selection.utilities import fit_cdf_to_data
+    from djura.record_selection.metrics import hellinger_distance
+
+    # Fit a lognormal CDF to the converted fragility curve.
+    # method can be "least_squares" or "mle"
+    fit = fit_cdf_to_data(
+        im2_range, im2_probs,
+        distribution="lognormal",
+        method="least_squares",
+    )
+
+    mu_fit = fit["mu"]      # log-space mean (ln median)
+    s_fit  = fit["sigma"]   # log-space standard deviation (dispersion)
+
+    # Reference fragility parameters in IM2 (if known)
+    ref_median     = 0.194   # median in IM2 units
+    ref_dispersion = 0.295
+
+    h = hellinger_distance(ref_median, ref_dispersion,
+                           np.exp(mu_fit), s_fit)
+
+    print(f"Fitted median     : {np.exp(mu_fit):.3f}")
+    print(f"Fitted dispersion : {s_fit:.3f}")
+    print(f"Hellinger distance: {np.round(h[0], 3)}")
+
+The Hellinger distance ranges from 0 (identical distributions) to 1
+(completely disjoint). Values below 0.05 indicate a very close match
+between the converted and reference fragility curves.
+
+You can also use ``"mle"`` instead of ``"least_squares"`` as the
+fitting method and compare which produces a lower Hellinger distance
+for your specific case.
+
 When to use each approach
 --------------------------
 
