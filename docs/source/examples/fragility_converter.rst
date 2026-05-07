@@ -16,6 +16,13 @@ OQ PSHA disaggregation context. The fragility parameters (median and
 dispersion) are read from a JSON file and the conversion is run for a
 discrete grid of IM2 values.
 
+Input files:
+
+* `input.json <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/ff/assets/oq_dis/input.json>`_
+  — GMM ensemble, site and rupture parameters.
+* `ctx.pickle <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/ff/assets/oq_dis/ctx.pickle>`_
+  — OQ disaggregation context pickle.
+
 **Case 1: SA(1.0) to SA(0.5)**
 
 .. code-block:: python
@@ -81,6 +88,13 @@ Approximate conversion with ``FFApproximate``
 ``FFApproximate`` uses a closed-form approximation that does not require
 a full disaggregation context. Instead it takes a pre-computed input
 file that already encodes the IM correlation structure for the site.
+
+Input files:
+
+* `approx_SA(0.5).json <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/ff/assets/ff-approximate/approx_SA(0.5).json>`_
+  — pre-computed approximation input for the site.
+* `ff.json <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/ff/assets/ff-approximate/ff.json>`_
+  — reference fragility functions in multiple IMs.
 
 .. code-block:: python
 

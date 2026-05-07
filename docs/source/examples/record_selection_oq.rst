@@ -19,6 +19,7 @@ You need two files produced by an OQ PSHA run:
 
 * **Base input JSON**: defines the GMM ensemble, site parameters, IM
   list, and selection settings (same format as the standalone example).
+  Download: `input.json <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/rs/assets/oq_dis/input.json>`_
 * **Context pickle**: the preprocessed OQ disaggregation context
   (``ctx_<poe>_<imt>.pickle``), produced by djura's OQ post-processing
   utilities.

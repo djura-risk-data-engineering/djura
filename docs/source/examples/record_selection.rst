@@ -7,6 +7,9 @@ using a logic-tree ground motion model (GMM) ensemble.
 Input file
 ----------
 
+Download:
+`input1.json <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/rs/assets/gcim_inputs/input1.json>`_
+
 The selection is driven by a JSON input file. The one used here
 specifies two GMMs for SA (weighted 40 %/60 %), one GMM for Ds595,
 two rupture scenarios, a conditioning IM of SA(1.0 s) = 0.7 g, and a
