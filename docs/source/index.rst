@@ -16,6 +16,12 @@ function generation into a single installable package.
 
 .. toctree::
    :maxdepth: 1
+   :caption: Examples
+
+   examples/index
+
+.. toctree::
+   :maxdepth: 1
    :caption: API reference
 
    api/index
