@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-05-07
+
+### Added
+
+- Documentation examples section on Read the Docs covering all six
+  submodules:
+  - **Record selection**: standalone GCIM workflow (`input1`, conditional)
+    and OQ PSHA disaggregation-driven workflow with downloadable input files.
+  - **Hazard consistency**: full three-step workflow (parse OQ hazard curves,
+    load selected record IMs, run consistency check).
+  - **Fragility converter**: exact IM conversion with `FF` (OQ disaggregation
+    context) and closed-form approximation with `FFApproximate`, including
+    Hellinger-distance accuracy metrics.
+  - **EDP-IM**: four subpages covering bilinear analytical backbone,
+    file-based backbone (parametric / idealized / SPO), masonry infill
+    frame, and base-isolated structure.
+  - **SLF**: two subpages — PSD inventory with grouping and PFA inventory,
+    each with downloadable input files linked to the repository.
+  - **Vulnerability modeller**: full MDOF assessment workflow (backbone
+    fitting, EDP-IM prediction, demand estimation, SLF assembly, VMMDOF).
+- Downloadable file links on all example pages pointing to the
+  corresponding test assets in the repository.
+
+### Fixed
+
+- Removed empty `html_static_path` and `templates_path` entries from
+  `docs/source/conf.py` that caused Sphinx warnings treated as errors on
+  Read the Docs (both `latest` and `stable` versions).
+
 ## [0.1.0] - 2026-05-04
 
 ### Added
