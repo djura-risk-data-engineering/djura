@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- File-reading APIs in `GCIM`, `FF`, `_VulnerabilityModeller`, and
+  `HazardModel` now accept plain `str` paths in addition to `Path`
+  objects — the argument is converted to `Path` internally, so callers
+  no longer need to wrap strings explicitly.
 - Documentation examples section on Read the Docs covering all six
   submodules:
   - **Record selection**: standalone GCIM workflow (`input1`, conditional)
@@ -26,6 +30,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     fitting, EDP-IM prediction, demand estimation, SLF assembly, VMMDOF).
 - Downloadable file links on all example pages pointing to the
   corresponding test assets in the repository.
+
+### Changed
+
+- `pydantic` minimum version bumped to `>=2.13.4` (was `>=2.13.3`).
+- GitHub Actions: `pypa/gh-action-pypi-publish` 1.12.4 → 1.14.0,
+  `actions/attest-build-provenance` 1.4.4 → 4.1.0,
+  `actions/cache` 4.2.0 → 5.0.5,
+  `github/codeql-action` 3.28.18 → 4.35.4.
+- Dev dependencies: `pytest` and `pytest-cov` bumped to latest patch
+  releases via Dependabot.
 
 ### Fixed
 
