@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2026-05-14
+
+### Changed
+
+- Clarify in the README that djura is **dual-licensed**: AGPL-3.0-or-later
+  for academic, research, and other open-source use, with a separate
+  commercial license available from Risk - Data - Engineering S.r.l.
+  (Italy) for closed-source products, proprietary SaaS, and internal
+  commercial deployments incompatible with the AGPL.
+- Add a dedicated **Commercial licensing** section to the README with
+  contact details (`info@djura.it`) and enumeration of use cases that
+  require a commercial license.
+- Note explicitly that OpenQuake-derived portions of the package remain
+  under AGPL-3.0-or-later in all distributions.
+
 ## [0.1.4] - 2026-05-07
 
 ### Added

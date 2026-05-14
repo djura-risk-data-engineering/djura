@@ -16,6 +16,14 @@ The package is intended for **research and educational use**, and is released
 under the **GNU AGPL-3.0-or-later** license so that it composes cleanly with
 other copyleft scientific tools (e.g. `openquake.engine`).
 
+> **Commercial use?** djura is **dual-licensed**. The AGPL-3.0-or-later terms
+> below apply to academic, research, and other open-source use. If you want to
+> use djura in a closed-source product, an internal commercial workflow, or a
+> network-accessible service without releasing your own source code under the
+> AGPL, you need a **separate commercial license**. Contact
+> [info@djura.it](mailto:info@djura.it) to arrange one. See
+> [Commercial licensing](#commercial-licensing) below.
+
 > **AGPL-3.0 notice** - If you use `djura` as part of a network-accessible
 > service (API, web application, SaaS backend), the AGPL requires that you
 > make the complete corresponding source code available to your users. Running
@@ -150,13 +158,56 @@ offer a separate commercial license alongside AGPL-3.0.
 
 ## License
 
-Copyright © 2025–2026 Djura | Risk - Data - Engineering S.r.l.
+Copyright © 2025–2026 Risk - Data - Engineering S.r.l. (Italy). All rights reserved.
 
-Licensed under the GNU Affero General Public License v3.0 or later
-(SPDX: `AGPL-3.0-or-later`). See [LICENSE](LICENSE) for the full text.
+djura is **dual-licensed**:
+
+- **Open-source license** — GNU Affero General Public License v3.0 or later
+  (SPDX: `AGPL-3.0-or-later`). See [LICENSE](LICENSE) for the full text. This
+  is the license that applies by default and covers academic, research, and
+  other AGPL-compatible open-source use.
+- **Commercial license** — available from Risk - Data - Engineering S.r.l. for
+  users who cannot or do not wish to comply with the AGPL (e.g. closed-source
+  products, proprietary SaaS, internal commercial deployments without source
+  disclosure). See [Commercial licensing](#commercial-licensing) below.
 
 This package vendors a subset of code adapted from the
 [OpenQuake Engine](https://github.com/gem/oq-engine) (© GEM Foundation,
 AGPL-3.0-or-later); see
 [`src/djura/record_selection/gsim/NOTICE.md`](src/djura/record_selection/gsim/NOTICE.md)
-for attribution details.
+for attribution details. The OpenQuake-derived portions remain under
+AGPL-3.0-or-later in all distributions.
+
+## Commercial licensing
+
+The AGPL-3.0-or-later imposes a strong copyleft obligation: if you distribute
+djura, or expose its functionality over a network (API, web app, SaaS
+backend, hosted analysis service, etc.), you must make the **complete
+corresponding source code** of your application available to its users under
+the AGPL.
+
+If that is not compatible with your business — for example because you want
+to:
+
+- embed djura in a **closed-source commercial product**;
+- offer a **proprietary SaaS** or hosted service powered by djura without
+  releasing your own source under the AGPL;
+- use djura in **internal commercial workflows** at a for-profit organisation
+  under terms incompatible with the AGPL;
+- receive **warranties, indemnification, or commercial support** that the
+  AGPL explicitly disclaims;
+
+then you need a **commercial license** from
+**Risk - Data - Engineering S.r.l.** (Italy), the copyright holder.
+
+To request a commercial license, please contact:
+
+📧 **[info@djura.it](mailto:info@djura.it)**
+
+Please include a short description of the intended use case (organisation,
+product, deployment model, expected user base). We will reply with licensing
+terms.
+
+> Academic researchers, students, and other AGPL-compatible users do **not**
+> need to contact us — the AGPL grant in [LICENSE](LICENSE) already covers
+> you.
