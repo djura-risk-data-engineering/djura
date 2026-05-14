@@ -8,9 +8,9 @@
 
 **djura** is a scientific Python toolkit for earthquake engineering. It bundles
 into a single installable package the core algorithms used across the DJURA
-research stack — ground motion record selection, hazard-consistent intensity
+research stack: ground motion record selection, hazard-consistent intensity
 measure analysis, structural vulnerability modelling, and storey loss function
-generation — with no web-server, database, or cloud-storage dependencies.
+generation with no web-server, database, or cloud-storage dependencies.
 
 The package is intended for **research and educational use**, and is released
 under the **GNU AGPL-3.0-or-later** license so that it composes cleanly with
@@ -101,7 +101,7 @@ The cache lives at `~/.cache/djura/NGA_W2_v2.pickle`.
 
 The dataset is derived from the
 [NGA-West2 Ground Motion Database](https://ngawest2.berkeley.edu)
-(PEER, UC Berkeley). It contains metadata only — no waveform records —
+(PEER, UC Berkeley). It contains metadata only, no waveform records,
 and has been extended with fields computed by this project. See
 [`src/djura/record_selection/assets/ATTRIBUTION.md`](src/djura/record_selection/assets/ATTRIBUTION.md)
 for full attribution and instructions on downloading the underlying
@@ -153,7 +153,7 @@ A `CITATION.cff` file is provided so that GitHub renders a "Cite this repository
 
 Contributions are welcome. By submitting a Contribution, you agree to the
 terms of the [Contributor License Agreement](CLA.md), which (among other
-things) allows the maintainer to relicense the project — for example, to
+things) allows the maintainer to relicense the project. For example, to
 offer a separate commercial license alongside AGPL-3.0.
 
 ## License
