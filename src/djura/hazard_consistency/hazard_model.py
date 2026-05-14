@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
-from typing import List
+from typing import List, Union
 from pathlib import Path
 import json
 import numpy as np
@@ -48,12 +48,12 @@ class HazardModel:
         y = y[y > 1.00000000e-12]
         return x, y
 
-    def read_hazard(self, filename: Path):
+    def read_hazard(self, filename: Union[Path, str]):
         """Reads provided hazard data
 
         Parameters
         -------
-        filename : Path, "*.txt", "*.json"
+        filename : Path or str, "*.txt", "*.json"
 
         Returns
         -------
@@ -63,6 +63,7 @@ class HazardModel:
             poe: list
                 Probability of exceedance (PoE)
         """
+        filename = Path(filename)
         extension = filename.suffix
 
         if extension == ".txt":

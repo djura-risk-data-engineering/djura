@@ -284,19 +284,21 @@ class FF(_GCIM):
             "phi_b": dis_oq["phi_b"],
         }
 
-    def _read_input_file(self, filename: Union[Path, dict]):
+    def _read_input_file(self, filename: Union[Path, str, dict]):
         """Reads input data file and updates the default inputs
         accordingly
 
         Parameters
         ----------
-        filename : Union[Path, dict]
+        filename : Union[Path, str, dict]
             Path to datafile or datafile content as a dict
         """
         self.data = self.default_data.copy()
         if isinstance(filename, dict):
             self.data.update(filename)
             return
+
+        filename = Path(filename)
 
         if filename.suffix == ".json":
             with open(filename) as f:
