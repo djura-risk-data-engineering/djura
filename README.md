@@ -6,21 +6,21 @@
 [![Python](https://img.shields.io/badge/python-3.10%E2%80%933.13-blue.svg)](https://www.python.org/)
 [![License: AGPL v3+](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-**djura** is a scientific Python toolkit for earthquake engineering. It bundles
-into a single installable package the core algorithms used across the DJURA
+**djura** is a scientific Python toolkit developed and maintained by Djura | Risk - Data - Engineering S.r.l. for general engineering applications. It bundles
+into a single installable package the core algorithms used across the djura
 research stack: ground motion record selection, hazard-consistent intensity
 measure analysis, structural vulnerability modelling, and storey loss function
 generation with no web-server, database, or cloud-storage dependencies.
 
-The package is intended for **research and educational use**, and is released
+The package is intended for **research and educational use** only, and is released
 under the **GNU AGPL-3.0-or-later** license so that it composes cleanly with
 other copyleft scientific tools (e.g. `openquake.engine`).
 
 > **Commercial use?** djura is **dual-licensed**. The AGPL-3.0-or-later terms
-> below apply to academic, research, and other open-source use. If you want to
-> use djura in a closed-source product, an internal commercial workflow, or a
+> below apply to academic, research, and other open-source use only. If you want to
+> use djura for commercial or revenue-generating purposes - including as part of a closed-source product, as part of an internal commercial workflow, or a
 > network-accessible service without releasing your own source code under the
-> AGPL, you need a **separate commercial license**. Contact
+> AGPL - you need a **separate commercial license**. Contact
 > [info@djura.it](mailto:info@djura.it) to arrange one. See
 > [Commercial licensing](#commercial-licensing) below.
 
@@ -46,7 +46,6 @@ other copyleft scientific tools (e.g. `openquake.engine`).
 ```bash
 pip install djura
 ```
-
 **Optional runtime extras:**
 
 ```bash
@@ -66,6 +65,12 @@ poetry install --with dev,docs   # everything
 
 > `sphinx-autodoc-typehints` in the `docs` group requires Python ≥ 3.12
 > and is skipped automatically on earlier versions.
+
+## Documentation
+
+For documentation on how to use the various djura packages, as well as example applications and tutorials, please refer to the [readthedocs](https://djura.readthedocs.io/en/latest/index.html) resources.
+
+Additionally, several [blog posts](https://www.djura.it/blog) have been created with supplemental material on how to use these packages via the user interface available at our website [www.djura.it](https://apps.djura.it/login).
 
 ## Quickstart
 
@@ -158,7 +163,7 @@ offer a separate commercial license alongside AGPL-3.0.
 
 ## License
 
-Copyright © 2025–2026 Risk - Data - Engineering S.r.l. (Italy). All rights reserved.
+Copyright © 2025–2026 Djura | Risk - Data - Engineering S.r.l. (Italy). All rights reserved.
 
 djura is **dual-licensed**:
 
@@ -166,10 +171,7 @@ djura is **dual-licensed**:
   (SPDX: `AGPL-3.0-or-later`). See [LICENSE](LICENSE) for the full text. This
   is the license that applies by default and covers academic, research, and
   other AGPL-compatible open-source use.
-- **Commercial license** — available from Risk - Data - Engineering S.r.l. for
-  users who cannot or do not wish to comply with the AGPL (e.g. closed-source
-  products, proprietary SaaS, internal commercial deployments without source
-  disclosure). See [Commercial licensing](#commercial-licensing) below.
+- **Commercial license** — available from Djura | Risk - Data - Engineering S.r.l. See [Commercial licensing](#commercial-licensing) below.
 
 This package vendors a subset of code adapted from the
 [OpenQuake Engine](https://github.com/gem/oq-engine) (© GEM Foundation,
@@ -180,25 +182,16 @@ AGPL-3.0-or-later in all distributions.
 
 ## Commercial licensing
 
-The AGPL-3.0-or-later imposes a strong copyleft obligation: if you distribute
-djura, or expose its functionality over a network (API, web app, SaaS
-backend, hosted analysis service, etc.), you must make the **complete
-corresponding source code** of your application available to its users under
-the AGPL.
+The AGPL-3.0-or-later imposes a strong copyleft obligation: if you distribute djura, or expose its functionality over a network (API, web app, SaaS backend, hosted analysis service, etc.), you must make the **complete corresponding source code** of your application available to its users under the AGPL.
 
-If that is not compatible with your business — for example because you want
-to:
+If that is not compatible with your business — for example because you want to use djura for **commercial or revenue-generating purposes**, including:
 
-- embed djura in a **closed-source commercial product**;
-- offer a **proprietary SaaS** or hosted service powered by djura without
-  releasing your own source under the AGPL;
-- use djura in **internal commercial workflows** at a for-profit organisation
-  under terms incompatible with the AGPL;
-- receive **warranties, indemnification, or commercial support** that the
-  AGPL explicitly disclaims;
+- embedding djura in a **closed-source commercial product**;
+- offering a **proprietary SaaS** or hosted service powered by djura without releasing your own source under the AGPL;
+- using djura in **internal commercial workflows** without releasing your source code under the AGPL;
+- receiving **warranties, indemnification, or commercial support** that the AGPL explicitly disclaims;
 
-then you need a **commercial license** from
-**Risk - Data - Engineering S.r.l.** (Italy), the copyright holder.
+then you need a **commercial license** from **Djura | Risk - Data - Engineering S.r.l.** (Italy), the copyright holder.
 
 To request a commercial license, please contact:
 
