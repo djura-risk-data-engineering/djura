@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.6] - 2026-05-29
 
 ### Changed
-- Update copyright and add documentation section 
+- Update citations with conference details and DOIs
+
+## [0.1.6] - 2026-05-29
+
+### Changed
+- Update copyright and add documentation section
   
 ## [0.1.5] - 2026-05-14
 
