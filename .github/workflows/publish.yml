@@ -76,7 +76,7 @@ jobs:
           twine check dist/*
 
       - name: Attest build provenance (SLSA)
-        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2.2.3
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v2.2.3
         with:
           subject-path: dist/*
 
@@ -104,4 +104,4 @@ jobs:
           path: dist/
 
       - name: Publish to PyPI via Trusted Publishing
-        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0

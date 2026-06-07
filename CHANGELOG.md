@@ -4,6 +4,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2026-05-29
+
+### Changed
+- Update citations with conference details and DOIs
+
+## [0.1.6] - 2026-05-29
+
+### Changed
+- Update copyright and add documentation section
+  
+## [0.1.5] - 2026-05-14
+
+### Changed
+
+- Clarify in the README that djura is **dual-licensed**: AGPL-3.0-or-later
+  for academic, research, and other open-source use, with a separate
+  commercial license available from Risk - Data - Engineering S.r.l.
+  (Italy) for closed-source products, proprietary SaaS, and internal
+  commercial deployments incompatible with the AGPL.
+- Add a dedicated **Commercial licensing** section to the README with
+  contact details (`info@djura.it`) and enumeration of use cases that
+  require a commercial license.
+- Note explicitly that OpenQuake-derived portions of the package remain
+  under AGPL-3.0-or-later in all distributions.
+
+## [0.1.4] - 2026-05-07
+
+### Added
+
+- File-reading APIs in `GCIM`, `FF`, `_VulnerabilityModeller`, and
+  `HazardModel` now accept plain `str` paths in addition to `Path`
+  objects — the argument is converted to `Path` internally, so callers
+  no longer need to wrap strings explicitly.
+- Documentation examples section on Read the Docs covering all six
+  submodules:
+  - **Record selection**: standalone GCIM workflow (`input1`, conditional)
+    and OQ PSHA disaggregation-driven workflow with downloadable input files.
+  - **Hazard consistency**: full three-step workflow (parse OQ hazard curves,
+    load selected record IMs, run consistency check).
+  - **Fragility converter**: exact IM conversion with `FF` (OQ disaggregation
+    context) and closed-form approximation with `FFApproximate`, including
+    Hellinger-distance accuracy metrics.
+  - **EDP-IM**: four subpages covering bilinear analytical backbone,
+    file-based backbone (parametric / idealized / SPO), masonry infill
+    frame, and base-isolated structure.
+  - **SLF**: two subpages — PSD inventory with grouping and PFA inventory,
+    each with downloadable input files linked to the repository.
+  - **Vulnerability modeller**: full MDOF assessment workflow (backbone
+    fitting, EDP-IM prediction, demand estimation, SLF assembly, VMMDOF).
+- Downloadable file links on all example pages pointing to the
+  corresponding test assets in the repository.
+
+### Changed
+
+- `pydantic` minimum version bumped to `>=2.13.4` (was `>=2.13.3`).
+- GitHub Actions: `pypa/gh-action-pypi-publish` 1.12.4 → 1.14.0,
+  `actions/attest-build-provenance` 1.4.4 → 4.1.0,
+  `actions/cache` 4.2.0 → 5.0.5,
+  `github/codeql-action` 3.28.18 → 4.35.4.
+- Dev dependencies: `pytest` and `pytest-cov` bumped to latest patch
+  releases via Dependabot.
+
+### Fixed
+
+- Removed empty `html_static_path` and `templates_path` entries from
+  `docs/source/conf.py` that caused Sphinx warnings treated as errors on
+  Read the Docs (both `latest` and `stable` versions).
+
 ## [0.1.0] - 2026-05-04
 
 ### Added
