@@ -104,6 +104,12 @@ clear_cache()            # delete the cached file to force a re-download
 
 The cache lives at `~/.cache/djura/NGA_W2_v2.pickle`.
 
+You can also use your own metadata file in place of the bundled dataset:
+any database mapped to the same schema works with the selection routines
+unmodified. See the
+[custom metadata guide](https://djura.readthedocs.io/en/latest/custom_metadata.html)
+for the schema reference and a step-by-step example.
+
 The dataset is derived from the
 [NGA-West2 Ground Motion Database](https://ngawest2.berkeley.edu)
 (PEER, UC Berkeley). It contains metadata only, no waveform records,
