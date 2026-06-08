@@ -36,7 +36,8 @@ Custom dataset path
 
 Set the ``DJURA_METADATA_PATH`` environment variable to point to a local
 pickle file.  This bypasses the download entirely and is the recommended
-approach for offline use or custom metadata:
+approach for offline use or custom metadata. To build your own metadata file
+that conforms to the expected schema, see :doc:`custom_metadata`.
 
 .. code-block:: bash
 
