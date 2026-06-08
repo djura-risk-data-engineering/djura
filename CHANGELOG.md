@@ -4,11 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.9] - 2026-06-07
+## [0.2.0] - 2026-06-08
 
-### Changed
-- CI: automatically create a GitHub Release on each version tag so Zenodo
-  archives the release and mints a versioned DOI.
+### Removed
+- Drop Zenodo DOI integration (`.zenodo.json` and the GitHub Release
+  workflow job); the project DOI is now minted directly via DataCite.
 
 ## [0.1.6] - 2026-05-29
 
