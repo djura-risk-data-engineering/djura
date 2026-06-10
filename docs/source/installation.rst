@@ -18,7 +18,6 @@ Optional runtime extras
 
 .. code-block:: bash
 
-   pip install "djura[plot]"    # matplotlib
    pip install "djura[hdf5]"    # h5py
    pip install "djura[all]"     # all of the above
 
