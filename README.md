@@ -103,6 +103,12 @@ clear_cache()            # delete the cached file to force a re-download
 
 The cache lives at `~/.cache/djura/NGA_W2_v2.pickle`.
 
+You can also use your own metadata file in place of the bundled dataset:
+any database mapped to the same schema works with the selection routines
+unmodified. See the
+[custom metadata guide](https://djura.readthedocs.io/en/latest/custom_metadata.html)
+for the schema reference and a step-by-step example.
+
 The dataset is derived from the
 [NGA-West2 Ground Motion Database](https://ngawest2.berkeley.edu)
 (PEER, UC Berkeley). It contains metadata only, no waveform records,
@@ -144,8 +150,6 @@ print(djura.cite(all=True))
 
 | Submodule                       | Reference                                                                                                                                                                       |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `record_selection`              | Shahnazaryan, D., Ozsarac, V., & O'Reilly, G. J. (2025). *DJURA Ground Motion Record Selector: A Software Solution for Earthquake Engineering*. 10th International Conference on Computational Methods in Structural Dynamics and Earthquake Engineering (COMPDYN 2025), Rhodes, Greece, Jun. 2025, pp. 740–757. doi: [10.7712/120125.12444.25126](https://doi.org/10.7712/120125.12444.25126)                   |
-| `hazard_consistency`            | Shahnazaryan, D., Ozsarac, V., & O'Reilly, G. J. (2025). *DJURA Ground Motion Record Selector: A Software Solution for Earthquake Engineering*. 10th International Conference on Computational Methods in Structural Dynamics and Earthquake Engineering (COMPDYN 2025), Rhodes, Greece, Jun. 2025, pp. 740–757. doi: [10.7712/120125.12444.25126](https://doi.org/10.7712/120125.12444.25126)                  |
 | `edp_im`                        | Shahnazaryan, D., & O'Reilly, G. J. (2024). *Next-generation non-linear and collapse prediction models for short- to long-period systems via machine learning methods*. **Engineering Structures**, 306, 117801. doi:[10.1016/j.engstruct.2024.117801](https://doi.org/10.1016/j.engstruct.2024.117801) |
 | `vulnerability_modeller`        | O'Reilly, G. J., & Shahnazaryan, D. (2024). *On the utility of story loss functions for regional seismic vulnerability modeling and risk assessment*. **Earthquake Spectra**, 40(3), 1933–1955. doi:[10.1177/87552930241245940](https://doi.org/10.1177/87552930241245940) |
 | `fragility_converter`           | O'Reilly, G. J., Ozsarac, V., & Shahnazaryan, D. (2025). *Conversion of seismic fragility and vulnerability models to alternative intensity measures for regional risk analysis*. **Earthquake Spectra** (Under Review). |

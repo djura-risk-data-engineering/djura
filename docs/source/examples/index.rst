@@ -14,3 +14,4 @@ self-contained and can be run locally after ``pip install djura``.
    edp_im
    slf
    vulnerability_modeller
+   djura_tools

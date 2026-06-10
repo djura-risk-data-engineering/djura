@@ -51,6 +51,7 @@ class TestGCIM:
             ("input12", True, False),
             ("input14", True, False),
             ("input15", True, False),
+            ("input16", True, False),
         ]
     )
     def test_gcim(self, filename, conditional, data_create):
