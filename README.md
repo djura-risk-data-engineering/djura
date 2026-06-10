@@ -49,7 +49,6 @@ pip install djura
 **Optional runtime extras:**
 
 ```bash
-pip install "djura[plot]"   # adds matplotlib
 pip install "djura[hdf5]"   # adds h5py
 pip install "djura[all]"    # all of the above
 ```
