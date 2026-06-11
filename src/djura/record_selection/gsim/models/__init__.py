@@ -145,3 +145,5 @@ from .gmpe_avgsa import GmpeIndirectAvgSA
 from .gulerce_2017 import (
     GulerceEtAl2017, GulerceEtAl2017RegCHN, GulerceEtAl2017RegITA, GulerceEtAl2017RegJPN, GulerceEtAl2017RegMID, GulerceEtAl2017RegTWN
 )
+# V/H ratio: PGA, PGV, SA
+from .gulerce_abrahamson_2011 import GulerceAbrahamson2011

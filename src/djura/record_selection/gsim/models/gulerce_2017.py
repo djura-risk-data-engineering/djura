@@ -375,10 +375,6 @@ class GulerceEtAl2017(GMPE):
 
     def get_mean_and_stddevs(self, ctx: Context, imt: IMT):
         """
-        See :meth:`superclass method
-        for spec of input and result values.
-        <.base.GroundShakingIntensityModel.compute>`
-
         Parameters
         ----------
         ctx : Context
