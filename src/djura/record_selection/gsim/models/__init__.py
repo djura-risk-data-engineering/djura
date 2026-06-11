@@ -147,3 +147,7 @@ from .gulerce_2017 import (
 )
 # V/H ratio: PGA, PGV, SA
 from .gulerce_abrahamson_2011 import GulerceAbrahamson2011
+from .bozorgnia_campbell_2016_vh import (
+    BozorgniaCampbell2016VH, BozorgniaCampbell2016HighQVH, BozorgniaCampbell2016LowQVH,
+    BozorgniaCampbell2016AveQJapanSiteVH, BozorgniaCampbell2016HighQJapanSiteVH, BozorgniaCampbell2016LowQJapanSiteVH
+)
