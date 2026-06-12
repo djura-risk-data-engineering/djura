@@ -16,10 +16,10 @@ download:
 
    from djura.record_selection import GCIM
 
-   gcim = GCIM()   # downloads ~85 MB to ~/.cache/djura/ on first call
+   gcim = GCIM()   # downloads ~176 MB to ~/.cache/djura/ on first call
 
 Subsequent calls load directly from the local cache at
-``~/.cache/djura/NGA_W2_v2.pickle``.
+``~/.cache/djura/flatfile_shallow.pickle``.
 
 Manual control
 --------------

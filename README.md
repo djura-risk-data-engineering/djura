@@ -88,9 +88,9 @@ from djura import slf
 
 (Per-submodule quickstarts will be added as code is migrated in.)
 
-## Bundled dataset (NGA-West2)
+## Bundled dataset (NGA-West2 + ESM)
 
-The NGA-West2 metadata pickle (~107 MB uncompressed) is **not** shipped
+The bundled metadata pickle (~220 MB uncompressed) is **not** shipped
 inside the wheel. It is hosted as a gzip-compressed asset on a GitHub
 Release and downloaded automatically the first time it is needed:
 
@@ -101,7 +101,7 @@ data = load_data()       # downloads on first call, then loads from cache
 clear_cache()            # delete the cached file to force a re-download
 ```
 
-The cache lives at `~/.cache/djura/NGA_W2_v2.pickle`.
+The cache lives at `~/.cache/djura/flatfile_shallow.pickle`.
 
 You can also use your own metadata file in place of the bundled dataset:
 any database mapped to the same schema works with the selection routines
@@ -109,13 +109,17 @@ unmodified. See the
 [custom metadata guide](https://djura.readthedocs.io/en/latest/custom_metadata.html)
 for the schema reference and a step-by-step example.
 
-The dataset is derived from the
-[NGA-West2 Ground Motion Database](https://ngawest2.berkeley.edu)
-(PEER, UC Berkeley). It contains metadata only, no waveform records,
-and has been extended with fields computed by this project. See
+The default `flatfile_shallow` dataset combines records from two sources:
+
+- the [NGA-West2 Ground Motion Database](https://ngawest2.berkeley.edu)
+  (PEER, UC Berkeley), and
+- the [ESM (Engineering Strong-Motion) flatfile](https://esm-db.eu/#/products/flat_file).
+
+It contains metadata only, no waveform records, and has been extended
+with fields computed by this project. See
 [`src/djura/record_selection/assets/ATTRIBUTION.md`](src/djura/record_selection/assets/ATTRIBUTION.md)
 for full attribution and instructions on downloading the underlying
-waveforms from PEER.
+waveforms from PEER and ESM.
 
 ### Publishing a new data release (maintainers)
 
