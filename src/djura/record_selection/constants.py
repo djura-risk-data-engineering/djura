@@ -2,6 +2,7 @@
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 SUPPORTED_IM_DESCRIPTORS = {
     "SA": "Spectral acceleration [g]",
+    "SA_vert": "Vertical component spectral acceleration [g]",
     "Sa_avg2": "Average spectral acceleration, n=10, bounds=[0.2T, 2.0T] [g]",
     "Sa_avg3": "Average spectral acceleration, n=10, bounds=[0.2T, 3.0T] [g]",
     "Sa_avg": "Average spectral acceleration, Indirect",
@@ -63,6 +64,13 @@ CORRELATION_MODELS = {
     "IA-PGV": ["bradley2015_ia_pgv"],
     "IA-Ds575": ["bradley2015_ia_ds575"],
     "IA-Ds595": ["bradley2015_ia_ds595"],
+    "SA_vert-SA_vert": ["kohrangi2020_sav_sav", "gkas2017_v"],
+    "SA-SA_vert": ["kohrangi2020_sav_sah"],
+    "SA-PGV_vert": ["kohrangi2020_sah_pgvv"],
+    "SA_vert-Ds575": ["kohrangi2020_sav_ds575"],
+    "SA_vert-Ds595": ["kohrangi2020_sav_ds595"],
+    "SA_vert-PGA_vert": ["kohrangi2020_sav_pgav"],
+    "SA_vert-PGV_vert": ["kohrangi2020_sav_pgvv"]
 }
 
 
