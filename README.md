@@ -101,7 +101,7 @@ data = load_data()       # downloads on first call, then loads from cache
 clear_cache()            # delete the cached file to force a re-download
 ```
 
-The cache lives at `~/.cache/djura/NGA_W2_v2.pickle`.
+The cache lives at `~/.cache/djura/flatfile_shallow.pickle`.
 
 You can also use your own metadata file in place of the bundled dataset:
 any database mapped to the same schema works with the selection routines

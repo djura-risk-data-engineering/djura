@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
-"""Download, cache, and load the bundled NGA-West2 pickle dataset.
+"""Download, cache, and load the bundled record-selection pickle dataset.
 
 The dataset is too large (>100 MB) to ship inside the wheel, so it is
 hosted as a gzip-compressed asset on a GitHub Release and fetched on
 first use into a per-user cache directory.
+
+Override the source with the ``DJURA_METADATA_PATH`` environment variable
+to use a custom metadata file instead (see ``get_nga_west2``).
 """
 
 import gzip
@@ -18,25 +21,26 @@ from pathlib import Path
 from typing import Any
 
 PACKAGE_NAME = "djura"
-DATA_FILENAME = "NGA_W2_v2.pickle"
+DATA_FILENAME = "flatfile_shallow.pickle"
 
 # Update both constants (and re-run the release-data workflow) when the
-# dataset changes. Compute the new hash with:
+# dataset changes. The release workflow compresses with `gzip -9 -n`
+# (the -n strips the filename/timestamp header so the .gz is byte-for-byte
+# reproducible). Compute the matching hash locally with:
+#   gzip -9 -nc flatfile_shallow.pickle > flatfile_shallow.pickle.gz
 #   python -c "import hashlib,sys; \
 #   print(hashlib.file_digest(open(sys.argv[1],'rb'),'sha256').hexdigest())" \
-#   NGA_W2_v2.pickle.gz
+#   flatfile_shallow.pickle.gz
 GITHUB_RELEASE_URL = (
     "https://github.com/djura-risk-data-engineering/djura"
-    "/releases/download/data-v1/NGA_W2_v2.pickle.gz"
+    "/releases/download/data-v2/flatfile_shallow.pickle.gz"
 )
 EXPECTED_SHA256 = (
     # SHA-256 of the compressed .gz asset at the URL above.
-    # Fill this in by running the command above against the actual release
-    # asset, then commit the result.
-    "21cdc4519483e5f1187ebf69d04c9643fa771507f30026f39886c6e29af3aa4e"
+    "8fb58e424bce0f0c199e5b862c726dede5cf700f12b04574e6dcaf2b0b0e84ac"
 )
 
-# Refuse downloads larger than 500 MB (uncompressed pickle is ~107 MB).
+# Refuse downloads larger than 500 MB (uncompressed pickle is ~220 MB).
 _MAX_DOWNLOAD_BYTES = 500 * 1024 * 1024
 _MB = 1024 ** 2
 
