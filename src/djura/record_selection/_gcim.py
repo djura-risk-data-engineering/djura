@@ -419,7 +419,7 @@ class _GCIM:
             # modify spectral targets if RotD100 values were specified for
             # two-component selection
             if component_definition == 'RotD100' and not rotd100_exists \
-                    and num_components == 2:
+                    and (num_components == 2 or num_components == 3):
                 rotd100_mu_ratio, rotd100_sigma = \
                     self._gmpe_sb_2014_ratios(period_i)
 
