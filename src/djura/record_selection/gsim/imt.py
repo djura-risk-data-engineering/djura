@@ -150,6 +150,17 @@ def SA(period, damping=5.0):
     return IMT('SA(%s)' % period, period, damping)
 
 
+def SA_vert(period, damping=5.0):
+    """
+    Vertical component of Spectral acceleration,
+    defined as the maximum acceleration of a damped,
+    single-degree-of-freedom harmonic oscillator. Units are ``g``, times
+    of gravitational acceleration.
+    """
+    period = float(period)
+    return IMT('SA(%s)' % period, period, damping)
+
+
 def IA():
     """
     Arias intensity. Determines the intensity of shaking by measuring

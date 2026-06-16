@@ -20,7 +20,7 @@ from ..utils import CallableDict
 from .. import const
 from ..coeffs_table import CoeffsTable
 from ..base import GMPE
-from ..imt import SA, IMT
+from ..imt import SA_vert, IMT
 from ..contexts import Context
 
 
@@ -348,7 +348,7 @@ class GulerceEtAl2017(GMPE):
 
     #: Supported intensity measure type is spectral acceleration
     #: at T=0.01 to 10.0 s; see Tables 1a and 1b.
-    DEFINED_FOR_INTENSITY_MEASURE_TYPES = {SA}
+    DEFINED_FOR_INTENSITY_MEASURE_TYPES = {SA_vert}
 
     #: Supported intensity measure component is the
     #: :attr:`~openquake.hazardlib.const.IMC.Vertical` direction component;

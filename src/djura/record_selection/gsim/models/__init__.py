@@ -143,11 +143,13 @@ from .gmpe_avgsa import GmpeIndirectAvgSA
 # ACTIVE SHALLOW CRUSTAL ZONE GMPES
 # SA
 from .gulerce_2017 import (
-    GulerceEtAl2017, GulerceEtAl2017RegCHN, GulerceEtAl2017RegITA, GulerceEtAl2017RegJPN, GulerceEtAl2017RegMID, GulerceEtAl2017RegTWN
+    GulerceEtAl2017, GulerceEtAl2017RegCHN, GulerceEtAl2017RegITA, GulerceEtAl2017RegJPN,
+    GulerceEtAl2017RegMID, GulerceEtAl2017RegTWN
 )
 # V/H ratio: PGA, PGV, SA
 from .gulerce_abrahamson_2011 import GulerceAbrahamson2011
 from .bozorgnia_campbell_2016_vh import (
     BozorgniaCampbell2016VH, BozorgniaCampbell2016HighQVH, BozorgniaCampbell2016LowQVH,
-    BozorgniaCampbell2016AveQJapanSiteVH, BozorgniaCampbell2016HighQJapanSiteVH, BozorgniaCampbell2016LowQJapanSiteVH
+    BozorgniaCampbell2016AveQJapanSiteVH, BozorgniaCampbell2016HighQJapanSiteVH,
+    BozorgniaCampbell2016LowQJapanSiteVH
 )
