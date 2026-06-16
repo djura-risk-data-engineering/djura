@@ -898,6 +898,10 @@ class _GCIMSelect:
         im1 = f"{name}_1"
         im2 = f"{name}_2"
 
+        if im1 not in self.metadata and num_components == 3:
+            # period-independent IMs or vertical component IMs
+            return self.metadata[name]
+
         if im1 not in self.metadata and num_components == 2:
             # period-independent IMs
             return self.metadata[name]
@@ -912,7 +916,7 @@ class _GCIMSelect:
 
             return im_vals
 
-        # 2 components
+        # 2 components or more
         if component_definition == "geomean":
             im_vals = np.sqrt(self.metadata[im1] * self.metadata[im2])
         elif component_definition == 'srss':
@@ -1015,7 +1019,7 @@ class _GCIMSelect:
                 context[key] = np.append(
                     self.metadata[key], self.metadata[key], axis=0)
 
-        elif num_components == 2:
+        elif num_components == 2 or num_components == 3:
 
             component_definition = component_definition.lower()
             filename1 = self.metadata['Filename_1']
@@ -1260,6 +1264,9 @@ class _GCIMSelect:
 
             period_key = "Periods_Sa_avg" if im.startswith("Sa_avg") else \
                 f"Periods_{im}"
+            
+            if im == "SA_vert":
+                period_key = "Periods_SA"
 
             im_idx = []
             for period in imi[im]:

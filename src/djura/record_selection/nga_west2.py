@@ -21,6 +21,7 @@ class NGAWest2:
 
         self._handles = {
             "SA": self.add_missing_sa,
+            "SA_vert": self.add_missing_sa,
             "Sa_avg2": self.add_missing_sa_avg,
             "Sa_avg3": self.add_missing_sa_avg,
             "FIV3": self.add_missing_fiv3,
