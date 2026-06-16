@@ -9,6 +9,16 @@
             1.0
           ]
         }
+      },
+      {
+        "SA_vert": {
+          "names": [
+            "GulerceEtAl2017"
+          ],
+          "weights": [
+            1.0
+          ]
+        }
       }
     ],
     "site-parameters": {
@@ -42,19 +52,26 @@
       "SA(1.0s)",
       "SA(1.3s)",
       "SA(1.5s)",
-      "SA(2.0s)"
+      "SA(2.0s)",
+      "SA_vert(0.05s)",
+      "SA_vert(0.075s)",
+      "SA_vert(0.1s)",
+      "SA_vert(0.15s)",
+      "SA_vert(0.2s)",
+      "SA_vert(0.25s)",
+      "SA_vert(0.3s)",
+      "SA_vert(0.4s)",
+      "SA_vert(0.5s)",
+      "SA_vert(0.75s)",
+      "SA_vert(1.0s)",
+      "SA_vert(1.3s)",
+      "SA_vert(1.5s)",
+      "SA_vert(1.55s)",
+      "SA_vert(2.0s)"
     ],
     "im-star": {
       "type": "SA(1.)",
-      "value": 0.7,
-      "gmms": {
-        "names": [
-          "AristeidouEtAl2024"
-        ],
-        "weights": [
-          1.0
-        ]
-      }
+      "value": 0.3
     },
     "num_components": 3,
     "nreplicate": 1,
