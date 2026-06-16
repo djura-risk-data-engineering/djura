@@ -1,3 +1,5 @@
+# flake8: noqa
+
 """
 DEV:
 To run the test locally
