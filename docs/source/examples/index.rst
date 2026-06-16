@@ -8,6 +8,7 @@ self-contained and can be run locally after ``pip install djura``.
    :maxdepth: 1
 
    record_selection
+   record_selection_vertical
    record_selection_oq
    hazard_consistency
    fragility_converter
