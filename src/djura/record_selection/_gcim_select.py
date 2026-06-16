@@ -1264,6 +1264,9 @@ class _GCIMSelect:
 
             period_key = "Periods_Sa_avg" if im.startswith("Sa_avg") else \
                 f"Periods_{im}"
+            
+            if im == "SA_vert":
+                period_key = "Periods_SA"
 
             im_idx = []
             for period in imi[im]:

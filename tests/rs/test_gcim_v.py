@@ -36,4 +36,9 @@ class TestGCIMV:
         input_file = path / "assets/gcim_inputs/input17.json"
 
         gcim = GCIM(input_file, conditional=True)
-        gcim.create()
+        outs = gcim.create()
+        rs = gcim.select(output_create=gcim.output_create)
+
+        # from djura.utilities import export_results
+        # export_results("temp", outs, "json")
+        # export_results("temp_rs", rs, "json")
