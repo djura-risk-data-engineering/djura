@@ -15,6 +15,7 @@ authors:
   - family-names: O'Reilly
     given-names: Gerard J.
 license: AGPL-3.0-only
+doi: 10.60756/DJURA-HD26
 repository-code: "https://github.com/djura-risk-data-engineering/djura"
 
 references:

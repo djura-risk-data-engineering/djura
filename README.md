@@ -5,6 +5,7 @@
 [![Docs](https://readthedocs.org/projects/djura/badge/?version=latest)](https://djura.readthedocs.io)
 [![Python](https://img.shields.io/badge/python-3.10%E2%80%933.13-blue.svg)](https://www.python.org/)
 [![License: AGPL v3+](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
+[![DOI](https://img.shields.io/badge/DOI-10.60756%2FDJURA--HD26-blue.svg)](https://doi.org/10.60756/DJURA-HD26)
 
 **djura** is a scientific Python toolkit developed and maintained by Djura | Risk - Data - Engineering S.r.l. for general engineering applications. It bundles
 into a single installable package the core algorithms used across the djura
@@ -139,6 +140,8 @@ After the release is published, update `GITHUB_RELEASE_URL` in
 If you use **djura** in academic or research work, please cite the package
 **and** the paper(s) backing the submodule(s) you use.
 
+The software itself has a persistent DOI: [10.60756/DJURA-HD26](https://doi.org/10.60756/DJURA-HD26).
+
 ```python
 import djura
 
@@ -160,13 +163,6 @@ print(djura.cite(all=True))
 | `slf`                           | Shahnazaryan, D., Ozsarac, V., & O'Reilly, G. J. (2025). *The Role of Story Loss Functions in Regional Seismic Vulnerability Modelling and Risk Assessment*. 10th International Conference on Computational Methods in Structural Dynamics and Earthquake Engineering (COMPDYN 2025), Rhodes, Greece, Jun. 2025, pp. 780–804. doi: [10.7712/120125.12447.25302](https://doi.org/10.7712/120125.12447.25302)                    |
 
 A `CITATION.cff` file is provided so that GitHub renders a "Cite this repository" button automatically.
-
-## Contributing
-
-Contributions are welcome. By submitting a Contribution, you agree to the
-terms of the [Contributor License Agreement](CLA.md), which (among other
-things) allows the maintainer to relicense the project. For example, to
-offer a separate commercial license alongside AGPL-3.0.
 
 ## License
 
