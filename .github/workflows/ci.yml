@@ -14,15 +14,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Full Python matrix on Linux (cheap), plus a single Python version on
+        # macOS and Windows to verify cross-platform install and behaviour.
         os: [ubuntu-latest]
-        python-version: ["3.12"]
-
-        # python-version: ["3.10", "3.11", "3.12", "3.13"]
-        # include:
-        #   - os: macos-latest
-        #     python-version: "3.12"
-        #   - os: windows-latest
-        #     python-version: "3.12"
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          - os: macos-latest
+            python-version: "3.12"
+          - os: windows-latest
+            python-version: "3.12"
 
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
