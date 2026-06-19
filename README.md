@@ -164,6 +164,17 @@ print(djura.cite(all=True))
 
 A `CITATION.cff` file is provided so that GitHub renders a "Cite this repository" button automatically.
 
+## Contributing
+
+Contributions are welcome. Please read the [contributing guide](CONTRIBUTING.md)
+for development setup, testing, and the pull-request process, and note that
+participation is governed by our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+By submitting a Contribution, you agree to the terms of the
+[Contributor License Agreement](CLA.md), which (among other things) allows the
+maintainer to relicense the project. For example, to offer a separate
+commercial license alongside AGPL-3.0.
+
 ## License
 
 Copyright © 2025–2026 Djura | Risk - Data - Engineering S.r.l. (Italy). All rights reserved.
