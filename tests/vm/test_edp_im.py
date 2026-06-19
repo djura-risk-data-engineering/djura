@@ -1,4 +1,5 @@
 import json
+import importlib.util
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +12,12 @@ from conftest import run_edp_im, run_edp_im_infill, run_edp_im_isol
 
 
 path = Path(__file__).resolve().parent / "assets/backbones"
+
+# The 'shahnazaryan-oreilly' EDP-IM model relies on XGBoost, an optional
+# extra (``djura[xgboost]``). Skip the cases that need it when it is absent.
+requires_xgboost = pytest.mark.skipif(
+    importlib.util.find_spec("xgboost") is None,
+    reason="requires the optional 'xgboost' extra")
 
 
 ec8 = {"period": 0.5, "period_c": "1"}
@@ -31,7 +38,8 @@ class TestEDPIM:
             ("newmark_hall", "bilin", "sa", newmark_hall),
             ("vidic", "bilin", "sa", vidic),
             ("guerrini", "bilin", "sa", guerrini),
-            ("shahnazaryan-oreilly", "bilin", "sa", sh),
+            pytest.param("shahnazaryan-oreilly", "bilin", "sa", sh,
+                         marks=requires_xgboost),
         ])
     def test_batch(self, method, hysteresis, im_type, backbone):
         result = run_edp_im({
@@ -52,6 +60,7 @@ class TestEDPIM:
             ("backbone5", "spo", "bilin"),
         ]
     )
+    @requires_xgboost
     def test_backbone(self, filename, method, model):
         data = json.load(open(path / f"{filename}.json"))
 
@@ -91,6 +100,7 @@ class TestEDPIM:
             ("backbone5", "spo", "bilin"),
         ]
     )
+    @requires_xgboost
     def test_sa_avg(self, filename, method, model):
         data = json.load(open(path / f"{filename}.json"))
 
