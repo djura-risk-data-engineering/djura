@@ -1,0 +1,81 @@
+{
+    "gmms": [
+      {
+        "SA": {
+          "names": [
+            "AristeidouEtAl2024",
+            "BooreEtAl2020"
+          ],
+          "weights": [
+            0.4,
+            0.6
+          ]
+        }
+      },
+      {
+        "Ds595": {
+            "names": [
+                "AbrahamsonSilva1996"
+            ],
+            "weights": [
+                1
+            ]
+        }
+      }
+    ],
+    "site-parameters": {
+      "vs30": 500,
+      "z2pt5": 2,
+      "soil": 0,
+      "mechanism": "normal fault"
+    },
+    "ruptures": [
+      {
+        "mag": 6.3,
+        "rjb": 10,
+        "weight": 0.6,
+        "rrup": 12,
+        "d_hyp": 10,
+        "rx": 120,
+        "ztor": 0
+      },
+      {
+        "mag": 6,
+        "rjb": 20,
+        "weight": 0.4,
+        "rrup": 20,
+        "d_hyp": 5,
+        "rx": 120,
+        "ztor": 0
+      }
+    ],
+    "imi": [
+      "SA(0.05s)",
+      "SA(0.075s)",
+      "SA(0.1s)",
+      "SA(0.15s)",
+      "SA(0.2s)",
+      "SA(0.25s)",
+      "SA(0.3s)",
+      "SA(0.4s)",
+      "SA(0.5s)",
+      "SA(0.75s)",
+      "SA(1.0s)",
+      "SA(1.3s)",
+      "SA(1.5s)",
+      "SA(2.0s)",
+      "Ds595"
+    ],
+    "im-star": {
+      "type": "SA(1.)",
+      "value": 0.7
+    },
+    "num-components": 1,
+    "nreplicate": 1,
+    "num-records": 20,
+    "context-limits": {},
+    "seed": 0,
+    "ks-alpha": 0.05,
+    "im-weights": [],
+    "max-scaling-factor": 3
+  }

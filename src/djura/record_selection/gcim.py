@@ -708,12 +708,12 @@ class GCIM:
 
         # If weights are missing, use default values, i.e.
         # equal weight for each IM type
-        if len(self.data["im_weights"]) == 0 or "im_weights" not in self.data \
-                or self.data["im_weights"] is None:
-            self.data["im_weights"] = np.ones(len(self.data["imi"]))
+        if len(self.data["im-weights"]) == 0 or "im-weights" not in self.data \
+                or self.data["im-weights"] is None:
+            self.data["im-weights"] = np.ones(len(self.data["imi"]))
 
-        if len(self.data["imi"]) != len(self.data["im_weights"]):
-            raise ValueError("Length of 'imi' and 'im_weights' must match")
+        if len(self.data["imi"]) != len(self.data["im-weights"]):
+            raise ValueError("Length of 'imi' and 'im-weights' must match")
 
     def _validate_create_input(self):
         """Validate input arguments for create method
@@ -938,7 +938,7 @@ class GCIM:
         """
         self.data = self.default_data.copy()
         if isinstance(filename, dict):
-            self.data.update(filename)
+            self.data.update(self._normalize_keys(filename))
             return
 
         filename = Path(filename)
@@ -951,7 +951,23 @@ class GCIM:
             with open(filename, "r") as f:
                 data = yaml.safe_load(f)
 
-        self.data.update(data)
+        self.data.update(self._normalize_keys(data))
+
+    @staticmethod
+    def _normalize_keys(data: dict) -> dict:
+        """Converts ``_`` to ``-`` in all keys of the input data
+
+        Parameters
+        ----------
+        data : dict
+            Input data whose keys may use ``_`` as a separator
+
+        Returns
+        -------
+        dict
+            Data with ``_`` replaced by ``-`` in every key
+        """
+        return {key.replace("_", "-"): value for key, value in data.items()}
 
     def get_supported_rupture_parameters(self) -> frozenset:
         """Gets supported rupture parameters
