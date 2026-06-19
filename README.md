@@ -175,6 +175,33 @@ By submitting a Contribution, you agree to the terms of the
 maintainer to relicense the project. For example, to offer a separate
 commercial license alongside AGPL-3.0.
 
+## Maintenance and sustainability
+
+djura is actively developed and maintained by
+**Djura | Risk - Data - Engineering S.r.l.**, with development led by the
+authors listed in [`CITATION.cff`](CITATION.cff). The package consolidates the
+algorithms underpinning the company's research and commercial activity, which
+gives its continued maintenance a durable institutional basis beyond any
+single contributor or grant.
+
+- **Releases and versioning.** The project follows semantic versioning, with
+  versions derived automatically from git tags. Each release is published to
+  [PyPI](https://pypi.org/p/djura) and archived with a persistent DOI
+  ([10.60756/DJURA-HD26](https://doi.org/10.60756/DJURA-HD26)). Notable
+  changes are recorded in [`CHANGELOG.md`](CHANGELOG.md).
+- **Quality assurance.** Every push and pull request runs continuous
+  integration (linting, the test suite across Linux/macOS/Windows and the
+  supported Python versions, and a packaging/metadata check). CodeQL scanning
+  and Dependabot dependency updates are enabled.
+- **Issue tracking and support.** Bugs and feature requests are handled
+  through the [GitHub issue tracker](https://github.com/djura-risk-data-engineering/djura/issues).
+  Security reports follow the process in [`SECURITY.md`](SECURITY.md).
+- **Contributions.** External contributions are welcomed under the process in
+  [`CONTRIBUTING.md`](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
+- **Longevity.** Should the company ever discontinue maintenance, the
+  AGPL-3.0-or-later license and the public, DOI-archived releases ensure the
+  community can continue to use, fork, and maintain the software.
+
 ## License
 
 Copyright © 2025–2026 Djura | Risk - Data - Engineering S.r.l. (Italy). All rights reserved.
