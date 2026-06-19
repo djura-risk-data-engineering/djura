@@ -16,9 +16,15 @@ jobs:
       matrix:
         # Full Python matrix on Linux (cheap), plus a single Python version on
         # macOS and Windows to verify cross-platform install and behaviour.
+        # The primary job (ubuntu / 3.12) installs all optional extras so the
+        # full suite runs; the others skip extra-dependent tests (e.g. xgboost)
+        # to keep them light and avoid platform-specific extra build issues.
         os: [ubuntu-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13"]
         include:
+          - os: ubuntu-latest
+            python-version: "3.12"
+            extras: "--all-extras"
           - os: macos-latest
             python-version: "3.12"
           - os: windows-latest
@@ -57,7 +63,9 @@ jobs:
           key: nga-west2-data-v1
 
       - name: Install dependencies
-        run: poetry install --with dev --without docs --no-interaction
+        # ``matrix.extras`` is "--all-extras" on the primary job and empty
+        # elsewhere, so extra-dependent tests run there and skip on the rest.
+        run: poetry install --with dev --without docs ${{ matrix.extras }} --no-interaction
 
       - name: Lint (flake8)
         run: poetry run flake8 src tests
