@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-06-19
+
+First stable release.
+
+### Added
+- Persistent software DOI (`10.60756/DJURA-HD26`), referenced from
+  `CITATION.cff` and the README.
+- `CONTRIBUTING.md` contributing guide and `CODE_OF_CONDUCT.md`.
+- Maintenance and sustainability statement in the README.
+
+### Changed
+- Continuous integration now runs the test suite on Linux, macOS, and Windows
+  across Python 3.10-3.13. Optional extras (`xgboost`, `h5py`, `matplotlib`)
+  are installed on the primary job; extra-dependent tests are skipped where
+  the extra is not installed.
+
 ## [0.3.0] - 2026-06-16
 
 ### Added

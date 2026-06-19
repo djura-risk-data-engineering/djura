@@ -5,7 +5,7 @@ message: >-
   in Python to print all citations.
 title: "djura: Scientific Python toolkit for earthquake engineering"
 type: software
-version: 0.1.0
+version: 1.0.0
 authors:
   - family-names: Shahnazaryan
     given-names: Davit
