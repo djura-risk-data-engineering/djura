@@ -14,6 +14,7 @@ function generation into a single installable package.
    quickstart
    dataset
    custom_metadata
+   models
 
 .. toctree::
    :maxdepth: 1

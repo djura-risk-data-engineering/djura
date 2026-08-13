@@ -22,7 +22,15 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
+    "myst_parser",
 ]
+
+# MyST — Markdown sources (used by models.md, which includes ../../MODELS.md)
+myst_heading_anchors = 3
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
 
 # sphinx-autodoc-typehints is only available on Python >=3.12
 try:

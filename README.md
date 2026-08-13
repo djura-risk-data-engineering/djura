@@ -70,6 +70,8 @@ poetry install --with dev,docs   # everything
 
 For documentation on how to use the various djura packages, as well as example applications and tutorials, please refer to the [readthedocs](https://djura.readthedocs.io/en/latest/index.html) resources.
 
+A complete list of the supported ground motion models and intensity measure correlation models, with citations to their scientific publications, is given in [MODELS.md](MODELS.md).
+
 Additionally, several [blog posts](https://www.djura.it/blog) have been created with supplemental material on how to use these packages via the user interface available at our website [www.djura.it](https://apps.djura.it/login).
 
 ## Quickstart
