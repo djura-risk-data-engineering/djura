@@ -73,7 +73,7 @@
   "nreplicate": 1,
   "num_records": 40,
   "context_limits": {},
-  "seed": 0,
+  "seed": 1,
   "ks_alpha": 0.05,
   "im_weights": [],
   "max_scaling_factor": 3

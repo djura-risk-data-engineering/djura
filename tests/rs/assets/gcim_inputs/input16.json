@@ -63,7 +63,7 @@
   "context_limits": {
     "magnitude": [6, 7]
   },
-  "seed": 0,
+  "seed": 1,
   "ks_alpha": 0.05,
   "im_weights": [],
   "max_scaling_factor": 1

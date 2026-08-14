@@ -74,7 +74,7 @@
     "nreplicate": 1,
     "num-records": 20,
     "context-limits": {},
-    "seed": 0,
+    "seed": 1,
     "ks-alpha": 0.05,
     "im-weights": [],
     "max-scaling-factor": 3
