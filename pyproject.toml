@@ -34,18 +34,12 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Physics",
 ]
+# Core dependencies shared by every submodule. Everything else is declared
+# as a per-application extra below; see [project.optional-dependencies].
 dependencies = [
     "numpy (>=1.26)",
     "scipy (>=1.14)",
-    "pandas (>=2.2)",
-    "numba (>=0.59)",
-    "statsmodels (>=0.14.6,<0.15.0)",
-    "pyyaml (>=6.0.3,<7.0.0)",
     "pydantic (>=2.13.4,<3.0.0)",
-    "shapely (>=2.1.2,<3.0.0)",
-
-    "joblib (>=1.5.3,<2.0.0)",
-    "pwlf (>=2.5.2,<3.0.0)",
 ]
 
 [project.urls]
@@ -55,10 +49,73 @@ Issues = "https://github.com/djura-risk-data-engineering/djura/issues"
 Changelog = "https://github.com/djura-risk-data-engineering/djura/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
-plot = ["matplotlib (>=3.9)"]
-hdf5 = ["h5py (>=3.16,<4)"]
-xgboost = ["xgboost (>=1.7)"]
-all = ["matplotlib (>=3.9)", "h5py (>=3.16,<4)", "xgboost (>=1.7)"]
+# --- Per-application extras
+# Install only what a given submodule needs, e.g.
+#     pip install "djura[record_selection]"
+# Extras are additive, so combining them works as expected:
+#     pip install "djura[record_selection,slf]"
+#
+# Where one application builds on another, the dependants repeat the required
+# packages explicitly rather than self-referencing (``djura[...]``), which is
+# supported by pip but handled inconsistently by other installers.
+
+# djura.record_selection - GCIM-based ground motion record selection.
+record_selection = [
+    "numba (>=0.59)",
+    "pandas (>=2.2)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "shapely (>=2.1.2,<3.0.0)",
+    "statsmodels (>=0.14.6,<0.15.0)",
+]
+
+# djura.hazard_consistency - hazard-consistent IM analysis.
+# Requires nothing beyond the core; the extra exists so that the install
+# command is uniform across applications and stays stable if that changes.
+hazard_consistency = []
+
+# djura.fragility_converter - fragility/vulnerability conversion across IMs.
+# Imports djura.record_selection, so it needs that application's packages.
+fragility_converter = [
+    "numba (>=0.59)",
+    "pandas (>=2.2)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "shapely (>=2.1.2,<3.0.0)",
+    "statsmodels (>=0.14.6,<0.15.0)",
+]
+
+# djura.slf - storey loss function generation.
+slf = ["pandas (>=2.2)"]
+
+# djura.vulnerability_modeller - seismic vulnerability and loss modelling.
+vulnerability_modeller = [
+    "pwlf (>=2.5.2,<3.0.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+]
+
+# djura.edp_im - ML-based EDP-IM relationship prediction.
+# edp_im and vulnerability_modeller import each other, so they share a
+# dependency set; installing either makes both usable.
+edp_im = [
+    "pwlf (>=2.5.2,<3.0.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+]
+
+# --- Optional accelerators / file formats -----------------------------------
+hdf5 = ["h5py (>=3.16,<4)"]        # GMPETable support in record_selection
+xgboost = ["xgboost (>=1.7)"]      # gradient-boosted models in edp_im
+
+# --- Everything -------------------------------------------------------------
+# Equivalent to the pre-2.0 behaviour of a bare ``pip install djura``.
+all = [
+    "h5py (>=3.16,<4)",
+    "numba (>=0.59)",
+    "pandas (>=2.2)",
+    "pwlf (>=2.5.2,<3.0.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "shapely (>=2.1.2,<3.0.0)",
+    "statsmodels (>=0.14.6,<0.15.0)",
+    "xgboost (>=1.7)",
+]
 
 [tool.poetry]
 packages = [{ include = "djura", from = "src" }]
@@ -112,8 +169,17 @@ dev = [
 docs = [
     "sphinx (>=8.1.3)",
     "furo (>=2025.12.19)",
-    "sphinx-autodoc-typehints>=3.10; python_version >= '3.12'",
-    "myst-parser (>=3.0)",
+    # sphinx-autodoc-typehints >=3.10 requires Sphinx >=9.1, which in turn
+    # requires Python >=3.12. Poetry does not propagate the marker below to
+    # Sphinx's own Python requirement, so a tighter floor here makes the
+    # docs group unresolvable on Python 3.10/3.11.
+    "sphinx-autodoc-typehints>=2.3; python_version >= '3.12'",
+    # myst-parser 5.x requires Python >=3.11 and Sphinx >=8; the 4.x series
+    # is the newest supporting Python 3.10 and pins Sphinx <9. Splitting by
+    # Python version keeps a consistent Sphinx solution on every supported
+    # interpreter.
+    "myst-parser>=4.0,<5; python_version < '3.11'",
+    "myst-parser>=5.0; python_version >= '3.11'",
 ]
 
 [tool.coverage.run]

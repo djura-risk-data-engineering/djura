@@ -4,8 +4,11 @@
 djura.fragility_converter - conversion of fragility and vulnerability
 models across intensity measures.
 """
-from .ff import FF
-from .ff_approximate import FFApproximate
+from .._extras import require_extra
+
+with require_extra("fragility_converter"):
+    from .ff import FF
+    from .ff_approximate import FFApproximate
 
 __all__ = ["FF", "FFApproximate", "cite"]
 

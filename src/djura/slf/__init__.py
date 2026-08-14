@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 """djura.slf - storey loss function generation."""
-from .slf import SLF
+from .._extras import require_extra
+
+with require_extra("slf"):
+    from .slf import SLF
 
 __all__ = ["SLF", "cite"]
 
