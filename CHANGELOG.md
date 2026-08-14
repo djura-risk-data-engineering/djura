@@ -4,6 +4,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-08-14
+
+### Changed
+
+- **BREAKING.** Dependencies are now declared per application. The core
+  install carries only `numpy`, `scipy` and `pydantic`; each submodule's
+  third-party requirements moved to an extra named after it:
+  `record_selection`, `hazard_consistency`, `edp_im`, `fragility_converter`,
+  `vulnerability_modeller` and `slf`. A bare `pip install djura` therefore no
+  longer provides every application.
+
+  **Migration:** replace `pip install djura` with `pip install "djura[all]"`
+  to keep the previous behaviour, or install only what you use, e.g.
+  `pip install "djura[record_selection,slf]"`. Extras are additive and may be
+  combined freely. No import paths, class names or signatures changed.
+
+- Importing an application whose extra is missing now raises an `ImportError`
+  naming the required `pip install` command, instead of a bare
+  `ModuleNotFoundError` for a transitive package.
+- `djura.hazard_consistency` imports with the core dependencies alone. It
+  previously pulled the whole record selection stack (`numba`, `shapely`,
+  `statsmodels`, `pandas`) via a single helper, `find_nearest`, which has
+  moved to `djura.utilities` and is re-exported from
+  `djura.record_selection.utilities` for backwards compatibility.
+
+### Removed
+
+- The `plot` extra and the `matplotlib` dependency it provided. Neither was
+  imported anywhere in the package.
+- `joblib` as a core dependency. It was declared but never imported.
+
+### Added
+
+- `MODELS.md`, a catalogue of every supported ground motion model and
+  intensity measure correlation model with citations to the publication each
+  implements, rendered into the documentation at `models.html`.
+- `myst-parser` in the documentation dependency group, so Markdown pages can
+  be included in the Sphinx build.
+
 ## [1.0.0] - 2026-06-19
 
 First stable release.
