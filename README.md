@@ -44,15 +44,51 @@ other copyleft scientific tools (e.g. `openquake.engine`).
 
 ## Installation
 
+djura is organised as a set of applications that can be installed
+independently. A bare install provides the shared core (numpy, scipy,
+pydantic) and no application dependencies:
+
 ```bash
 pip install djura
 ```
-**Optional runtime extras:**
+
+**Install the applications you need** — the extra is named after the
+submodule:
 
 ```bash
-pip install "djura[hdf5]"   # adds h5py
-pip install "djura[all]"    # all of the above
+pip install "djura[record_selection]"        # ground motion record selection
+pip install "djura[hazard_consistency]"      # hazard-consistent IM analysis
+pip install "djura[edp_im]"                  # EDP-IM prediction
+pip install "djura[fragility_converter]"     # fragility/vulnerability conversion
+pip install "djura[vulnerability_modeller]"  # vulnerability and loss modelling
+pip install "djura[slf]"                     # storey loss functions
 ```
+
+Extras combine, so several applications can be installed at once:
+
+```bash
+pip install "djura[record_selection,slf]"
+```
+
+**Everything at once** — equivalent to the pre-2.0 behaviour of a bare
+`pip install djura`:
+
+```bash
+pip install "djura[all]"
+```
+
+**Optional accelerators and file formats:**
+
+```bash
+pip install "djura[record_selection,hdf5]"   # adds h5py for GMPE tables
+pip install "djura[edp_im,xgboost]"          # adds gradient-boosted models
+```
+
+> **Upgrading from 1.x:** a bare `pip install djura` no longer installs every
+> application's dependencies. Replace it with `pip install "djura[all]"` to
+> keep the previous behaviour, or name only the applications you use.
+> Importing an application whose extra is missing raises an `ImportError`
+> naming the command to run.
 
 **For contributors** — install development and/or documentation dependencies
 using Poetry dependency groups:
