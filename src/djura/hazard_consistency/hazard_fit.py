@@ -5,7 +5,7 @@ import numpy as np
 from scipy.optimize import leastsq
 from scipy.interpolate import interp1d
 
-from ..record_selection.utilities import find_nearest
+from ..utilities import find_nearest
 
 
 def analytical_mafe(s: float, k0: float, k1: float, k2: float = 0.) -> float:

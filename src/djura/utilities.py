@@ -4,9 +4,28 @@ import pickle
 import json
 import inspect
 from pathlib import Path
-from typing import Union
+from typing import List, Union
 
 import numpy as np
+
+
+def find_nearest(array: List, value: float) -> List[int]:
+    """Find index of nearest value in array
+
+    Parameters
+    ----------
+    array : List
+    value : float
+
+    Returns
+    -------
+    List[int]
+        Index of nearest value
+    """
+    value = np.asarray(value)
+    array = np.asarray(array)
+    idx = np.abs(array - value[:, np.newaxis]).argmin(axis=1)
+    return idx
 
 
 def to_json_serializable(data):

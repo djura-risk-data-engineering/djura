@@ -15,7 +15,7 @@ from scipy.stats import lognorm, kstest, norm, binom
 from scipy.optimize import curve_fit, minimize
 
 from ..utilities import (     # noqa: F401 (re-exported)
-    to_json_serializable, export_results, read_json)
+    to_json_serializable, export_results, read_json, find_nearest)
 
 
 def random_multivariate_normal(
@@ -274,25 +274,6 @@ def list_to_ndarray(data, keys):
         if key in keys:
             data[key] = np.asarray(val)
     return data
-
-
-def find_nearest(array: List, value: float) -> List[int]:
-    """Find index of nearest value in array
-
-    Parameters
-    ----------
-    array : List
-    value : float
-
-    Returns
-    -------
-    List[int]
-        Index of nearest value
-    """
-    value = np.asarray(value)
-    array = np.asarray(array)
-    idx = np.abs(array - value[:, np.newaxis]).argmin(axis=1)
-    return idx
 
 
 def proc_oq_hazard_curve(
