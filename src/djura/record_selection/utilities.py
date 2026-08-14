@@ -20,7 +20,8 @@ from ..utilities import (     # noqa: F401 (re-exported)
 
 def random_multivariate_normal(
         mu: np.ndarray, cov: np.ndarray,
-        num_samples: int, sampling_option: str) -> np.ndarray:
+        num_samples: int, sampling_option: str,
+        seed: int = 0) -> np.ndarray:
     """Used to generate multivariate correlated normal samples
 
     References
@@ -43,6 +44,9 @@ def random_multivariate_normal(
     sampling_option : str
         Monte Carlo Sampling: 'MCS'
         Latin Hypercube Sampling: 'LHS'
+    seed : int, optional
+        Random seed, by default 0. A non-zero value makes the draw
+        reproducible; zero randomises it on every call.
 
     Returns
     -------
@@ -64,7 +68,7 @@ def random_multivariate_normal(
     # Standard deviations
     dy = np.diag(eigen_values ** 0.5)
     # Generate uniformly distributed between 0 and 1
-    u = random_uniform(num_dimensions, num_samples, sampling_option)
+    u = random_uniform(num_dimensions, num_samples, sampling_option, seed)
     # Compute standard random numbers
     u = norm(loc=0, scale=1).ppf(u)
     # Create realization matrix (Eqn. 4) - @ is the matrix multiplication
@@ -74,7 +78,8 @@ def random_multivariate_normal(
 
 
 def random_uniform(
-    num_dimensions: int, num_samples: int, sampling_type: str
+    num_dimensions: int, num_samples: int, sampling_type: str,
+    seed: int = 0
 ) -> np.ndarray:
     """Used to perform sampling based on Monte Carlo Simulation or
     Latin Hypercube Sampling
@@ -93,6 +98,11 @@ def random_uniform(
         type of sampling.
         Monte Carlo Sampling: 'MCS'
         Latin Hypercube Sampling: 'LHS'
+    seed : int, optional
+        Random seed, by default 0. A non-zero value makes the draw
+        reproducible; zero derives a seed from the wall clock so that a
+        different realisation is produced on every call, matching the
+        documented behaviour of ``GCIM.select(seed=0)``.
 
     Returns
     -------
@@ -101,8 +111,11 @@ def random_uniform(
     """
     from scipy.stats.qmc import LatinHypercube
 
-    # Not really required, but will ensure different realizations each time
-    seed = int(datetime.today().strftime("%H%M%S"))
+    # A zero seed means "randomise", so derive one from the wall clock.
+    # Any non-zero seed is honoured as given, which is what makes a
+    # selection reproducible.
+    if not seed:
+        seed = int(datetime.today().strftime("%H%M%S"))
     if sampling_type.lower() == 'mcs':
         # Do Monte Carlo Sampling without any grid
         np.random.seed(seed)

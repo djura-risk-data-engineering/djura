@@ -836,8 +836,11 @@ class _GCIMSelect:
         realizations = np.zeros((nreplicate, num_records, len(mu)))
 
         for rep in range(nreplicate):
+            # Offset by the replicate index so that the realisations differ
+            # from one another while remaining reproducible. A zero seed is
+            # passed through unchanged, which randomises every draw.
             _rel = np.exp(random_multivariate_normal(
-                mu, cov, num_records, "LHS"
+                mu, cov, num_records, "LHS", seed + rep if seed else 0
             ))
 
             # Mean vs target mean
