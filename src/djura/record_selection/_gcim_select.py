@@ -229,12 +229,6 @@ class _GCIMSelect:
             + self.ERROR_WEIGHTS[1] * np.sum(dev_stddev ** 2) \
             # + self.ERROR_WEIGHTS[2] * np.sum(dev_skew ** 2)
 
-        # dev_total = compute_ks_error(
-        #     scaled_imi, mu_imi, sigma_imi,
-        #     im_weights=im_weights,
-        #     error_weights=self.ERROR_WEIGHTS
-        # )
-
         # Greedy subset modification algorithm
         for _ in range(greedy_loops):
 
@@ -792,14 +786,10 @@ class _GCIMSelect:
                 cov[i, j] = corr[i, j] * sigmas[i] * sigmas[j]
 
         # Making sure that cov is a positive semi-definite matrix
-        # min_eig = np.min(np.real(np.linalg.eigvals(cov)))
         w, _ = np.linalg.eigh(cov)
         min_eig = np.min(w)
         if min_eig < 0:
             cov -= 2 * min_eig * np.eye(*cov.shape)
-            # Add a small multiple of the identity matrix
-            # cov += self.NEGLIGIBLE * np.eye(*cov.shape)
-        # sigmas = np.sqrt(np.diagonal(cov))
 
         return cov, sigmas
 

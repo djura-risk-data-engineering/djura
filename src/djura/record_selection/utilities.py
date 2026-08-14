@@ -184,7 +184,6 @@ def get_periods_ims(arr: List):
 
 
 def get_period_im(name: str):
-    # pattern = r"\((\d+\.\d+)\)?"
     pattern = r"\((\d+(\.\d+)?)\)?(?:\D*)?"
 
     if '(' in name:
@@ -254,39 +253,6 @@ def inspect_file_for_classes(module):
     class_names = [cls[0] for cls in classes]
 
     return class_names
-
-
-def remove_path(directory: Path):
-    """Removes the directory if it exists
-
-    Parameters
-    ----------
-    directory : Path
-        Directory to be removed
-    """
-    if directory.is_dir():
-        shutil.rmtree(directory)
-
-
-def create_path(directory: Path):
-    """Create a folder if it does not exist
-
-    Parameters
-    ----------
-    directory : Path
-        Directory to be created
-    """
-    try:
-        directory.mkdir(parents=True, exist_ok=True)
-    except OSError:
-        print("Error: Creating directory. ", directory)
-
-
-def list_to_ndarray(data, keys):
-    for key, val in data.items():
-        if key in keys:
-            data[key] = np.asarray(val)
-    return data
 
 
 def proc_oq_hazard_curve(

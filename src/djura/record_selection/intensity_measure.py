@@ -253,7 +253,7 @@ class IntensityMeasure:
         float
             Average pseudo-spectral acceleration (Sa_avg)
         """
-        # TODO add support for batch mode for multiple periods
+
         if isinstance(period, float) and period == 0.0:
             raise ValueError("Conditioning period must not be zero!")
 
@@ -271,7 +271,7 @@ class IntensityMeasure:
 
     def sat2(self, acc, dt, period, damping, osc_type="psa",
              max_freq_ratio=5.0):
-        # TODO based on pyrotd package
+
         # psa matches get_sat
         osc_freq = 1 / period
         fourier_amp = np.fft.rfft(acc)

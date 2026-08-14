@@ -80,15 +80,6 @@ def greedy_algorithm(
             + error_weights[1] * np.sum(dev_stddev ** 2) \
             # + error_weights[2] * np.sum(skew_trial ** 2)
 
-        # # New: Compute total KS-based error across all IMI components
-        # dev_total = 0.0
-        # for i in range(imi_trial.shape[1]):
-        #     # Transform back from log-space to IMI space
-        #     imi_column = np.exp(imi_trial[:, i])
-        #     ks = compute_ks_statistic_1d(imi_column, np.exp(mu_imi[i]),
-        #                                  sigma_imi[i])
-        #     dev_total += error_weights[2] * im_weights[i] * ks
-
         # Avoid repetition of records
         if np.any(rec_id == db_idx):
             dev_total += dev_min + 1e8

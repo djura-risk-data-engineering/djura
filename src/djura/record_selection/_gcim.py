@@ -566,10 +566,6 @@ class _GCIM:
         # (to avoid double calculation for IMi vs IMj and IMj vs IMi)
         _corr = np.triu(_corr) + np.triu(_corr, 1).T
 
-        # Avoid zeros and ones against computational issues
-        # _corr[_corr == 0] += self.NEGLIGIBLE
-        # _corr[_corr >= 1] = 1 - self.NEGLIGIBLE
-
         return corr, _corr, im_idxs
 
     def _loop_corr_for_periods(
@@ -711,13 +707,6 @@ class _GCIM:
                     corr_arr[k] -= self.NEGLIGIBLE
                 if corr[i][k] == 1:
                     corr[i][k] -= self.NEGLIGIBLE
-
-                # if corr_arr[i] == 1 and corr_arr[k] == 1:
-                #     correlations[i, k] = 1
-                #     continue
-                # elif corr_arr[i] == 1 or corr_arr[k] == 1:
-                #     correlations[i, k] = 0
-                #     continue
 
                 correlations[i, k] = (
                     corr[i][k] - corr_arr[i] * corr_arr[k]) / \

@@ -86,14 +86,6 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
         # \rho_{lnIMi,lnIM*|Rup}
         rho_imi_im_star = self._get_im_star_imi_correlations(im_star, imi)
 
-        # Conditioned on IM*, using the gmm for the IM*
-        # and the same rupture context
-        # mu_im_star = zeros((len(ruptures), len(im_star["gmms"]["names"])))
-        # sigma_im_star = zeros(
-        #     (len(ruptures), len(im_star["gmms"]["names"])))
-        # weights_im_star = zeros(
-        #     (len(ruptures), len(im_star["gmms"]["names"])))
-
         # Conditioned on IM*, {rup_i: [gmm1, gmm2, ..., gmmn]}
         mu_im_star = {}
         sigma_im_star = {}

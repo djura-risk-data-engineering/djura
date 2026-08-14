@@ -259,7 +259,6 @@ class GCIM:
         self.data['site-parameters'] = site_params
 
         # GMMs and logic tree leaf weights
-        # lt_weight = gmm_weight * source_model_weight
         lt_weights = dis_oq['lt-weights']
         _imts, _ = get_periods_ims(imtls)
         _imts = set(_imts)
@@ -275,8 +274,6 @@ class GCIM:
                 weight_ids += list(_gsim.values())
                 gsim_kwargs.append(_kwargs)
 
-            # TODO: There could be an issue here
-            # src_gmm_weights = [lt_weights[ids] for ids in weight_ids][-1]
             src_gmm_weights = lt_weights[weight_ids].reshape(1, -1)[-1]
 
             for imt in _imts:

@@ -7,7 +7,7 @@ from .hazard_model import HazardModel
 
 
 class HazardConsistency:
-    # TODO, add support for other types of IMs
+
     def __init__(
         self,
         conditional_intensities: List,
@@ -126,26 +126,6 @@ class HazardConsistency:
                         [x > s_val for x in rs_imi_intensities[ii]]
                 ) / ngms
             dh_env[i] = np.sum(dh_ind[:, i])
-
-        # TODO, optimise the loops
-        # exceedances = np.sum([x > s_range for x in sa_prd], axis=0) / ngms
-        # dh_ind = dh_ref[:, np.newaxis] * exceedances
-
-        # # Take the envelope for each poe
-        # dh_env = np.sum(dh_ind, axis=0)
-
-        # # Compute SSE
-        # dh_env = np.trim_zeros(dh_env, 'b')
-        # s_range = s_range[:dh_env.shape[0]]
-
-        # interpolation = interp1d(im_ref, h_ref, bounds_error=False,
-        #                          fill_value=np.nan)
-        # h_interp = interpolation(s_range)
-        # valid_mask = ~np.isnan(h_interp)
-
-        # # TODO, metrics
-        # sse = np.sum(np.square(np.log(  # noqa
-        #     h_interp[valid_mask]) - np.log(dh_env[valid_mask])))
 
         dh_env = HazardModel().get_poe(
             mafe=dh_env)
