@@ -8,7 +8,6 @@ import inspect
 import warnings
 import bisect
 import re
-import shutil
 
 import numpy as np
 from scipy.stats import lognorm, kstest, norm, binom

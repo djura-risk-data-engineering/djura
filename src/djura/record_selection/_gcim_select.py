@@ -3,7 +3,6 @@
 from typing import List
 import numpy as np
 from scipy.stats import lognorm, kstest, ksone, skew
-from scipy.optimize import minimize
 from statsmodels.distributions.empirical_distribution import ECDF
 import re
 
@@ -34,9 +33,6 @@ class _GCIMSelect:
 
     # Tolerance in %
     TOLERANCE = 10.0
-
-    # Algorithm
-    _algorithm = "greedy"
 
     def __init__(
         self,
@@ -125,9 +121,6 @@ class _GCIMSelect:
         imi_db, mu_imi, sigma_imi, correlations, alpha, covariance = \
             self._combine_imi(im_known, target, alpha_hash, total_rec)
 
-        # number of IMs
-        num_im = imi_db.shape[1]
-
         rec_context = {}
         for _arg in context.keys():
             rec_context[_arg] = np.zeros((nreplicate, num_records))
@@ -135,15 +128,6 @@ class _GCIMSelect:
         # Generate random realizations of IMi (num_records, num_imi)
         realization = self._simulate(
             nreplicate, num_records, mu_imi, covariance, sigma_imi, seed)
-
-        if self._algorithm == "bradley":
-            self._algorithm_bradley(
-                num_records, total_rec, num_im, imi_db, im_weights,
-                realization, mu_imi, sigma_imi, alpha, max_scaling_factor,
-                context, rec_context, rsn, ks_alpha)
-
-            self.selected_scaled_best["IMi"] = imi
-            return
 
         # Scaling factors
         if max_scaling_factor == 1.0:
@@ -534,114 +518,6 @@ class _GCIMSelect:
 
         return im_star_vals[name].flatten()
 
-    def _algorithm_bradley(
-        self, num_records, total_rec, num_im, imi_db,
-        im_weights, realization, mu_imi, sigma_imi, alpha,
-        max_scaling_factor, context, rec_context, rsn, ks_alpha
-    ):
-
-        # Scaling factors
-        sf = np.zeros((num_records, total_rec))
-        residuals = np.zeros((num_records, total_rec))
-        potential_imi = np.zeros((total_rec, num_im))
-        residuals_opt = np.zeros((num_records))
-        rec_id = np.zeros((num_records))
-        sf_opt = np.zeros((num_records))
-        selected_imi = np.zeros((num_records, num_im))
-        scaled_imi = np.zeros((num_records, num_im))
-        rec_rsn = np.zeros((num_records))
-
-        # For each realization (to be selected)
-        for rel in range(num_records):
-            # For each available (prospective) record
-            for rec in range(total_rec):
-                # IMi for "rec"
-                imi_trial = np.asarray(imi_db[rec, :])
-
-                # Minimize the residual for each prospective ground
-                # motion with respect to the applied scaling factor
-                res = minimize(
-                    self._optimize_selection, 1.0,
-                    args=(im_weights, realization[rel, :], imi_trial,
-                          sigma_imi, alpha),
-                    bounds=([1 / max_scaling_factor, max_scaling_factor],))
-                sf[rel, rec] = res.x[0]
-                residuals[rel, rec] = res.fun
-                potential_imi[rec, :] = imi_trial
-
-            # Retrieve records with the lowest residual with respect to
-            # GCIM realizations
-            residuals_opt[rel] = min(residuals[rel, :])
-            # Ground motion record unique IDs
-            rec_id[rel] = np.argmin(residuals[rel, :])
-            selected_rec_idx = int(rec_id[rel])
-            # Get corresponding Scaling Factor (SF)
-            sf_opt[rel] = sf[rel, selected_rec_idx]
-            # Get corresponding IM values for each IM of interest
-            selected_imi[rel, :] = potential_imi[selected_rec_idx, :]
-            # Get corresponding scaled IM values for each IM of
-            # interest
-            scaled_imi[rel, :] = (sf_opt[rel] ** alpha) \
-                * selected_imi[rel, :]
-
-            # Get corresponding context
-            for _arg, _val in context.items():
-                rec_context[_arg][rel] = _val[selected_rec_idx]
-
-            # RSN of records
-            rec_rsn[rel] = rsn[selected_rec_idx]
-
-            # Set IMs of already selected records to a large value
-            # to force very large residuals
-            imi_db[selected_rec_idx, :] = 999
-
-        # KS tests
-        ks_tests = self._perform_ks_tests(
-            mu_imi, sigma_imi, realization, selected_imi, scaled_imi, ks_alpha
-        )
-
-        # ECDFs
-        scaled_imi_transposed = scaled_imi.transpose()
-
-        ecdfx_scal = np.zeros((scaled_imi.shape[1], scaled_imi.shape[0] + 1))
-        ecdfy_scal = np.zeros((scaled_imi.shape[1], scaled_imi.shape[0] + 1))
-
-        for i, im in enumerate(scaled_imi_transposed):
-            ecdfx_scal[i] = ECDF(im).x
-            ecdfy_scal[i] = ECDF(im).y
-
-        ecdfx_scal[np.isinf(ecdfx_scal)] = 0
-
-        # All selected records for export
-        self.selected_scaled_total = {
-            'IM_MeanLn': mu_imi,
-            'IM_SigmaLn': sigma_imi,
-            'residuals_opt': residuals_opt,
-            'SF_opt': sf_opt,
-            'Selected_IMs': selected_imi,
-            'Scaled_IMs': scaled_imi,
-            'RSN_selecRec': rec_rsn.astype(int),
-            'context': rec_context,
-            'Random_Realization': realization,
-        }
-
-        self.selected_scaled_best = {
-            'residuals_opt': residuals_opt,
-            'SF_opt': sf_opt,
-            'Selected_IMs': selected_imi,
-            'Scaled_IMs': scaled_imi,
-            'ecdfx_scal': ecdfx_scal,
-            'ecdfy_scal': ecdfy_scal,
-            'RSN_selecRec': rec_rsn,
-            'Random_Realization': realization,
-            'context': {}
-        }
-
-        for _arg, _val in rec_context.items():
-            self.selected_scaled_best['context'][_arg + "_selecRec"] = _val
-
-        self.selected_scaled_best.update(ks_tests)
-
     @staticmethod
     def _get_alpha(imi: List):
         """Assigns alphas for scaling depending IMi type
@@ -685,37 +561,6 @@ class _GCIMSelect:
                 alpha[name] = 0
             # No else condition, to force Error and avoid silent failure
         return alpha
-
-    @staticmethod
-    def _optimize_selection(scale_factor, im_weights, realization, im_trial,
-                            sigma, alpha):
-        """Optimizes selection by minimizing the residuals based
-        on the applied scale factor
-
-        Parameters
-        ----------
-        scale_factor : float
-            Scale factor
-        im_weights : numpy.ndarray
-            Weights of IMi
-        realization : numpy.ndarray
-            Random realization
-        im_trial : numpy.ndarray
-            IM values from metadata for each prospective record
-        sigma : numpy.ndarray
-            Stdevs of IMi
-        alpha : numpy.ndarray
-            Alpha factors for each IMi
-
-        Returns
-        -------
-        float
-            Residual value to be minimised
-        """
-        f = np.sum(
-            im_weights * ((realization - np.log(
-                (scale_factor[0]**alpha) * im_trial)) / sigma)**2)
-        return f
 
     def _combine_imi(self, im_known: dict, target: dict, alpha: dict,
                      total_rec: int):
