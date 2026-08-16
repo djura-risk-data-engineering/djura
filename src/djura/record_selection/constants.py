@@ -13,6 +13,8 @@ SUPPORTED_IM_DESCRIPTORS = {
     "Ds595": "Significant duration for time intervals 5-95% [seconds]",
     "FIV3": "Filtered incremental velocity [cm/s]",
     "IA": "Arias Intensity [m/s]",
+    "CAV": "Cumulative absolute velocity, integral of the absolute "
+           "acceleration time series [g-sec]",
     "ASI": "Acceleration spectrum intensity, integral of the 5% damped "
            "pseudo-spectral acceleration over 0.1-0.5s [g-sec]",
     "SI": "Spectrum intensity, integral of the 5% damped pseudo-spectral "
@@ -88,6 +90,8 @@ CORRELATION_MODELS = {
     "Ds595-SI": ["bradley2011_ds595_si"],
     "Ds575-DSI": ["bradley2011_ds575_dsi"],
     "Ds595-DSI": ["bradley2011_ds595_dsi"],
+    "Ds575-CAV": ["bradley2011_ds575_cav"],
+    "Ds595-CAV": ["bradley2011_ds595_cav"],
     "CAV-SA": ["bradley2012_cav_sa"],
     "CAV-PGA": ["bradley2012_cav_pga"],
     "CAV-PGV": ["bradley2012_cav_pgv"],

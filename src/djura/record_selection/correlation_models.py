@@ -424,6 +424,42 @@ def bradley2011_ds595_dsi() -> float:
     return 0.163
 
 
+def bradley2011_ds575_cav() -> float:
+    """Duration 575 vs CAV
+
+    References
+    ----------
+    Bradley B.A. (2011). Correlation of significant duration with amplitude
+    and cumulative intensity measures and its use in ground motion selection,
+    Journal of Earthquake Engineering, 15(6): 809-832.
+    DOI: 10.1080/13632469.2011.557140Correlation
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.077
+
+
+def bradley2011_ds595_cav() -> float:
+    """Duration 595 vs CAV
+
+    References
+    ----------
+    Bradley B.A. (2011). Correlation of significant duration with amplitude
+    and cumulative intensity measures and its use in ground motion selection,
+    Journal of Earthquake Engineering, 15(6): 809-832.
+    DOI: 10.1080/13632469.2011.557140Correlation
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.122
+
+
 def bradley2011_pga(period: float) -> float:
     """PGA vs SA correlation
 
