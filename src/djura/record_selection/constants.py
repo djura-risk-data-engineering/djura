@@ -17,6 +17,8 @@ SUPPORTED_IM_DESCRIPTORS = {
            "pseudo-spectral acceleration over 0.1-0.5s [g-sec]",
     "SI": "Spectrum intensity, integral of the 5% damped pseudo-spectral "
           "velocity over 0.1-2.5s [cm-sec/sec]",
+    "DSI": "Displacement spectrum intensity, integral of the 5% damped "
+           "displacement response spectrum over 2.0-5.0s [cm-sec]",
 }
 
 SUPPORTED_IM_COMPONENTS = {
@@ -75,6 +77,11 @@ CORRELATION_MODELS = {
     "SI-PGA": ["bradley2011_si_pga"],
     "ASI-PGV": ["bradley2012_asi_pgv"],
     "SI-PGV": ["bradley2012_si_pgv"],
+    "DSI-SA": ["bradley2011_dsi_sa"],
+    "DSI-PGA": ["bradley2011_dsi_pga"],
+    "DSI-PGV": ["bradley2011_dsi_pgv"],
+    "DSI-ASI": ["bradley2011_dsi_asi"],
+    "DSI-SI": ["bradley2011_dsi_si"],
     "SA_vert-SA_vert": ["kohrangi2020_sav_sav", "gkas2017_v"],
     "SA-SA_vert": ["kohrangi2020_sav_sah"],
     "SA-PGV_vert": ["kohrangi2020_sah_pgvv"],

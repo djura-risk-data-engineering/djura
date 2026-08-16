@@ -173,6 +173,44 @@ class TestCorrelations:
     def test_bradley2011_asi_si(self):
         assert corr.bradley2011_asi_si() == 0.641
 
+    @pytest.mark.parametrize(
+        "t, out", [
+            (11, None),
+            # Figure 10a, the correlation peaks over the 2.0-5.0s range
+            # over which DSI is defined
+            (0.01, 0.39),
+            (0.15, 0.27),
+            (1.0, 0.64),
+            (3.4, 0.98),
+            (9.99, 0.83),
+            # Tends to the correlation between DSI and PGA
+            (0.0, 0.395),
+        ]
+    )
+    def test_bradley2011_dsi_sa(self, t, out):
+
+        if t is not None and t > 10:
+            with pytest.raises(ValueError) as exc:
+                corr.bradley2011_dsi_sa(t)
+
+                assert str(exc.value) == f"Period ({t}) must be 0.01 <= x < 10"
+            return
+
+        val = corr.bradley2011_dsi_sa(t)
+        assert val == pytest.approx(out, abs=0.01)
+
+    def test_bradley2011_dsi_pga(self):
+        assert corr.bradley2011_dsi_pga() == 0.395
+
+    def test_bradley2011_dsi_pgv(self):
+        assert corr.bradley2011_dsi_pgv() == 0.800
+
+    def test_bradley2011_dsi_asi(self):
+        assert corr.bradley2011_dsi_asi() == 0.376
+
+    def test_bradley2011_dsi_si(self):
+        assert corr.bradley2011_dsi_si() == 0.782
+
     def test_bradley2012_asi_pgv(self):
         assert corr.bradley2012_asi_pgv() == 0.729
 

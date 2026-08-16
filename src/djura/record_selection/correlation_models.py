@@ -501,6 +501,122 @@ def bradley2011_asi_si() -> float:
     return 0.641
 
 
+def bradley2011_dsi_sa(period: float = None) -> float:
+    """DSI vs SA correlation
+
+    Lowest period is 0.01!
+    Highest period is 10!
+
+    References
+    ----------
+    Bradley, B. A. (2011). Empirical equations for the prediction of
+    displacement spectrum intensity and its correlation with other intensity
+    measures. Soil Dynamics and Earthquake Engineering, 31(8), 1182-1191.
+    DOI: 10.1016/j.soildyn.2011.04.007
+
+    Parameters
+    ----------
+    period : float, optional
+        Period of interest, by default None (for PGA)
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    if period is None or period < 0.01:
+        # As the vibration period tends to zero, SA tends to PGA
+        return bradley2011_dsi_pga()
+
+    if not 0.01 <= period < 10:
+        raise ValueError(f"Period ({period}) must be 0.01 <= x < 10")
+
+    e = [0.01, 0.15, 3.40, 10]
+    a = [0.39, 0.19, 0.98]
+    b = [0.265, 1.20, 0.82]
+    c = [0.04, 1.20, 6.10]
+    d = [1.80, 0.60, 3.00]
+
+    idx = find_right_index(e, period) - 1
+
+    rho = (a[idx] + b[idx]) / 2 - \
+        (a[idx] - b[idx]) / 2 * math.tanh(d[idx] * np.log(period / c[idx]))
+
+    return rho
+
+
+def bradley2011_dsi_pga() -> float:
+    """DSI vs PGA
+
+    References
+    ----------
+    Bradley, B. A. (2011). Empirical equations for the prediction of
+    displacement spectrum intensity and its correlation with other intensity
+    measures. Soil Dynamics and Earthquake Engineering, 31(8), 1182-1191.
+    DOI: 10.1016/j.soildyn.2011.04.007
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.395
+
+
+def bradley2011_dsi_pgv() -> float:
+    """DSI vs PGV
+
+    References
+    ----------
+    Bradley, B. A. (2011). Empirical equations for the prediction of
+    displacement spectrum intensity and its correlation with other intensity
+    measures. Soil Dynamics and Earthquake Engineering, 31(8), 1182-1191.
+    DOI: 10.1016/j.soildyn.2011.04.007
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.800
+
+
+def bradley2011_dsi_asi() -> float:
+    """DSI vs ASI
+
+    References
+    ----------
+    Bradley, B. A. (2011). Empirical equations for the prediction of
+    displacement spectrum intensity and its correlation with other intensity
+    measures. Soil Dynamics and Earthquake Engineering, 31(8), 1182-1191.
+    DOI: 10.1016/j.soildyn.2011.04.007
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.376
+
+
+def bradley2011_dsi_si() -> float:
+    """DSI vs SI
+
+    References
+    ----------
+    Bradley, B. A. (2011). Empirical equations for the prediction of
+    displacement spectrum intensity and its correlation with other intensity
+    measures. Soil Dynamics and Earthquake Engineering, 31(8), 1182-1191.
+    DOI: 10.1016/j.soildyn.2011.04.007
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.782
+
+
 def bradley2012_pgv(period: float = None) -> float:
     """PGV vs SA correlation and PGV vs PGA correlation
 
