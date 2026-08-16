@@ -202,6 +202,31 @@ class TestCorrelations:
     @pytest.mark.parametrize(
         "t, out", [
             (11, None),
+            # Figure 8a, the correlation is largest at short periods and
+            # reduces monotonically with increasing vibration period
+            (0.01, 0.70),
+            (0.2, 0.635),
+            (3.0, 0.525),
+            (9.99, 0.39),
+            # Tends to the correlation between CAV and PGA
+            (0.0, 0.700),
+        ]
+    )
+    def test_bradley2012_cav_sa(self, t, out):
+
+        if t is not None and t > 10:
+            with pytest.raises(ValueError) as exc:
+                corr.bradley2012_cav_sa(t)
+
+                assert str(exc.value) == f"Period ({t}) must be 0.01 <= x < 10"
+            return
+
+        val = corr.bradley2012_cav_sa(t)
+        assert val == pytest.approx(out, abs=0.01)
+
+    @pytest.mark.parametrize(
+        "t, out", [
+            (11, None),
             (0.5, 0.77),
             (0.0, 0.73),
         ]

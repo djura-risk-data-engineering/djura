@@ -770,6 +770,83 @@ def bradley2012_pgv(period: float = None) -> float:
     return rho
 
 
+def bradley2012_cav_sa(period: float = None) -> float:
+    """CAV vs SA correlation
+
+    Lowest period is 0.01!
+    Highest period is 10!
+
+    References
+    ----------
+    Bradley, B.A. (2012). Empirical Correlations between Cumulative Absolute
+    Velocity and Amplitude-Based Ground Motion Intensity Measures.
+    Earthquake Spectra, 28, 37 - 54. DOI:10.1193/1.3675580
+
+    Parameters
+    ----------
+    period : float, optional
+        Period of interest, by default None (for PGA)
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    if period is None or period < 0.01:
+        # As the vibration period tends to zero, SA tends to PGA
+        return bradley2012_cav_pga()
+
+    if not 0.01 <= period < 10:
+        raise ValueError(f"Period ({period}) must be 0.01 <= x < 10")
+
+    e = [0.01, 0.20, 3.00, 10]
+    a = [0.70, 0.635, 0.525]
+    b = [0.635, 0.525, 0.39]
+    c = [0.043, 0.95, 6.20]
+    d = [2.50, 3.00, 4.00]
+
+    idx = find_right_index(e, period) - 1
+
+    rho = (a[idx] + b[idx]) / 2 - \
+        (a[idx] - b[idx]) / 2 * math.tanh(d[idx] * np.log(period / c[idx]))
+
+    return rho
+
+
+def bradley2012_cav_pga() -> float:
+    """CAV vs PGA
+
+    References
+    ----------
+    Bradley, B.A. (2012). Empirical Correlations between Cumulative Absolute
+    Velocity and Amplitude-Based Ground Motion Intensity Measures.
+    Earthquake Spectra, 28, 37 - 54. DOI:10.1193/1.3675580
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.700
+
+
+def bradley2012_cav_pgv() -> float:
+    """CAV vs PGV
+
+    References
+    ----------
+    Bradley, B.A. (2012). Empirical Correlations between Cumulative Absolute
+    Velocity and Amplitude-Based Ground Motion Intensity Measures.
+    Earthquake Spectra, 28, 37 - 54. DOI:10.1193/1.3675580
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.691
+
+
 def bradley2012_asi_cav() -> float:
     """ASI vs CAV
 
