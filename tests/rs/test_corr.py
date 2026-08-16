@@ -117,6 +117,65 @@ class TestCorrelations:
     @pytest.mark.parametrize(
         "t, out", [
             (11, None),
+            # Figure 6a, the correlation peaks over the 0.1-0.5s range
+            # over which ASI is defined
+            (0.01, 0.93),
+            (0.3, 0.96),
+            (1.0, 0.59),
+            (9.99, 0.30),
+            # Tends to the correlation between ASI and PGA
+            (0.0, 0.928),
+        ]
+    )
+    def test_bradley2011_asi_sa(self, t, out):
+
+        if t is not None and t > 10:
+            with pytest.raises(ValueError) as exc:
+                corr.bradley2011_asi_sa(t)
+
+                assert str(exc.value) == f"Period ({t}) must be 0.01 <= x < 10"
+            return
+
+        val = corr.bradley2011_asi_sa(t)
+        assert val == pytest.approx(out, abs=0.01)
+
+    @pytest.mark.parametrize(
+        "t, out", [
+            (11, None),
+            # Figure 6b, the correlation peaks over the moderate period
+            # range which dominates the magnitude of SI
+            (0.01, 0.60),
+            (0.1, 0.40),
+            (1.4, 0.93),
+            (9.99, 0.69),
+            # Tends to the correlation between SI and PGA
+            (0.0, 0.599),
+        ]
+    )
+    def test_bradley2011_si_sa(self, t, out):
+
+        if t is not None and t > 10:
+            with pytest.raises(ValueError) as exc:
+                corr.bradley2011_si_sa(t)
+
+                assert str(exc.value) == f"Period ({t}) must be 0.01 <= x < 10"
+            return
+
+        val = corr.bradley2011_si_sa(t)
+        assert val == pytest.approx(out, abs=0.01)
+
+    def test_bradley2011_asi_pga(self):
+        assert corr.bradley2011_asi_pga() == 0.928
+
+    def test_bradley2011_si_pga(self):
+        assert corr.bradley2011_si_pga() == 0.599
+
+    def test_bradley2011_asi_si(self):
+        assert corr.bradley2011_asi_si() == 0.641
+
+    @pytest.mark.parametrize(
+        "t, out", [
+            (11, None),
             (0.5, 0.77),
             (0.0, 0.73),
         ]
