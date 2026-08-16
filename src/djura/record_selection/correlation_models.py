@@ -316,6 +316,114 @@ def bradley2011_ds575_pgv() -> float:
     return -0.259
 
 
+def bradley2011_ds575_asi() -> float:
+    """Duration 575 vs ASI
+
+    References
+    ----------
+    Bradley B.A. (2011). Correlation of significant duration with amplitude
+    and cumulative intensity measures and its use in ground motion selection,
+    Journal of Earthquake Engineering, 15(6): 809-832.
+    DOI: 10.1080/13632469.2011.557140Correlation
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return -0.411
+
+
+def bradley2011_ds595_asi() -> float:
+    """Duration 595 vs ASI
+
+    References
+    ----------
+    Bradley B.A. (2011). Correlation of significant duration with amplitude
+    and cumulative intensity measures and its use in ground motion selection,
+    Journal of Earthquake Engineering, 15(6): 809-832.
+    DOI: 10.1080/13632469.2011.557140Correlation
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return -0.370
+
+
+def bradley2011_ds575_si() -> float:
+    """Duration 575 vs SI
+
+    References
+    ----------
+    Bradley B.A. (2011). Correlation of significant duration with amplitude
+    and cumulative intensity measures and its use in ground motion selection,
+    Journal of Earthquake Engineering, 15(6): 809-832.
+    DOI: 10.1080/13632469.2011.557140Correlation
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return -0.131
+
+
+def bradley2011_ds595_si() -> float:
+    """Duration 595 vs SI
+
+    References
+    ----------
+    Bradley B.A. (2011). Correlation of significant duration with amplitude
+    and cumulative intensity measures and its use in ground motion selection,
+    Journal of Earthquake Engineering, 15(6): 809-832.
+    DOI: 10.1080/13632469.2011.557140Correlation
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return -0.079
+
+
+def bradley2011_ds575_dsi() -> float:
+    """Duration 575 vs DSI
+
+    References
+    ----------
+    Bradley B.A. (2011). Correlation of significant duration with amplitude
+    and cumulative intensity measures and its use in ground motion selection,
+    Journal of Earthquake Engineering, 15(6): 809-832.
+    DOI: 10.1080/13632469.2011.557140Correlation
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.074
+
+
+def bradley2011_ds595_dsi() -> float:
+    """Duration 595 vs DSI
+
+    References
+    ----------
+    Bradley B.A. (2011). Correlation of significant duration with amplitude
+    and cumulative intensity measures and its use in ground motion selection,
+    Journal of Earthquake Engineering, 15(6): 809-832.
+    DOI: 10.1080/13632469.2011.557140Correlation
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.163
+
+
 def bradley2011_pga(period: float) -> float:
     """PGA vs SA correlation
 

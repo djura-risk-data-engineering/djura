@@ -199,6 +199,24 @@ class TestCorrelations:
         val = corr.bradley2011_dsi_sa(t)
         assert val == pytest.approx(out, abs=0.01)
 
+    def test_bradley2011_ds575_asi(self):
+        assert corr.bradley2011_ds575_asi() == -0.411
+
+    def test_bradley2011_ds595_asi(self):
+        assert corr.bradley2011_ds595_asi() == -0.370
+
+    def test_bradley2011_ds575_si(self):
+        assert corr.bradley2011_ds575_si() == -0.131
+
+    def test_bradley2011_ds595_si(self):
+        assert corr.bradley2011_ds595_si() == -0.079
+
+    def test_bradley2011_ds575_dsi(self):
+        assert corr.bradley2011_ds575_dsi() == 0.074
+
+    def test_bradley2011_ds595_dsi(self):
+        assert corr.bradley2011_ds595_dsi() == 0.163
+
     def test_bradley2011_dsi_pga(self):
         assert corr.bradley2011_dsi_pga() == 0.395
 
