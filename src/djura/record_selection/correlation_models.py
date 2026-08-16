@@ -770,6 +770,57 @@ def bradley2012_pgv(period: float = None) -> float:
     return rho
 
 
+def bradley2012_asi_cav() -> float:
+    """ASI vs CAV
+
+    References
+    ----------
+    Bradley, B.A. (2012). Empirical Correlations between Cumulative Absolute
+    Velocity and Amplitude-Based Ground Motion Intensity Measures.
+    Earthquake Spectra, 28, 37 - 54. DOI:10.1193/1.3675580
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.703
+
+
+def bradley2012_si_cav() -> float:
+    """SI vs CAV
+
+    References
+    ----------
+    Bradley, B.A. (2012). Empirical Correlations between Cumulative Absolute
+    Velocity and Amplitude-Based Ground Motion Intensity Measures.
+    Earthquake Spectra, 28, 37 - 54. DOI:10.1193/1.3675580
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.681
+
+
+def bradley2012_dsi_cav() -> float:
+    """DSI vs CAV
+
+    References
+    ----------
+    Bradley, B.A. (2012). Empirical Correlations between Cumulative Absolute
+    Velocity and Amplitude-Based Ground Motion Intensity Measures.
+    Earthquake Spectra, 28, 37 - 54. DOI:10.1193/1.3675580
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.565
+
+
 def bradley2012_asi_pgv() -> float:
     """ASI vs PGV
 
