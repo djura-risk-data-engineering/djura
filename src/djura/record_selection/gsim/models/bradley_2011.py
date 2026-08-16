@@ -1,66 +1,51 @@
 import numpy as np
 
 from ..base import GMPE
-from ..imt import ASI, SA, IMT
+from ..imt import DSI, SA, IMT
 from ..contexts import Context
 from .. import const
 from .gmpe_avgsa import CORRELATION_FUNCTION_HANDLES
-from .bradley_2009 import _get_weights, _get_intensity_moments
+from .bradley_2009 import (
+    GRAVITY, _get_weights, _get_intensity_moments)
+from .bradley_2010 import _get_periods
 
 
-#: Period range over which ASI is defined, eq. (1)
-ASI_PERIOD_RANGE = (0.1, 0.5)
+#: Period range over which DSI is defined, eq. (1)
+DSI_PERIOD_RANGE = (2.0, 5.0)
 
 
-def _get_periods(t_low: float, t_high: float, n_per: int,
-                 spacing: str) -> np.ndarray:
-    """Discretisation of the period range into a given number of
-    integration points, p. 795
+def _get_spectral_displacement(median_sa, periods):
+    """Median spectral displacement, eq. (4)
 
-    T_i = T_low + (T_high - T_low) * (i - 1) / (n - 1), for linear spacing
-    T_i = exp[ln(T_low) + ln(T_high / T_low) * (i - 1) / (n - 1)], for log
-    spacing
+    Sd(T_i) = SA(T_i) * (T_i / (2 * pi)) ** 2
+
+    As the conversion is a deterministic scaling of SA, the lognormal
+    standard deviations and the correlations of Sd are those of SA,
+    eq. (5) and (6)
 
     Parameters
     ----------
-    t_low : float
-        Lower bound of the period range in [s]
-    t_high : float
-        Upper bound of the period range in [s]
-    n_per : int
-        Number of integration points
-    spacing : str
-        Spacing of the periods, 'linear' or 'log'
+    median_sa : numpy.ndarray
+        Median spectral accelerations in units of g, of shape
+        (n_per, n_sites)
+    periods : numpy.ndarray
+        Vibration periods at which SA is computed, of shape (n_per, )
 
     Returns
     -------
     numpy.ndarray
-        Vibration periods at which SA is computed
-
-    Raises
-    ------
-    ValueError
-        n_per is less than three, or spacing is neither 'linear' nor 'log'
+        Median spectral displacements in [cm]
     """
-    if n_per < 3:
-        raise ValueError("At least three integration points are required")
-
-    if spacing == "linear":
-        return np.linspace(t_low, t_high, n_per)
-    if spacing == "log":
-        return np.exp(np.linspace(np.log(t_low), np.log(t_high), n_per))
-
-    raise ValueError(f"Period spacing {spacing} not recognized, "
-                     "must be either 'linear' or 'log'")
+    return median_sa * GRAVITY * (periods[:, None] / (2. * np.pi)) ** 2.
 
 
-class Bradley2010ASI(GMPE):
+class Bradley2011DSI(GMPE):
 
     #: Supported tectonic region type is inherited from the SA model
     DEFINED_FOR_TECTONIC_REGION_TYPE = ''
 
     #: Supported intensity measure types
-    DEFINED_FOR_INTENSITY_MEASURE_TYPES = {ASI}
+    DEFINED_FOR_INTENSITY_MEASURE_TYPES = {DSI}
 
     #: Supported intensity measure components are inherited from the SA model
     DEFINED_FOR_INTENSITY_MEASURE_COMPONENT = ''
@@ -82,18 +67,18 @@ class Bradley2010ASI(GMPE):
 
     def __init__(self, gmpe, corr_func: str = "baker_jayaram",
                  n_per: int = 9, spacing: str = "log", **kwargs):
-        """Indirect ground motion model for the acceleration spectrum
-        intensity, ASI, originally proposed by Von Thun et al. (1988) and
-        defined as the integral of the 5% damped pseudo-spectral
-        acceleration between 0.1 and 0.5s, eq. (1). ASI is therefore in
-        units of g.s whenever the spectral accelerations of the underlying
-        model are in units of g.
+        """Indirect ground motion model for the displacement spectrum
+        intensity, DSI, defined as the integral of the 5% damped
+        displacement response spectrum between 2.0 and 5.0s, eq. (1), and
+        proposed as an indicator of the severity of the long period content
+        of a ground motion. DSI is therefore in units of cm.s whenever the
+        spectral accelerations of the underlying model are in units of g.
 
-        Rather than being calibrated on ASI observations, the median and
-        lognormal standard deviation of ASI are computed from the predictions
+        Rather than being calibrated on DSI observations, the median and
+        lognormal standard deviation of DSI are computed from the predictions
         of an arbitrary spectral acceleration model and a model for the
         correlation between spectral accelerations at different vibration
-        periods. ASI is shown to be adequately represented by a lognormal
+        periods. DSI is shown to be adequately represented by a lognormal
         distribution, fig. 1. The formulation is that employed for the
         spectrum intensity by Bradley et al. (2009), and the shared equations
         are those of :mod:`bradley_2009`.
@@ -102,20 +87,19 @@ class Bradley2010ASI(GMPE):
         ----------
         gmpe : GMPE
             Instance of the ground motion model used for the computation of
-            the spectral accelerations from which ASI is derived
+            the spectral accelerations from which DSI is derived
         corr_func : str, optional
             Handle of the function to compute correlation coefficients between
             different spectral acceleration ordinates. Valid options are:
             'baker_jayaram', 'akkar', 'aristeidou', 'eshm20', 'none'
         n_per : int, optional
-            Number of periods used to discretise the 0.1-0.5s period range.
+            Number of periods used to discretise the 2.0-5.0s period range.
             Nine integration points are found to be appropriate for a wide
-            range of magnitude and distance scenarios, fig. 2
+            range of magnitude and distance scenarios, fig. 3
         spacing : str, optional
-            Spacing of the periods over the 0.1-0.5s period range, 'log' or
-            'linear'. Logarithmic spacing converges faster, as the correlation
-            between spectral accelerations is a function of the difference in
-            the logarithm of their periods
+            Spacing of the periods over the 2.0-5.0s period range, 'log' or
+            'linear'. The two provide similar convergence rates and are
+            essentially identical in the resulting prediction, fig. 3
 
         Raises
         ------
@@ -126,7 +110,7 @@ class Bradley2010ASI(GMPE):
         self.gmpe_name = gmpe
 
         # Combine the parameters of the GMPE provided at the construction
-        # level with the ones assigned to the ASI GMPE.
+        # level with the ones assigned to the DSI GMPE.
         for key in dir(self):
             if key.startswith('REQUIRES_'):
                 setattr(self, key, getattr(self.gmpe_name, key))
@@ -134,7 +118,7 @@ class Bradley2010ASI(GMPE):
                 if not key.endswith('FOR_INTENSITY_MEASURE_TYPES'):
                     setattr(self, key, getattr(self.gmpe_name, key))
 
-        self.periods = _get_periods(*ASI_PERIOD_RANGE, n_per, spacing)
+        self.periods = _get_periods(*DSI_PERIOD_RANGE, n_per, spacing)
         self.weights = _get_weights(self.periods)
 
         # Check for existing correlation function
@@ -181,7 +165,7 @@ class Bradley2010ASI(GMPE):
 
     def get_mean_and_stddevs(self, ctx: Context, imt: IMT):
         """Provides the ground motion prediction equation for the
-        acceleration spectrum intensity, ASI
+        displacement spectrum intensity, DSI
 
         Parameters
         ----------
@@ -198,30 +182,33 @@ class Bradley2010ASI(GMPE):
 
         Reference
         -------
-        Bradley, B. A. (2010). Site-Specific and Spatially Distributed
-        Ground-Motion Prediction of Acceleration Spectrum Intensity.
-        Bulletin of the Seismological Society of America, 100(2), 792-801.
-        https://doi.org/10.1785/0120090157
+        Bradley, B. A. (2011). Empirical equations for the prediction of
+        displacement spectrum intensity and its correlation with other
+        intensity measures. Soil Dynamics and Earthquake Engineering,
+        31(8), 1182-1191. https://doi.org/10.1016/j.soildyn.2011.04.007
         """
         mean_sa, sig_sa, phi_sa = self._get_sa_predictions(ctx)
-        median_sa = np.exp(mean_sa)
         rho_ln = self.corr_func.rho
 
-        # Total-event median and dispersion of ASI, eq. (7) and (8)
+        # Median spectral displacements, eq. (4)
+        median_sd = _get_spectral_displacement(
+            np.exp(mean_sa), self.periods)
+
+        # Total-event median and dispersion of DSI, eq. (7) and (8)
         median, sig = _get_intensity_moments(
-            median_sa, sig_sa, self.weights, rho_ln)
+            median_sd, sig_sa, self.weights, rho_ln)
         mean = np.log(median)
 
         if phi_sa is None:
             return mean, [np.array([sig])]
 
-        # The intra-event dispersion of ASI is obtained in the same way as
+        # The intra-event dispersion of DSI is obtained in the same way as
         # the total-event dispersion, with the intra-event dispersion of SA
         # adopted in eq. (2), (3) and (6). The correlation of the intra-event
         # residuals is very similar to that of the total residuals, and the
         # same correlation model is therefore used
         _, phi = _get_intensity_moments(
-            median_sa, phi_sa, self.weights, rho_ln)
+            median_sd, phi_sa, self.weights, rho_ln)
         tau = np.sqrt(np.clip(sig ** 2. - phi ** 2., 0., None))
 
         return mean, [

@@ -195,6 +195,15 @@ def SI():
     return IMT('SI')
 
 
+def DSI():
+    """
+    Displacement spectrum intensity. Defines the integral of the 5% damped
+    displacement response spectrum between periods of 2.0 and 5.0 sec.
+    Units are ``cm-sec``.
+    """
+    return IMT('DSI')
+
+
 def RSD():
     """
     Relative significant duration, 5-95% of :class:`Arias intensity<IA>`,
