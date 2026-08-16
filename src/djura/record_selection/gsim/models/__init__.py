@@ -138,6 +138,9 @@ from .cauzzi_faccioli_2008 import CauzziFaccioli2008, FaccioliEtAl2010
 # Indirect AVGSA - Generic GMPE
 from .gmpe_avgsa import GmpeIndirectAvgSA
 
+# Indirect ASI - Generic GMPE
+from .bradley_2010 import Bradley2010ASI
+
 
 # --- VERTICAL
 # ACTIVE SHALLOW CRUSTAL ZONE GMPES

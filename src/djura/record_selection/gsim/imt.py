@@ -177,6 +177,15 @@ def CAV():
     return IMT('CAV')
 
 
+def ASI():
+    """
+    Acceleration spectrum intensity. Defines the integral of the 5% damped
+    pseudo-spectral acceleration between periods of 0.1 and 0.5 sec.
+    Units are ``g-sec``.
+    """
+    return IMT('ASI')
+
+
 def RSD():
     """
     Relative significant duration, 5-95% of :class:`Arias intensity<IA>`,
