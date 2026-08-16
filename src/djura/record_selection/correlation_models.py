@@ -359,6 +359,148 @@ def bradley2011_pga(period: float) -> float:
     return rho
 
 
+def bradley2011_asi_sa(period: float = None) -> float:
+    """ASI vs SA correlation
+
+    Lowest period is 0.01!
+    Highest period is 10!
+
+    References
+    ----------
+    Bradley, B.A. (2011). Empirical correlation of PGA, spectral accelerations
+    and spectrum intensities from active shallow crustal earthquakes.
+    Earthquake Engineering & Structural Dynamics, 40.
+    DOI: 10.1002/eqe.1110
+
+    Parameters
+    ----------
+    period : float, optional
+        Period of interest, by default None (for PGA)
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    if period is None or period < 0.01:
+        # As the vibration period tends to zero, SA tends to PGA
+        return bradley2011_asi_pga()
+
+    if not 0.01 <= period < 10:
+        raise ValueError(f"Period ({period}) must be 0.01 <= x < 10")
+
+    e = [0.01, 0.075, 0.30, 10]
+    a = [0.927, 0.823, 1.05]
+    b = [0.823, 0.962, 0.29]
+    c = [0.04, 0.14, 0.80]
+    d = [1.80, 2.20, 1.00]
+
+    idx = find_right_index(e, period) - 1
+
+    rho = (a[idx] + b[idx]) / 2 - \
+        (a[idx] - b[idx]) / 2 * math.tanh(d[idx] * np.log(period / c[idx]))
+
+    return rho
+
+
+def bradley2011_si_sa(period: float = None) -> float:
+    """SI vs SA correlation
+
+    Lowest period is 0.01!
+    Highest period is 10!
+
+    References
+    ----------
+    Bradley, B.A. (2011). Empirical correlation of PGA, spectral accelerations
+    and spectrum intensities from active shallow crustal earthquakes.
+    Earthquake Engineering & Structural Dynamics, 40.
+    DOI: 10.1002/eqe.1110
+
+    Parameters
+    ----------
+    period : float, optional
+        Period of interest, by default None (for PGA)
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    if period is None or period < 0.01:
+        # As the vibration period tends to zero, SA tends to PGA
+        return bradley2011_si_pga()
+
+    if not 0.01 <= period < 10:
+        raise ValueError(f"Period ({period}) must be 0.01 <= x < 10")
+
+    e = [0.01, 0.10, 1.40, 10]
+    a = [0.60, 0.38, 0.95]
+    b = [0.38, 0.94, 0.68]
+    c = [0.045, 0.33, 3.10]
+    d = [1.50, 1.40, 1.60]
+
+    idx = find_right_index(e, period) - 1
+
+    rho = (a[idx] + b[idx]) / 2 - \
+        (a[idx] - b[idx]) / 2 * math.tanh(d[idx] * np.log(period / c[idx]))
+
+    return rho
+
+
+def bradley2011_asi_pga() -> float:
+    """ASI vs PGA
+
+    References
+    ----------
+    Bradley, B.A. (2011). Empirical correlation of PGA, spectral accelerations
+    and spectrum intensities from active shallow crustal earthquakes.
+    Earthquake Engineering & Structural Dynamics, 40.
+    DOI: 10.1002/eqe.1110
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.928
+
+
+def bradley2011_si_pga() -> float:
+    """SI vs PGA
+
+    References
+    ----------
+    Bradley, B.A. (2011). Empirical correlation of PGA, spectral accelerations
+    and spectrum intensities from active shallow crustal earthquakes.
+    Earthquake Engineering & Structural Dynamics, 40.
+    DOI: 10.1002/eqe.1110
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.599
+
+
+def bradley2011_asi_si() -> float:
+    """ASI vs SI
+
+    References
+    ----------
+    Bradley, B.A. (2011). Empirical correlation of PGA, spectral accelerations
+    and spectrum intensities from active shallow crustal earthquakes.
+    Earthquake Engineering & Structural Dynamics, 40.
+    DOI: 10.1002/eqe.1110
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.641
+
+
 def bradley2012_pgv(period: float = None) -> float:
     """PGV vs SA correlation and PGV vs PGA correlation
 
