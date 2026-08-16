@@ -21,7 +21,9 @@ acceleration/velocity/displacement), `SA` (5 %-damped spectral acceleration),
 `AVGSA` (`Sa_avg`, average spectral acceleration), `SA_vert` (vertical
 spectral acceleration), `IA` (Arias intensity), `CAV` (cumulative absolute
 velocity), `RSD575`/`RSD595`/`RSD2080` (`Ds5-75`, `Ds5-95`, `Ds20-80`
-relative significant duration), `FIV3` (filtered incremental velocity).
+relative significant duration), `FIV3` (filtered incremental velocity),
+`ASI` (acceleration spectrum intensity), `SI` (spectrum intensity),
+`DSI` (displacement spectrum intensity).
 
 ---
 
@@ -114,13 +116,28 @@ relative significant duration), `FIV3` (filtered incremental velocity).
 | Class | IMs | Description and reference |
 | --- | --- | --- |
 | `GmpeIndirectAvgSA` | AVGSA | Wraps any of the GMMs above to predict `AvgSA` indirectly from the spectral accelerations at periods linearly spaced between `t_low·T0` and `t_high·T0`, using an inter-period correlation model to combine them. Follows the vector formulation used by, among others, Iacoletti, S., Cremen, G., & Galasso, C. (2023). |
+| `Bradley2010ASI` | ASI | Wraps any of the GMMs above to predict `ASI` — the integral of the 5 %-damped pseudo-spectral acceleration from 0.1 to 0.5 s, in `g·s` — from the spectral accelerations at `n_per` periods spanning that range, combined through an inter-period correlation model. Bradley, B. A. (2010). Site-specific and spatially distributed ground-motion prediction of acceleration spectrum intensity. *Bulletin of the Seismological Society of America*, 100(2), 792–801. DOI: [10.1785/0120090157](https://doi.org/10.1785/0120090157) |
+| `BradleyEtAl2009SI` | SI | As above for `SI` (Housner intensity) — the integral of the 5 %-damped pseudo-spectral velocity from 0.1 to 2.5 s, in `cm·s/s` — discretised with a step of `delta_t`. Bradley, B. A., Cubrinovski, M., MacRae, G. A., & Dhakal, R. P. (2009). Ground-motion prediction equation for SI based on spectral acceleration equations. *Bulletin of the Seismological Society of America*, 99(1), 277–285. DOI: [10.1785/0120080044](https://doi.org/10.1785/0120080044) |
+| `Bradley2011DSI` | DSI | As above for `DSI` — the integral of the 5 %-damped displacement response spectrum from 2.0 to 5.0 s, in `cm·s`. Bradley, B. A. (2011). Empirical equations for the prediction of displacement spectrum intensity and its correlation with other intensity measures. *Soil Dynamics and Earthquake Engineering*, 31(8), 1182–1191. DOI: [10.1016/j.soildyn.2011.04.007](https://doi.org/10.1016/j.soildyn.2011.04.007) |
 | `GMPETable` (in `gmpe_table.py`, not re-exported) | Any | Tabulated GMM: interpolates medians and standard deviations stored in an HDF5 file over magnitude, distance and IMT. |
 | `NGAEastGMPE` (in `nga_east.py`, not re-exported) | PGA, SA | Table-based implementation of the NGA-East ground motion characterisation; see Goulet, C. A., Bozorgnia, Y., Abrahamson, N. A., et al. (2018). *Central and Eastern North America ground-motion characterization: NGA-East final report*. PEER Report 2018/08. |
 
-The inter-period correlation models available to `GmpeIndirectAvgSA`
+The inter-period correlation models available to `GmpeIndirectAvgSA`,
+`Bradley2010ASI`, `BradleyEtAl2009SI` and `Bradley2011DSI`
 (`CORRELATION_FUNCTION_HANDLES` in `gmpe_avgsa.py`) are `baker_jayaram`,
 `akkar`, `aristeidou`, `eshm20` and `none`; they are the same models
 documented in Section 2.1.
+
+The three spectrum intensity models are *indirect*: rather than being
+calibrated on observations of `ASI`, `SI` or `DSI`, they derive the median and
+lognormal standard deviation of the integral from the spectral acceleration
+predictions of the wrapped model, and are therefore expressed in the units of
+that model (all of the GMMs above return `SA` in `g`). Because the integrand
+is a deterministic scaling of `SA`, the dispersions and inter-period
+correlations carry over unchanged; only the medians are converted to
+pseudo-spectral velocity (`SI`) or spectral displacement (`DSI`). Where the
+wrapped model supplies inter- and intra-event standard deviations, both are
+propagated.
 
 ---
 
@@ -167,13 +184,17 @@ network directly and is the model exposed through the registry.
 
 ### 2.4 Significant duration correlations
 
-All four functions below come from a single publication.
+All functions below come from a single publication.
 
 | Model name | IM pair |
 | --- | --- |
 | `bradley2011_ds` | Ds5-75 vs Ds5-95 |
 | `bradley2011_ds575_sa`, `bradley2011_ds595_sa` | Ds5-75 / Ds5-95 vs SA (and vs PGA) |
 | `bradley2011_ds575_pgv`, `bradley2011_ds595_pgv` | Ds5-75 / Ds5-95 vs PGV |
+| `bradley2011_ds575_asi`, `bradley2011_ds595_asi` | Ds5-75 / Ds5-95 vs ASI |
+| `bradley2011_ds575_si`, `bradley2011_ds595_si` | Ds5-75 / Ds5-95 vs SI |
+| `bradley2011_ds575_dsi`, `bradley2011_ds595_dsi` | Ds5-75 / Ds5-95 vs DSI |
+| `bradley2011_ds575_cav`, `bradley2011_ds595_cav` | Ds5-75 / Ds5-95 vs CAV |
 
 > Bradley, B. A. (2011). Correlation of significant duration with amplitude
 > and cumulative intensity measures and its use in ground motion selection.
@@ -194,7 +215,35 @@ All four functions below come from a single publication.
 | `baker2007_ia_sa` | IA vs SA | Baker, J. W. (2007). Correlation of ground motion intensity parameters used for predicting structural and geotechnical response. *Applications of Statistics and Probability in Civil Engineering (ICASP10)*. DOI: [10.1017/CBO9780511509759.001](https://doi.org/10.1017/CBO9780511509759.001) |
 | `bradley2015_ia_sa`, `bradley2015_ia_pga`, `bradley2015_ia_pgv`, `bradley2015_ia_ds575`, `bradley2015_ia_ds595` | IA vs SA / PGA / PGV / Ds5-75 / Ds5-95 | Bradley, B. A. (2015). Correlation of Arias intensity with amplitude, duration and cumulative intensity measures. *Soil Dynamics and Earthquake Engineering*, 78, 89–98. DOI: [10.1016/j.soildyn.2015.07.009](https://doi.org/10.1016/j.soildyn.2015.07.009) |
 
-### 2.7 Vertical-component correlations
+### 2.7 Spectrum intensity correlations (ASI, SI, DSI)
+
+The period-dependent models (`…_sa`) are piecewise hyperbolic-tangent
+functions of vibration period valid for T = 0.01–10 s; each returns the
+corresponding PGA correlation as the period tends to zero, consistent with
+SA tending to PGA. The remaining models are scalar median correlations.
+
+| Model name | IM pair | Reference |
+| --- | --- | --- |
+| `bradley2011_asi_sa`, `bradley2011_si_sa` | ASI vs SA, SI vs SA | Bradley, B. A. (2011). Empirical correlation of PGA, spectral accelerations and spectrum intensities from active shallow crustal earthquakes. *Earthquake Engineering & Structural Dynamics*, 40(15), 1707–1721. DOI: [10.1002/eqe.1110](https://doi.org/10.1002/eqe.1110) |
+| `bradley2011_asi_pga`, `bradley2011_si_pga`, `bradley2011_asi_si` | ASI vs PGA, SI vs PGA, ASI vs SI | as above |
+| `bradley2011_dsi_sa` | DSI vs SA | Bradley, B. A. (2011). Empirical equations for the prediction of displacement spectrum intensity and its correlation with other intensity measures. *Soil Dynamics and Earthquake Engineering*, 31(8), 1182–1191. DOI: [10.1016/j.soildyn.2011.04.007](https://doi.org/10.1016/j.soildyn.2011.04.007) |
+| `bradley2011_dsi_pga`, `bradley2011_dsi_pgv`, `bradley2011_dsi_asi`, `bradley2011_dsi_si` | DSI vs PGA / PGV / ASI / SI | as above |
+| `bradley2012_asi_pgv`, `bradley2012_si_pgv` | ASI vs PGV, SI vs PGV | Bradley, B. A. (2012). Empirical correlations between peak ground velocity and spectrum-based intensity measures. *Earthquake Spectra*, 28(1), 17–35. DOI: [10.1193/1.3675582](https://doi.org/10.1193/1.3675582) |
+
+Correlations of ASI, SI and DSI with significant duration are listed in
+Section 2.4, and with CAV in Section 2.8.
+
+### 2.8 Cumulative absolute velocity correlations
+
+| Model name | IM pair | Reference |
+| --- | --- | --- |
+| `bradley2012_cav_sa` | CAV vs SA (T = 0.01–10 s; tends to the CAV–PGA correlation as T tends to zero) | Bradley, B. A. (2012). Empirical correlations between cumulative absolute velocity and amplitude-based ground motion intensity measures. *Earthquake Spectra*, 28(1), 37–54. DOI: [10.1193/1.3675580](https://doi.org/10.1193/1.3675580) |
+| `bradley2012_cav_pga`, `bradley2012_cav_pgv`, `bradley2012_asi_cav`, `bradley2012_si_cav`, `bradley2012_dsi_cav` | CAV vs PGA / PGV / ASI / SI / DSI | as above |
+
+The CAV–duration correlations `bradley2011_ds575_cav` and
+`bradley2011_ds595_cav` are listed in Section 2.4.
+
+### 2.9 Vertical-component correlations
 
 | Model name | IM pair | Valid range | Reference |
 | --- | --- | --- | --- |
@@ -213,7 +262,7 @@ split of the companion vertical GMPE (`GulerceEtAl2017`), it additionally
 requires the magnitude and region. The implementation is adapted from the
 MATLAB code of N. S. Kwong.
 
-### 2.8 Horizontal-to-vertical (H–V) correlation
+### 2.10 Horizontal-to-vertical (H–V) correlation
 
 `rho_HV_indirect` derives the H–V correlation `rho_{H,V}(Ti, Tj)` from a
 horizontal GMM, a V/H GMM, a horizontal SA–SA correlation model and an
