@@ -173,6 +173,12 @@ class TestCorrelations:
     def test_bradley2011_asi_si(self):
         assert corr.bradley2011_asi_si() == 0.641
 
+    def test_bradley2012_asi_pgv(self):
+        assert corr.bradley2012_asi_pgv() == 0.729
+
+    def test_bradley2012_si_pgv(self):
+        assert corr.bradley2012_si_pgv() == 0.890
+
     @pytest.mark.parametrize(
         "t, out", [
             (11, None),

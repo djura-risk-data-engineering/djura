@@ -546,6 +546,40 @@ def bradley2012_pgv(period: float = None) -> float:
     return rho
 
 
+def bradley2012_asi_pgv() -> float:
+    """ASI vs PGV
+
+    References
+    ----------
+    Bradley, B.A. (2012). Empirical Correlations between Peak Ground Velocity
+    and Spectrum-Based Intensity Measures. Earthquake Spectra, 28, 17 - 35.
+    DOI:10.1193/1.3675582
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.729
+
+
+def bradley2012_si_pgv() -> float:
+    """SI vs PGV
+
+    References
+    ----------
+    Bradley, B.A. (2012). Empirical Correlations between Peak Ground Velocity
+    and Spectrum-Based Intensity Measures. Earthquake Spectra, 28, 17 - 35.
+    DOI:10.1193/1.3675582
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.890
+
+
 def dm18(period1: float, period2: float) -> float:
     """Sa_avg3 vs Sa_avg3 correlation
 

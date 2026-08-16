@@ -73,6 +73,8 @@ CORRELATION_MODELS = {
     "ASI-SI": ["bradley2011_asi_si"],
     "SI-SA": ["bradley2011_si_sa"],
     "SI-PGA": ["bradley2011_si_pga"],
+    "ASI-PGV": ["bradley2012_asi_pgv"],
+    "SI-PGV": ["bradley2012_si_pgv"],
     "SA_vert-SA_vert": ["kohrangi2020_sav_sav", "gkas2017_v"],
     "SA-SA_vert": ["kohrangi2020_sav_sah"],
     "SA-PGV_vert": ["kohrangi2020_sah_pgvv"],
