@@ -186,6 +186,15 @@ def ASI():
     return IMT('ASI')
 
 
+def SI():
+    """
+    Spectrum intensity. Defines the integral of the 5% damped
+    pseudo-spectral velocity between periods of 0.1 and 2.5 sec.
+    Units are ``cm-sec/sec``.
+    """
+    return IMT('SI')
+
+
 def RSD():
     """
     Relative significant duration, 5-95% of :class:`Arias intensity<IA>`,

@@ -141,6 +141,9 @@ from .gmpe_avgsa import GmpeIndirectAvgSA
 # Indirect ASI - Generic GMPE
 from .bradley_2010 import Bradley2010ASI
 
+# Indirect SI - Generic GMPE
+from .bradley_2009 import BradleyEtAl2009SI
+
 
 # --- VERTICAL
 # ACTIVE SHALLOW CRUSTAL ZONE GMPES
