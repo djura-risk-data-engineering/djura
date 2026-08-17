@@ -213,7 +213,14 @@ All functions below come from a single publication.
 | Model name | IM pair | Reference |
 | --- | --- | --- |
 | `baker2007_ia_sa` | IA vs SA | Baker, J. W. (2007). Correlation of ground motion intensity parameters used for predicting structural and geotechnical response. *Applications of Statistics and Probability in Civil Engineering (ICASP10)*. DOI: [10.1017/CBO9780511509759.001](https://doi.org/10.1017/CBO9780511509759.001) |
-| `bradley2015_ia_sa`, `bradley2015_ia_pga`, `bradley2015_ia_pgv`, `bradley2015_ia_ds575`, `bradley2015_ia_ds595` | IA vs SA / PGA / PGV / Ds5-75 / Ds5-95 | Bradley, B. A. (2015). Correlation of Arias intensity with amplitude, duration and cumulative intensity measures. *Soil Dynamics and Earthquake Engineering*, 78, 89–98. DOI: [10.1016/j.soildyn.2015.07.009](https://doi.org/10.1016/j.soildyn.2015.07.009) |
+| `bradley2015_ia_sa` | IA vs SA (T = 0.01–10 s, piecewise; tends to the IA–PGA correlation as T tends to zero) | Bradley, B. A. (2015). Correlation of Arias intensity with amplitude, duration and cumulative intensity measures. *Soil Dynamics and Earthquake Engineering*, 78, 89–98. DOI: [10.1016/j.soildyn.2015.07.009](https://doi.org/10.1016/j.soildyn.2015.07.009) |
+| `bradley2015_ia_pga`, `bradley2015_ia_pgv`, `bradley2015_ia_asi`, `bradley2015_ia_si`, `bradley2015_ia_dsi`, `bradley2015_ia_cav`, `bradley2015_ia_ds575`, `bradley2015_ia_ds595` | IA vs PGA / PGV / ASI / SI / DSI / CAV / Ds5-75 / Ds5-95 | as above, Table 1 |
+
+Together these cover all nine IMs of the 2015 paper, so Arias intensity can now
+be combined with any other supported IM in a GCIM vector. This was not possible
+when Bradley (2012) was written — that paper restricted its IM vector to
+`{SA(T), PGA, IA}` when IA was required, precisely because the IA–ASI, IA–SI,
+IA–DSI and IA–CAV correlations did not yet exist.
 
 ### 2.7 Spectrum intensity correlations (ASI, SI, DSI)
 

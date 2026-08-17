@@ -1238,7 +1238,7 @@ def bradley2015_ia_sa(period: float):
     elif 0.20 <= period < 4.0:
         a, b, c, d = 0.74, 0.46, 1.0, 1.5
     elif 4.0 <= period:     # max 10s
-        a, b, c, d = 0.46, 0.35, 5.5, 5.6
+        a, b, c, d = 0.46, 0.35, 5.5, 6.0
     else:
         # Anything below 0.01, assume PGA
         return bradley2015_ia_pga()
@@ -1280,6 +1280,78 @@ def bradley2015_ia_pgv():
         Correlation value
     """
     return 0.73
+
+
+def bradley2015_ia_asi():
+    """
+    Arias Intensity (IA) vs ASI
+
+    References
+    ----------
+    Bradley, B. A. (2015). Correlation of Arias intensity with amplitude,
+    duration and cumulative intensity measures. Soil Dynamics and Earthquake
+    Engineering, 78, 89-98. https://doi.org/10.1016/j.soildyn.2015.07.009
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.81
+
+
+def bradley2015_ia_si():
+    """
+    Arias Intensity (IA) vs SI
+
+    References
+    ----------
+    Bradley, B. A. (2015). Correlation of Arias intensity with amplitude,
+    duration and cumulative intensity measures. Soil Dynamics and Earthquake
+    Engineering, 78, 89-98. https://doi.org/10.1016/j.soildyn.2015.07.009
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.68
+
+
+def bradley2015_ia_dsi():
+    """
+    Arias Intensity (IA) vs DSI
+
+    References
+    ----------
+    Bradley, B. A. (2015). Correlation of Arias intensity with amplitude,
+    duration and cumulative intensity measures. Soil Dynamics and Earthquake
+    Engineering, 78, 89-98. https://doi.org/10.1016/j.soildyn.2015.07.009
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.51
+
+
+def bradley2015_ia_cav():
+    """
+    Arias Intensity (IA) vs CAV
+
+    References
+    ----------
+    Bradley, B. A. (2015). Correlation of Arias intensity with amplitude,
+    duration and cumulative intensity measures. Soil Dynamics and Earthquake
+    Engineering, 78, 89-98. https://doi.org/10.1016/j.soildyn.2015.07.009
+
+    Returns
+    -------
+    float
+        Correlation value
+    """
+    return 0.89
 
 
 def bradley2015_ia_ds575():
