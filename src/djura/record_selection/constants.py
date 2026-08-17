@@ -112,6 +112,64 @@ CORRELATION_MODELS = {
 }
 
 
+def is_correlation_supported(im_i: str, im_j: str) -> bool:
+    """Whether a correlation model is registered for a pair of IMs
+
+    The pair is looked up in both orders, matching the convention used
+    throughout the correlation dispatch. An IM is always correlated with
+    itself.
+
+    Parameters
+    ----------
+    im_i : str
+        First intensity measure type, without the period
+    im_j : str
+        Second intensity measure type, without the period
+
+    Returns
+    -------
+    bool
+        True if the pair can be used together in a GCIM analysis
+    """
+    if im_i == im_j:
+        return True
+
+    return bool(
+        {f"{im_i}-{im_j}", f"{im_j}-{im_i}"} & set(CORRELATION_MODELS))
+
+
+def get_compatible_ims(im: str) -> set:
+    """Intensity measures which may be selected alongside a given IM
+
+    A GCIM analysis requires a correlation model for every pair of the
+    intensity measures considered, so an IM may only be combined with those
+    for which such a model exists.
+
+    Parameters
+    ----------
+    im : str
+        Intensity measure type, without the period
+
+    Returns
+    -------
+    set
+        Supported IMs which can be combined with 'im', including itself
+
+    Raises
+    ------
+    ValueError
+        If im is not a supported intensity measure
+    """
+    if im not in SUPPORTED_IMS:
+        raise ValueError(
+            f"Intensity measure (IM) {im} is not supported. Supported "
+            f"IMs include: {SUPPORTED_IMS}")
+
+    return {
+        other for other in SUPPORTED_IMS if is_correlation_supported(im, other)
+    }
+
+
 DB_CAUSAL_PARS = {
     "mechanism": {
         "name": "Mechanism",

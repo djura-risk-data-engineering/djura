@@ -10,7 +10,7 @@ from ._gcim_conditional import _GCIMConditional
 from ._gcim_unconditional import _GCIMUnconditional
 from .utilities import get_list_id, get_periods_ims, get_period_im
 from .constants import DB_CAUSAL_PARS, SUPPORTED_IM_DESCRIPTORS, \
-    CORRELATION_MODELS, SUPPORTED_IM_COMPONENTS
+    CORRELATION_MODELS, SUPPORTED_IM_COMPONENTS, get_compatible_ims
 from ..data_loader import get_nga_west2
 
 
@@ -1004,6 +1004,26 @@ class GCIM:
 
     def available_correlation_models(self) -> dict:
         return CORRELATION_MODELS
+
+    def get_compatible_ims(self, im: str) -> set:
+        """Intensity measures which may be selected alongside a given IM
+
+        A GCIM analysis requires a correlation model for every pair of the
+        intensity measures considered. An IM without a correlation equation
+        with another cannot be selected together with it, for example IA
+        cannot be combined with Sa_avg2, Sa_avg3 or FIV3.
+
+        Parameters
+        ----------
+        im : str
+            Intensity measure type, without the period
+
+        Returns
+        -------
+        set
+            Supported IMs which can be combined with 'im', including itself
+        """
+        return get_compatible_ims(im)
 
     def get_supported_im_component_types(self) -> dict:
         return SUPPORTED_IM_COMPONENTS

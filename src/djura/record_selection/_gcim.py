@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 from typing import Tuple, List
+from itertools import combinations
 from scipy.interpolate import interp1d
-import warnings
 import numpy as np
 
 from ..utilities import get_func_args
 
 from .utilities import get_period_im, get_list_id, select_func_args, \
     select_function
-from .constants import SUPPORTED_IMS, CORRELATION_MODELS
+from .constants import SUPPORTED_IMS, CORRELATION_MODELS, \
+    is_correlation_supported, get_compatible_ims
 from .gmm_tools import calculate_epsilon
 from .gsim.oq import OQ
 from .nga_west2 import NGAWest2
@@ -434,6 +435,55 @@ class _GCIM:
         sigma = (sigma ** 2 + rotd100_sigma ** 2) ** 0.5
         return mean, sigma
 
+    def _validate_correlation_pairs(self, imi: dict, im_star: dict = None):
+        """Ensure a correlation model exists for every pair of IMs considered
+
+        The GCIM distribution requires the correlation between each pair of
+        intensity measures, so the set of IMs which may be analysed together
+        is restricted to those which are mutually supported. An IM lacking a
+        correlation equation with another (for example, IA with Sa_avg or
+        FIV3) cannot be selected alongside it.
+
+        Parameters
+        ----------
+        imi : dict
+            IMis and associated periods
+        im_star : dict, optional
+            Conditional IM, by default None (unconditional selection)
+
+        Raises
+        ------
+        ValueError
+            If any pair of the requested IMs has no correlation model
+        """
+        im_types = list(imi)
+        if im_star is not None and im_star["type"] not in im_types:
+            im_types.append(im_star["type"])
+
+        missing = sorted({
+            f"{min(im_i, im_j)}-{max(im_i, im_j)}"
+            for im_i, im_j in combinations(im_types, 2)
+            if not is_correlation_supported(im_i, im_j)
+        })
+
+        if not missing:
+            return
+
+        culprits = sorted({im for pair in missing for im in pair.split("-")})
+        details = "\n".join(
+            f"  {im} may only be combined with: "
+            f"{sorted(get_compatible_ims(im) & set(im_types))}"
+            for im in culprits
+        )
+
+        raise ValueError(
+            "No correlation model is available for the intensity measure "
+            f"pair(s) {missing}, so they cannot be analysed together. "
+            "Remove one intensity measure of each pair from 'imi', or "
+            "choose a different conditioning intensity measure.\n"
+            f"{details}"
+        )
+
     def _identify_imi_indexes(self, imi: dict):
         current = 0
         im_idxs = {}
@@ -479,9 +529,12 @@ class _GCIM:
             model_name = [f"{im}-{im_star_type}", f"{im_star_type}-{im}"]
             models = set(model_name) & set(CORRELATION_MODELS.keys())
             if not bool(models):
-                warnings.warn(
-                    f"{set(model_name)} correlation models are not present, "
-                    "assuming zero correlation between IMi and IM*")
+                # Guarded by _validate_correlation_pairs, which reports every
+                # unsupported pair at once
+                raise ValueError(
+                    "No correlation model is available for "
+                    f"{set(model_name)}, so {im} cannot be conditioned on "
+                    f"{im_star_type}")
 
             # Naming convention in constants
             im_pair_name = models.pop()
@@ -543,8 +596,12 @@ class _GCIM:
                 # if not supported zero correlation is assumed
                 models = set(model_name) & set(CORRELATION_MODELS.keys())
                 if not bool(models):
-                    warnings.warn(f"{set(model_name)} correlation models are"
-                                  " not present, assuming zero correlation")
+                    # Guarded by _validate_correlation_pairs, which reports
+                    # every unsupported pair at once
+                    raise ValueError(
+                        "No correlation model is available for "
+                        f"{set(model_name)}, so {im_i} and {im_j} cannot be "
+                        "selected together")
 
                 # Naming convention in constants
                 im_pair_name = models.pop()

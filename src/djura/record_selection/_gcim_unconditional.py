@@ -64,6 +64,9 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
         scenarios, imi, mu_rup, sigma_rup, cov_rup, gmms_dict = \
             self._initialize_create(ruptures, imi, gmms, total_weights)
 
+        # Restrict the analysis to IMs which are mutually correlated
+        self._validate_correlation_pairs(imi)
+
         for im, _scenarios in scenarios.items():
             for i, scenario in enumerate(_scenarios):
                 scenario["im_name"] = im

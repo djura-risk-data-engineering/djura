@@ -74,6 +74,9 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
         scenarios, imi, mu_rup, sigma_rup, cov_rup, gmms_dict = \
             self._initialize_create(ruptures, imi, gmms, total_weights)
 
+        # Restrict the analysis to IMs which are mutually correlated
+        self._validate_correlation_pairs(imi, im_star)
+
         mu_imstar_rup = {}
         sigma_imstar_rup = {}
         cov_imstar_rup = {}
