@@ -60,12 +60,21 @@ procedure carried out was as follows, and can be repeated as given.
    the site coordinates, the model edition, the return period and the
    remaining settings.
 
-Two deviations from the article are unavoidable and deliberate. The
-deaggregation service accepts only a discrete set of shear wave velocities, so
-360 m/s was used in place of the 400 m/s of the article; the agreement in
-Sa(2.6s) shows the difference to be immaterial at these periods. The site
+On the shear wave velocity. The service accepts only a discrete set of site
+classes and rejects 400 m/s outright, so the deaggregation cannot be run at the
+velocity stated by the article. Bracketing it, by deaggregating at 360 and
+537 m/s and interpolating linearly in the logarithm of the velocity, gives
+Sa(2.6s) = 0.420g, which is 6.6% below the published 0.45g, whereas 360 m/s
+alone gives 0.456g, which is 1.3% above it. The velocity of 360 m/s is
+therefore retained, on the evidence that it reproduces the one value the
+article publishes. The likely explanation is that the article selected a site
+class in the hazard tool rather than an arbitrary velocity. The site
 parameters passed to the ground motion model below retain the 400 m/s of the
 article, the 360 m/s applying to the deaggregation alone.
+
+The lengthened period of 5.0s is omitted throughout. The 2008 model provides
+no spectral acceleration above 3s, the service rejecting SA4P0 and SA5P0 for
+the western US, so its hazard cannot be deaggregated and is not extrapolated.
 
 Notes
 -----
@@ -112,16 +121,12 @@ SITE_PARAMETERS = {
 }
 
 #: Conditioning periods of the article, being the first three modal periods of
-#: the structure and a lengthened period, with the hazard recovered from the
-#: deaggregation described above at the 2% in 50 year exceedance probability.
+#: the structure, with the hazard recovered from the deaggregation described
+#: above at the 2% in 50 year exceedance probability.
 #:
 #: 'sa' is the spectral acceleration at the conditioning period in [g], 'mag'
 #: and 'rrup' the mean deaggregation magnitude and rupture distance, and 'eps'
-#: the mean deaggregation epsilon, retained for reference.
-#:
-#: The lengthened period carries no hazard because the 2008 model does not
-#: provide spectral accelerations above 3s, the service rejecting SA4P0 and
-#: SA5P0 for the western US. That sub-case is skipped rather than extrapolated
+#: the mean deaggregation epsilon, retained for reference
 SUB_CASES = {
     "3A_T1": {"t_star": 2.60, "sa": 0.456, "mag": 7.82, "rrup": 11.2,
               "eps": 1.27},
@@ -129,8 +134,19 @@ SUB_CASES = {
               "eps": 1.48},
     "3C_T3": {"t_star": 0.45, "sa": 1.552, "mag": 7.45, "rrup": 10.3,
               "eps": 1.58},
-    "3D_2T1": {"t_star": 5.00, "sa": None, "mag": None, "rrup": None,
-               "eps": None},
+}
+
+#: The one hazard value the article publishes, being Sa at the first modal
+#: period at the 2% in 50 year exceedance probability, figure 1(a)
+PUBLISHED_SA_T1 = 0.45
+
+#: Uniform hazard spectrum at the 2% in 50 year exceedance probability, taken
+#: from the 'Deaggregation targets' of the same responses. The article states
+#: that it envelopes the conditional mean spectra, and that each conditional
+#: mean spectrum equals it at its own conditioning period, figure 2(b)
+UNIFORM_HAZARD_SPECTRUM = {
+    0.30: 1.740, 0.50: 1.507, 0.75: 1.236,
+    1.00: 1.021, 2.00: 0.583, 3.00: 0.399,
 }
 
 #: Modal rupture of the deaggregation, identical at 2 and 3s. Combined with
@@ -264,15 +280,27 @@ def database(request, monkeypatch):
 @pytest.fixture(params=sorted(SUB_CASES))
 def sub_case(request):
     """One conditioning period with its deaggregated hazard"""
-    case = SUB_CASES[request.param]
+    return SUB_CASES[request.param]
 
-    if case["sa"] is None:
-        pytest.skip(
-            f"The 2008 conterminous US model provides no spectral "
-            f"acceleration at {case['t_star']}s, so the hazard for this "
-            "conditioning period cannot be deaggregated")
 
-    return case
+def get_uniform_hazard(periods):
+    """Uniform hazard spectrum interpolated to the requested periods
+
+    Parameters
+    ----------
+    periods : numpy.ndarray
+        Vibration periods in [s], within the range of the tabulated spectrum
+
+    Returns
+    -------
+    numpy.ndarray
+        Spectral accelerations in [g]
+    """
+    tabulated = np.array(sorted(UNIFORM_HAZARD_SPECTRUM))
+    values = np.array([UNIFORM_HAZARD_SPECTRUM[t] for t in tabulated])
+
+    return np.exp(np.interp(
+        np.log(periods), np.log(tabulated), np.log(values)))
 
 
 @pytest.mark.slow
@@ -381,3 +409,64 @@ class TestCase3ConditionalSpectrumEquations:
 
         assert mu_target == pytest.approx(mu_conditional, abs=1e-6)
         assert sigma_target == pytest.approx(sigma_conditional, abs=1e-6)
+
+
+@pytest.mark.slow
+class TestCase3AgainstThePublishedResults:
+    """The target is compared against the results reported in the article,
+    rather than against quantities computed by the software itself
+    """
+
+    def test_hazard_reproduces_the_published_amplitude(self):
+        """Figure 1(a): Sa at the first modal period at the 2% in 50 year
+        exceedance probability. This is the only hazard value the article
+        tabulates, and it validates the recovered deaggregation rather than
+        the selection, so it needs neither a database nor a target
+        """
+        assert SUB_CASES["3A_T1"]["sa"] == pytest.approx(
+            PUBLISHED_SA_T1, rel=0.05)
+
+    def test_target_equals_the_uniform_hazard_at_its_own_period(
+            self, database, sub_case):
+        """Figure 2(b): the spectral accelerations of the conditional mean
+        spectra at their respective conditioning periods equal those of the
+        uniform hazard spectrum
+        """
+        periods, mu, _ = get_target(create(sub_case))
+        star = np.argmin(np.abs(periods - sub_case["t_star"]))
+
+        assert np.exp(mu[star]) == pytest.approx(
+            get_uniform_hazard(np.array([sub_case["t_star"]]))[0], rel=0.02)
+
+    def test_uniform_hazard_envelopes_the_target(self, database, sub_case):
+        """Figure 2(b): the uniform hazard spectrum is an envelope of all the
+        conditional mean spectra, which therefore lie below it at every period
+        other than their own conditioning period. The comparison is limited to
+        the period range over which the hazard model provides spectral
+        accelerations
+        """
+        periods, mu, _ = get_target(create(sub_case))
+
+        tabulated = np.array(sorted(UNIFORM_HAZARD_SPECTRUM))
+        inside = (periods >= tabulated[0]) & (periods <= tabulated[-1])
+        away = inside & (np.abs(periods - sub_case["t_star"]) > 1e-9)
+
+        ratio = np.exp(mu[inside]) / get_uniform_hazard(periods[inside])
+
+        assert np.all(ratio <= 1.0 + 1e-2)
+        assert np.all(np.exp(mu[away]) < get_uniform_hazard(periods[away]))
+
+    def test_target_peaks_at_the_conditioning_period(
+            self, database, sub_case):
+        """Figure 2(b): each conditional mean spectrum has a relative peak at
+        its conditioning period, tapering towards the median spectrum of the
+        causal rupture away from it
+        """
+        periods, mu, _ = get_target(create(sub_case))
+
+        ratio = np.exp(mu) / get_uniform_hazard(np.clip(
+            periods, min(UNIFORM_HAZARD_SPECTRUM),
+            max(UNIFORM_HAZARD_SPECTRUM)))
+
+        assert periods[np.argmax(ratio)] == pytest.approx(
+            sub_case["t_star"])
