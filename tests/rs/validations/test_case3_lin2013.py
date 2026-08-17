@@ -85,7 +85,6 @@ import pytest
 
 import djura.data_loader as data_loader
 from djura.record_selection import correlation_models
-from djura.record_selection.constants import CORRELATION_MODELS
 from djura.record_selection.gcim import GCIM
 from djura.utilities import get_func_args
 
@@ -99,6 +98,11 @@ DATABASES = {
     "nga_west2": asset_dir / "NGA_W2_v2.pickle",
     "esm": asset_dir / "flatfile_shallow.pickle",
 }
+
+#: The article obtains the correlation between spectral accelerations at pairs
+#: of periods from Baker and Jayaram (2008), which must be requested because
+#: the registry places another model first for the SA-SA pair
+CORRELATION_MODEL = {"SA-SA": "baker_jayaram"}
 
 #: Site conditions, section 2.1 of the article
 SITE_PARAMETERS = {
@@ -198,6 +202,7 @@ def build_input(case: dict, ruptures: list = None) -> dict:
 
     return {
         "gmms": [{"SA": gmm}],
+        "correlation-models": dict(CORRELATION_MODEL),
         "site-parameters": dict(SITE_PARAMETERS),
         "ruptures": ruptures,
         "imi": [f"SA({period}s)" for period in PERIODS],
@@ -302,8 +307,8 @@ class TestCase3:
 
 
 def get_correlation(period_i: float, period_j: float) -> float:
-    """Correlation of two spectral accelerations, using the model which the
-    registry places first for the SA-SA pair, as the selection does
+    """Correlation of two spectral accelerations, using the same model as
+    the case requests of the selection
 
     Parameters
     ----------
@@ -317,7 +322,7 @@ def get_correlation(period_i: float, period_j: float) -> float:
     float
         Correlation coefficient
     """
-    model = getattr(correlation_models, CORRELATION_MODELS["SA-SA"][0])
+    model = getattr(correlation_models, CORRELATION_MODEL["SA-SA"])
 
     if "im_pair" in get_func_args(model):
         return float(np.ravel(model("SA-SA", period_i, period_j))[0])
