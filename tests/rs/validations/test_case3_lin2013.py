@@ -84,7 +84,10 @@ import numpy as np
 import pytest
 
 import djura.data_loader as data_loader
+from djura.record_selection import correlation_models
+from djura.record_selection.constants import CORRELATION_MODELS
 from djura.record_selection.gcim import GCIM
+from djura.utilities import get_func_args
 
 
 asset_dir = Path(
@@ -296,3 +299,80 @@ class TestCase3:
         assert scaled[:, star] == pytest.approx(sub_case["sa"], rel=0.01)
         assert np.mean(np.log(scaled), axis=0) == pytest.approx(mu, abs=0.15)
         assert np.std(np.log(scaled), axis=0) == pytest.approx(sigma, abs=0.15)
+
+
+def get_correlation(period_i: float, period_j: float) -> float:
+    """Correlation of two spectral accelerations, using the model which the
+    registry places first for the SA-SA pair, as the selection does
+
+    Parameters
+    ----------
+    period_i : float
+        First period in [s]
+    period_j : float
+        Second period in [s]
+
+    Returns
+    -------
+    float
+        Correlation coefficient
+    """
+    model = getattr(correlation_models, CORRELATION_MODELS["SA-SA"][0])
+
+    if "im_pair" in get_func_args(model):
+        return float(np.ravel(model("SA-SA", period_i, period_j))[0])
+
+    return float(np.ravel(model(period_i, period_j))[0])
+
+
+@pytest.mark.slow
+class TestCase3ConditionalSpectrumEquations:
+    """The target is compared against an independent evaluation of the
+    conditional spectrum equations of the article, rather than against itself.
+
+    Given the mean and standard deviation of ln SA for the causal rupture, and
+    the correlation between spectral accelerations, equations (1) to (3) of
+    the article fix the target completely
+
+        eps(T*)         = [ln Sa(T*) - mu(T*)] / sigma(T*)
+        mu(Ti | T*)     = mu(Ti) + rho(Ti, T*) eps(T*) sigma(Ti)
+        sigma(Ti | T*)  = sigma(Ti) sqrt(1 - rho(Ti, T*) ** 2)
+
+    The ground motion model predictions are taken from the intermediate
+    results of the creation step, so what is verified is the assembly of the
+    conditional distribution and not the ground motion model itself.
+    """
+
+    def test_target_follows_the_conditional_spectrum_equations(
+            self, database, sub_case):
+        gcim = create(sub_case)
+
+        periods, mu_target, sigma_target = get_target(gcim)
+        data = gcim.output_create["data"]
+
+        # Unconditional prediction for the causal rupture
+        mu = np.asarray(
+            data["mu_lnIMi_rup"]["SA"], dtype=float).reshape(-1)
+        sigma = np.asarray(
+            data["sigma_lnIMi_rup"]["SA"], dtype=float).reshape(-1)
+
+        # Prediction of the conditioning intensity measure, for the single
+        # rupture and ground motion model of this case
+        mu_star, sigma_star = (
+            float(np.ravel(list(list(data[key].values())[0].values())[0])[0])
+            for key in ("mu_lnIMj_rup", "sigma_lnIMj_rup")
+        )
+
+        # Equation (1)
+        epsilon = (np.log(sub_case["sa"]) - mu_star) / sigma_star
+
+        rho = np.array([
+            get_correlation(period, sub_case["t_star"]) for period in periods
+        ])
+
+        # Equations (2) and (3)
+        mu_conditional = mu + rho * epsilon * sigma
+        sigma_conditional = sigma * np.sqrt(1.0 - rho ** 2.)
+
+        assert mu_target == pytest.approx(mu_conditional, abs=1e-6)
+        assert sigma_target == pytest.approx(sigma_conditional, abs=1e-6)
