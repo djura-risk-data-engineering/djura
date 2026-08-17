@@ -18,7 +18,7 @@ import pytest
 
 
 def pytest_addoption(parser):
-    """Register the plotting options"""
+    """Register the plotting and reporting options"""
     group = parser.getgroup("validations")
     group.addoption(
         "--plot",
@@ -26,11 +26,26 @@ def pytest_addoption(parser):
         default=False,
         help="redraw the figures of the articles being replicated")
     group.addoption(
+        "--report",
+        action="store_true",
+        default=False,
+        help="tabulate the computed values against the published ones")
+    group.addoption(
         "--plot-dir",
         action="store",
         default=None,
-        help="directory to write the figures to, by default '_plots' "
-             "alongside the validation cases")
+        help="directory to write the figures and tables to, by default "
+             "'_plots' alongside the validation cases")
+
+
+def _output_directory(request):
+    """Directory to write figures and tables to, created if absent"""
+    directory = request.config.getoption("--plot-dir")
+    directory = Path(directory) if directory is not None \
+        else Path(__file__).resolve().parent / "_plots"
+    directory.mkdir(parents=True, exist_ok=True)
+
+    return directory
 
 
 @pytest.fixture(scope="session")
@@ -48,9 +63,20 @@ def plot_dir(request):
     pytest.importorskip(
         "matplotlib", reason="matplotlib is required to draw the figures")
 
-    directory = request.config.getoption("--plot-dir")
-    directory = Path(directory) if directory is not None \
-        else Path(__file__).resolve().parent / "_plots"
-    directory.mkdir(parents=True, exist_ok=True)
+    return _output_directory(request)
 
-    return directory
+
+@pytest.fixture(scope="session")
+def report_dir(request):
+    """Directory to write comparison tables to, skipping when a report is not
+    requested
+
+    Returns
+    -------
+    pathlib.Path
+        An existing directory
+    """
+    if not request.config.getoption("--report"):
+        pytest.skip("tables are written only when --report is given")
+
+    return _output_directory(request)

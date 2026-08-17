@@ -635,3 +635,94 @@ class TestCase3Figures:
         plt.close(figure)
 
         assert path.exists()
+
+
+@pytest.mark.slow
+class TestCase3Report:
+    """Tabulates the computed values against the published ones, so that the
+    agreement can be inspected rather than only asserted. Written only when
+    --report is given
+    """
+
+    def test_report_comparison(self, database, report_dir):
+        rows = ["# Lin et al. (2013), case 3",
+                "",
+                f"Prospective database: `{database}`.",
+                "",
+                "## Hazard recovered from the USGS 2008 deaggregation",
+                "",
+                "| Quantity | Published | Recovered | Difference |",
+                "| --- | --- | --- | --- |"]
+
+        recovered = SUB_CASES["3A_T1"]["sa"]
+        rows.append(
+            f"| Sa(2.6s), 2% in 50 years [g] | {PUBLISHED_SA_T1:.3f} | "
+            f"{recovered:.3f} | "
+            f"{100. * (recovered / PUBLISHED_SA_T1 - 1.):+.1f}% |")
+
+        rows += ["",
+                 "## Deaggregation of each conditioning period",
+                 "",
+                 "| Sub-case | T* [s] | Sa(T*) [g] | Mbar | Rbar [km] | eps |",
+                 "| --- | --- | --- | --- | --- | --- |"]
+        for name in sorted(SUB_CASES):
+            case = SUB_CASES[name]
+            rows.append(
+                f"| {name} | {case['t_star']:.2f} | {case['sa']:.3f} | "
+                f"{case['mag']:.2f} | {case['rrup']:.1f} | "
+                f"{case['eps']:.2f} |")
+
+        rows += ["",
+                 "## Target against the uniform hazard spectrum, figure 2(b)",
+                 "",
+                 "The uniform hazard spectrum envelopes the conditional mean "
+                 "spectra, which equal it at their own conditioning period.",
+                 ""]
+        tabulated = np.array(sorted(UNIFORM_HAZARD_SPECTRUM))
+        for name in sorted(SUB_CASES):
+            case = SUB_CASES[name]
+            periods, mu, _ = get_target(create(case))
+            inside = (periods >= tabulated[0]) & (periods <= tabulated[-1])
+
+            rows += [f"### {name}, T* = {case['t_star']}s",
+                     "",
+                     "| T [s] | UHS [g] | CMS [g] | CMS / UHS |",
+                     "| --- | --- | --- | --- |"]
+            for period, median in zip(
+                    periods[inside], np.exp(mu[inside])):
+                uhs = float(get_uniform_hazard(np.array([period]))[0])
+                star = r" (T\*)" \
+                    if abs(period - case["t_star"]) < 1e-9 else ""
+                rows.append(
+                    f"| {period:.2f}{star} | {uhs:.3f} | {median:.3f} | "
+                    f"{median / uhs:.3f} |")
+            rows.append("")
+
+        case = SUB_CASES["3A_T1"]
+        gcim = create(case)
+        records = gcim.select()["selected_scaled_best"]
+        periods, mu, sigma = get_target(gcim)
+        ln_scaled = np.log(np.asarray(records["Scaled_IMs"], dtype=float))
+
+        rows += ["## Selected suite against the target and figure 3",
+                 "",
+                 f"Conditioned on Sa({case['t_star']}s), "
+                 f"{NUM_RECORDS} records.",
+                 "",
+                 "| T [s] | Figure 3 [g] | Target [g] | Suite [g] | "
+                 "Target sigma | Suite sigma |",
+                 "| --- | --- | --- | --- | --- | --- |"]
+        for index, period in enumerate(periods):
+            published = PUBLISHED_SPECTRUM_T1.get(round(float(period), 2))
+            rows.append(
+                f"| {period:.2f} | "
+                f"{'-' if published is None else format(published, '.3f')} | "
+                f"{np.exp(mu[index]):.3f} | "
+                f"{np.exp(np.mean(ln_scaled[:, index])):.3f} | "
+                f"{sigma[index]:.3f} | "
+                f"{np.std(ln_scaled[:, index]):.3f} |")
+
+        path = report_dir / f"case3_comparison_{database}.md"
+        path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+
+        assert path.exists()
