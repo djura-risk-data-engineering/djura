@@ -8,7 +8,8 @@ import pytest
 
 from djura.record_selection._gcim import _GCIM
 from djura.record_selection.constants import (
-    SUPPORTED_IMS, get_compatible_ims, is_correlation_supported)
+    CORRELATION_MODELS, SUPPORTED_IMS, get_compatible_ims,
+    is_correlation_supported)
 
 
 class TestIsCorrelationSupported:
@@ -112,3 +113,76 @@ class TestValidateCorrelationPairs:
 
     def test_unconditional_omits_the_conditioning_im(self):
         _GCIM({})._validate_correlation_pairs({"SA": [1.0], "IA": []})
+
+
+class TestSelectCorrelationModel:
+    """The correlation model used for each IM pair may be chosen, so that a
+    published study can be reproduced with the equations it adopted
+    """
+
+    def test_first_registered_model_is_the_default(self):
+        gcim = _GCIM({})
+
+        assert gcim._select_correlation_model("SA-SA") == \
+            CORRELATION_MODELS["SA-SA"][0]
+
+    def test_requested_model_overrides_the_default(self):
+        gcim = _GCIM({})
+
+        assert gcim._select_correlation_model(
+            "SA-SA", {"SA-SA": "baker_jayaram"}) == "baker_jayaram"
+
+    def test_pair_is_matched_in_either_order(self):
+        gcim = _GCIM({})
+
+        assert gcim._select_correlation_model(
+            "SA-SA", {"SA-SA": "akkar"}) == "akkar"
+        assert gcim._select_correlation_model(
+            "IA-SA", {"SA-IA": "baker2007_ia_sa"}) == "baker2007_ia_sa"
+
+    def test_unnamed_pairs_keep_the_default(self):
+        gcim = _GCIM({})
+
+        assert gcim._select_correlation_model(
+            "IA-SA", {"SA-SA": "baker_jayaram"}) == \
+            CORRELATION_MODELS["IA-SA"][0]
+
+    def test_chosen_model_is_recorded(self):
+        gcim = _GCIM({})
+
+        gcim._select_correlation_model("SA-SA", {"SA-SA": "baker_jayaram"})
+        gcim._select_correlation_model("IA-SA")
+
+        assert gcim.correlation_models_used == {
+            "SA-SA": "baker_jayaram",
+            "IA-SA": CORRELATION_MODELS["IA-SA"][0],
+        }
+
+
+class TestValidateCorrelationModels:
+
+    def test_no_request_is_valid(self):
+        _GCIM({})._validate_correlation_models(None)
+        _GCIM({})._validate_correlation_models({})
+
+    def test_supported_request_is_valid(self):
+        _GCIM({})._validate_correlation_models({"SA-SA": "baker_jayaram"})
+
+    def test_malformed_pair(self):
+        with pytest.raises(ValueError) as exc:
+            _GCIM({})._validate_correlation_models({"SA": "baker_jayaram"})
+
+        assert "is not of the form" in str(exc.value)
+
+    def test_unsupported_pair(self):
+        with pytest.raises(ValueError) as exc:
+            _GCIM({})._validate_correlation_models({"IA-FIV3": "aso2024"})
+
+        assert "not a supported intensity measure pair" in str(exc.value)
+
+    def test_model_not_available_for_the_pair(self):
+        with pytest.raises(ValueError) as exc:
+            _GCIM({})._validate_correlation_models(
+                {"SA-SA": "bradley2011_pga"})
+
+        assert "is not available for" in str(exc.value)
