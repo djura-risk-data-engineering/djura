@@ -149,6 +149,20 @@ UNIFORM_HAZARD_SPECTRUM = {
     1.00: 1.021, 2.00: 0.583, 3.00: 0.399,
 }
 
+#: Conditional mean spectrum of figure 3, for the first modal period at the
+#: 2% in 50 year exceedance probability, against which the response spectra of
+#: the forty selected ground motions are plotted. The values are read from the
+#: logarithmic panel of that figure, in which the mean lies within a band of
+#: forty record spectra, so they carry a reading uncertainty of the order of a
+#: quarter and support only a coarse comparison
+PUBLISHED_SPECTRUM_T1 = {
+    0.10: 0.50, 0.50: 0.75, 1.00: 0.65,
+    2.60: 0.45, 5.00: 0.20, 10.00: 0.10,
+}
+
+#: Tolerance appropriate to values read from a figure rather than tabulated
+FIGURE_TOLERANCE = 0.25
+
 #: Modal rupture of the deaggregation, identical at 2 and 3s. Combined with
 #: the mean rupture it provides a two scenario set with which to examine the
 #: effect of multiple causal earthquakes, section 3.2 of the article
@@ -470,3 +484,48 @@ class TestCase3AgainstThePublishedResults:
 
         assert periods[np.argmax(ratio)] == pytest.approx(
             sub_case["t_star"])
+
+    def test_selected_suite_follows_the_published_spectrum(self, database):
+        """Figure 3: the response spectra of the forty selected ground motions
+        against the conditional spectrum of the article. The suite median is
+        compared with the published conditional mean, which closes the loop
+        between the records actually selected and the article, rather than
+        between the records and a target computed here.
+
+        The tolerance reflects the reading of a figure, so this establishes
+        the level of the suite rather than its detail; the agreement of the
+        suite with the target at every period is asserted separately
+        """
+        case = SUB_CASES["3A_T1"]
+
+        gcim = create(case)
+        records = gcim.select()["selected_scaled_best"]
+
+        periods, _, _ = get_target(gcim)
+        ln_scaled = np.log(np.asarray(records["Scaled_IMs"], dtype=float))
+
+        for period, published in PUBLISHED_SPECTRUM_T1.items():
+            index = int(np.argmin(np.abs(periods - period)))
+            median = float(np.exp(np.mean(ln_scaled[:, index])))
+
+            assert median == pytest.approx(
+                published, rel=FIGURE_TOLERANCE), (
+                    f"suite median at {period}s is {median:.3f}g against "
+                    f"{published}g read from figure 3")
+
+    def test_selected_suite_is_pinched_at_the_conditioning_period(
+            self, database):
+        """Figure 3: the record spectra converge at the conditioning period,
+        every record having been scaled to the same Sa(T*)
+        """
+        case = SUB_CASES["3A_T1"]
+
+        gcim = create(case)
+        records = gcim.select()["selected_scaled_best"]
+
+        periods, _, _ = get_target(gcim)
+        index = int(np.argmin(np.abs(periods - case["t_star"])))
+        scaled = np.asarray(records["Scaled_IMs"], dtype=float)[:, index]
+
+        assert np.std(np.log(scaled)) == pytest.approx(0.0, abs=1e-6)
+        assert np.ptp(scaled) == pytest.approx(0.0, abs=1e-6)
