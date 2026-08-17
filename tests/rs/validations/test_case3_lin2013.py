@@ -529,3 +529,109 @@ class TestCase3AgainstThePublishedResults:
 
         assert np.std(np.log(scaled)) == pytest.approx(0.0, abs=1e-6)
         assert np.ptp(scaled) == pytest.approx(0.0, abs=1e-6)
+
+
+@pytest.mark.slow
+class TestCase3Figures:
+    """Redraws the figures of the article from the results of the validation
+    runs, so that a comparison which a tolerance can only make coarsely may
+    also be judged by eye. Drawn only when --plot is given
+    """
+
+    def test_plot_conditional_spectra(self, database, plot_dir):
+        """Figure 2(b): the conditional mean spectra at each conditioning
+        period, with the uniform hazard spectrum superimposed
+        """
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+
+        figure, axes = plt.subplots(figsize=(6.0, 4.5))
+
+        tabulated = np.array(sorted(UNIFORM_HAZARD_SPECTRUM))
+        axes.plot(
+            tabulated, [UNIFORM_HAZARD_SPECTRUM[t] for t in tabulated],
+            color="0.4", linestyle="--", label="Uniform hazard spectrum")
+
+        for name in sorted(SUB_CASES):
+            case = SUB_CASES[name]
+            periods, mu, _ = get_target(create(case))
+
+            axes.plot(
+                periods, np.exp(mu),
+                label=f"Conditional mean spectrum, T* = {case['t_star']}s")
+            axes.plot(
+                case["t_star"], case["sa"], marker="o", color="k",
+                markersize=4, linestyle="none")
+
+        axes.set_xscale("log")
+        axes.set_yscale("log")
+        axes.set_xlim(0.1, 10.0)
+        axes.set_ylim(0.01, 5.0)
+        axes.set_xlabel("Period [s]")
+        axes.set_ylabel("Spectral acceleration [g]")
+        axes.set_title(f"Lin et al. (2013), figure 2(b) - {database}")
+        axes.grid(which="both", color="0.9")
+        axes.legend(fontsize=7)
+
+        path = plot_dir / f"case3_figure2b_{database}.png"
+        figure.savefig(path, dpi=150, bbox_inches="tight")
+        plt.close(figure)
+
+        assert path.exists()
+
+    def test_plot_selected_suite(self, database, plot_dir):
+        """Figure 3: the response spectra of the selected ground motions with
+        the conditional spectrum as target, in logarithmic and linear scale
+        """
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+
+        case = SUB_CASES["3A_T1"]
+
+        gcim = create(case)
+        records = gcim.select()["selected_scaled_best"]
+
+        periods, mu, sigma = get_target(gcim)
+        scaled = np.asarray(records["Scaled_IMs"], dtype=float)
+
+        figure, axes = plt.subplots(1, 2, figsize=(10.0, 4.0))
+
+        for panel in axes:
+            panel.plot(
+                periods, scaled.T, color="tab:green", linewidth=0.5,
+                alpha=0.6)
+            panel.plot(
+                periods, np.exp(mu), color="k",
+                label="Conditional mean spectrum")
+            panel.plot(
+                periods, np.exp(mu + sigma), color="k", linestyle=":",
+                label=r"Conditional mean $\pm$ conditional $\sigma$")
+            panel.plot(
+                periods, np.exp(mu - sigma), color="k", linestyle=":")
+            panel.plot(
+                list(PUBLISHED_SPECTRUM_T1), list(
+                    PUBLISHED_SPECTRUM_T1.values()),
+                marker="s", color="tab:red", linestyle="none",
+                label="Read from figure 3")
+            panel.set_xlabel("Period [s]")
+            panel.set_ylabel("Spectral acceleration [g]")
+            panel.grid(which="both", color="0.9")
+
+        axes[0].set_xscale("log")
+        axes[0].set_yscale("log")
+        axes[0].set_xlim(0.1, 10.0)
+        axes[0].set_ylim(0.01, 5.0)
+        axes[0].legend(fontsize=7)
+
+        axes[1].set_xlim(0.0, 6.0)
+        axes[1].set_ylim(0.0, 2.5)
+
+        figure.suptitle(f"Lin et al. (2013), figure 3 - {database}")
+
+        path = plot_dir / f"case3_figure3_{database}.png"
+        figure.savefig(path, dpi=150, bbox_inches="tight")
+        plt.close(figure)
+
+        assert path.exists()

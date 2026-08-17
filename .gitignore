@@ -184,3 +184,6 @@ src/**/*.pickle.gz
 src/**/*.pkl.gz
 
 add_license_headers.py
+
+# Figures written by the validation cases with pytest --plot
+tests/rs/validations/_plots/
