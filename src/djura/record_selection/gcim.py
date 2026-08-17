@@ -65,6 +65,10 @@ class GCIM:
         },
         # Needed for indirect avg sa computation
         "avg-sa": None,
+        # Correlation model to use for each IM pair, for example
+        # {"SA-SA": "baker_jayaram"}. Pairs which are not named use the
+        # first model registered for them in CORRELATION_MODELS
+        "correlation-models": None,
         "seed": 0,
         "ks_alpha": 0.05,
         "im_weights": [],
@@ -648,13 +652,13 @@ class GCIM:
         """
         create_vars = [
             "gmms", "ruptures", "imi", "num_components",
-            "component_definition", "total_weights",
+            "component_definition", "total_weights", "correlation_models",
         ]
 
         cond_create_vars = [
             "im_star", "gmms", "ruptures", "imi", "num_components",
             "component_definition", "total_weights", "add_data_for_dis",
-            "avg_sa",
+            "avg_sa", "correlation_models",
         ]
 
         select_vars = [

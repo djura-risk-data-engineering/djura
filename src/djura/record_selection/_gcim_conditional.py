@@ -35,6 +35,7 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
         component_definition: str,
         add_data_for_dis: dict = None,
         avg_sa: dict = None,
+        correlation_models: dict = None,
     ):
         """Creates conditional GCIM distribution
 
@@ -76,6 +77,7 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
 
         # Restrict the analysis to IMs which are mutually correlated
         self._validate_correlation_pairs(imi, im_star)
+        self._validate_correlation_models(correlation_models)
 
         mu_imstar_rup = {}
         sigma_imstar_rup = {}
@@ -87,7 +89,8 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
 
         # Compute correlation coefficients for IM* and IMis of interest
         # \rho_{lnIMi,lnIM*|Rup}
-        rho_imi_im_star = self._get_im_star_imi_correlations(im_star, imi)
+        rho_imi_im_star = self._get_im_star_imi_correlations(
+            im_star, imi, correlation_models)
 
         # Conditioned on IM*, {rup_i: [gmm1, gmm2, ..., gmmn]}
         mu_im_star = {}
@@ -195,7 +198,8 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
             mu_exact[im_type] = self.calc_exact_mean(means, weights)
 
         # Compute correlation matrix for each IMi
-        corr, _corr, _im_idxs = self._get_imi_correlation_matrix(imi)
+        corr, _corr, _im_idxs = self._get_imi_correlation_matrix(
+            imi, correlation_models)
 
         # Compute correlation matrix conditioned on IM*
         corr_cond, _corr_cond = self._get_conditional_correlation(
@@ -219,6 +223,8 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
         # Collect the output
         self.output_create["im-star"] = im_star
         self.output_create["corr_imi_imj"] = rho_imi_im_star
+        self.output_create["correlation_models"] = \
+            self.correlation_models_used
 
         target = {
             "mu_lnIMi": mu_exact,

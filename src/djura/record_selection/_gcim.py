@@ -29,6 +29,10 @@ class _GCIM:
         self.metadata = metadata
         self.USE_FULL_PSHA = use_disaggregation
 
+        #: Correlation model applied to each IM pair, populated during the
+        #: creation of the distribution and reported with its output
+        self.correlation_models_used = {}
+
         self._correlations = Correlations()
 
     def _add_missing_im(
@@ -435,6 +439,43 @@ class _GCIM:
         sigma = (sigma ** 2 + rotd100_sigma ** 2) ** 0.5
         return mean, sigma
 
+    def _validate_correlation_models(self, correlation_models: dict = None):
+        """Ensure the requested correlation models exist for their IM pairs
+
+        Parameters
+        ----------
+        correlation_models : dict, optional
+            Correlation model to use for each IM pair, by default None
+
+        Raises
+        ------
+        ValueError
+            If a pair is not registered, or the model is not available for it
+        """
+        if not correlation_models:
+            return
+
+        for im_pair_name, model_name in correlation_models.items():
+            im_types = im_pair_name.split("-")
+            if len(im_types) != 2:
+                raise ValueError(
+                    f"Correlation model pair {im_pair_name} is not of the "
+                    "form 'IMi-IMj'")
+
+            im_i, im_j = im_types
+            registered = {im_pair_name, f"{im_j}-{im_i}"} \
+                & set(CORRELATION_MODELS)
+            if not registered:
+                raise ValueError(
+                    f"{im_pair_name} is not a supported intensity measure "
+                    f"pair. Supported pairs are: {sorted(CORRELATION_MODELS)}")
+
+            available = CORRELATION_MODELS[registered.pop()]
+            if model_name not in available:
+                raise ValueError(
+                    f"Correlation model {model_name} is not available for "
+                    f"{im_pair_name}. Available models are: {available}")
+
     def _validate_correlation_pairs(self, imi: dict, im_star: dict = None):
         """Ensure a correlation model exists for every pair of IMs considered
 
@@ -494,8 +535,44 @@ class _GCIM:
             current += n_periods
         return im_idxs, current
 
+    def _select_correlation_model(
+            self, im_pair_name: str, correlation_models: dict = None) -> str:
+        """Correlation model to use for a pair of intensity measures
+
+        The model registered first for the pair is used unless the pair is
+        named in 'correlation_models', which allows a published study to be
+        reproduced with the correlation equations it adopted. The chosen model
+        is recorded so that the output states which equations produced it.
+
+        Parameters
+        ----------
+        im_pair_name : str
+            IMi-IMj pair, named as in the correlation model registry
+        correlation_models : dict, optional
+            Correlation model to use for each IM pair, by default None (the
+            first registered model of every pair)
+
+        Returns
+        -------
+        str
+            Name of the correlation model
+        """
+        model_name = CORRELATION_MODELS[im_pair_name][0]
+
+        if correlation_models:
+            im_i, im_j = im_pair_name.split("-")
+            for key in (im_pair_name, f"{im_j}-{im_i}"):
+                if key in correlation_models:
+                    model_name = correlation_models[key]
+                    break
+
+        self.correlation_models_used[im_pair_name] = model_name
+
+        return model_name
+
     def _get_im_star_imi_correlations(
-            self, im_star: dict, imi: dict, corr_model: str = None):
+            self, im_star: dict, imi: dict,
+            correlation_models: dict = None):
         """Calculates IM* and IMi correlations
 
         Parameters
@@ -504,6 +581,8 @@ class _GCIM:
             Conditional IM
         imi : dict
             IMis and associated periods
+        correlation_models : dict, optional
+            Correlation model to use for each IM pair, by default None
 
         Returns
         -------
@@ -539,12 +618,8 @@ class _GCIM:
             # Naming convention in constants
             im_pair_name = models.pop()
 
-            # The index below chooses which of the available correlation
-            # models to use
-            model_name = CORRELATION_MODELS[im_pair_name][0]
-            if corr_model is not None and \
-                    corr_model in CORRELATION_MODELS[im_pair_name]:
-                model_name = corr_model
+            model_name = self._select_correlation_model(
+                im_pair_name, correlation_models)
 
             # Naming convention for proper reading of periods
             im_pair = f"{im}-{im_star_type}"
@@ -557,13 +632,16 @@ class _GCIM:
 
         return corr
 
-    def _get_imi_correlation_matrix(self, imi: dict) -> np.ndarray:
+    def _get_imi_correlation_matrix(
+            self, imi: dict, correlation_models: dict = None) -> np.ndarray:
         """Get correlation matrix for all IMi (unconditioned)
 
         Parameters
         ----------
         imi : dict
             IMis and associated periods
+        correlation_models : dict, optional
+            Correlation model to use for each IM pair, by default None
 
         Returns
         -------
@@ -609,7 +687,8 @@ class _GCIM:
                     continue
 
                 visited.add(im_pair_name)
-                model_name = CORRELATION_MODELS[im_pair_name][0]
+                model_name = self._select_correlation_model(
+                    im_pair_name, correlation_models)
 
                 # Naming convention for proper reading of periods
                 im_pair = f"{im_i}-{im_j}"

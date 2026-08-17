@@ -30,6 +30,7 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
         imi: List[str],
         num_components: int,
         component_definition: str,
+        correlation_models: dict = None,
     ):
         num_components = int(num_components)
 
@@ -66,6 +67,7 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
 
         # Restrict the analysis to IMs which are mutually correlated
         self._validate_correlation_pairs(imi)
+        self._validate_correlation_models(correlation_models)
 
         for im, _scenarios in scenarios.items():
             for i, scenario in enumerate(_scenarios):
@@ -91,7 +93,8 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
             mu_exact[im_type] = self.calc_exact_mean(means, weights)
 
         # Compute covariance matrix for each case
-        corr_dict, corr_arr, _im_idxs = self._get_imi_correlation_matrix(imi)
+        corr_dict, corr_arr, _im_idxs = self._get_imi_correlation_matrix(
+            imi, correlation_models)
 
         # COV_{ln(IMi|rup)}
         cov_rup = self._get_all_imi_cov_matrices(
@@ -118,6 +121,8 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
             "im_idxs": _im_idxs,
         }
         self.output_create["target"] = target
+        self.output_create["correlation_models"] = \
+            self.correlation_models_used
 
         # Intermediate results
         self.output_create["data"] = {
