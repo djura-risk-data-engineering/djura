@@ -19,10 +19,6 @@ by listing only ``SA`` entries in ``imi``, with uniform weights.
 The case lives in
 `tests/rs/validations/test_case3_lin2013.py <https://github.com/djura-risk-data-engineering/djura/blob/main/tests/rs/validations/test_case3_lin2013.py>`_.
 
-.. contents::
-   :local:
-   :depth: 2
-
 
 The case
 --------
