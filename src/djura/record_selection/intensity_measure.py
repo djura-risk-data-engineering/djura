@@ -11,6 +11,52 @@ from scipy.integrate import cumulative_trapezoid, trapezoid
 _trapezoid = np.trapezoid if np.lib.NumpyVersion(np.__version__) >= "2.0.0" \
     else np.trapz
 
+#: Period range over which ASI is defined in [s],
+#: Von Thun et al. (1988)
+ASI_PERIOD_RANGE = (0.1, 0.5)
+
+#: Period range over which SI is defined in [s], Housner (1952)
+SI_PERIOD_RANGE = (0.1, 2.5)
+
+#: Period range over which DSI is defined in [s], Bradley (2011)
+DSI_PERIOD_RANGE = (2.0, 5.0)
+
+
+def _get_integration_periods(
+    period_range: tuple[float, float], delta_period: float
+) -> np.ndarray:
+    """Discretisation of a period range for the numerical integration of a
+    response spectrum
+
+    Parameters
+    ----------
+    period_range : tuple[float, float]
+        Lower and upper bound of the period range in [s]
+    delta_period : float
+        Target step-size of the period discretisation in [s]
+
+    Returns
+    -------
+    numpy.ndarray
+        Evenly spaced vibration periods spanning the period range, of shape
+        (n_per, )
+
+    Raises
+    ------
+    ValueError
+        delta_period is not positive, or is larger than half the period range
+    """
+    t_low, t_high = period_range
+
+    if delta_period <= 0. or delta_period > (t_high - t_low) / 2.:
+        raise ValueError(
+            f"Period step-size must be within (0, {(t_high - t_low) / 2.}], "
+            f"{delta_period} was given")
+
+    n_per = int(np.ceil((t_high - t_low) / delta_period)) + 1
+
+    return np.linspace(t_low, t_high, n_per)
+
 
 class IntensityMeasure:
     # Acceleration of gravity in [m/s2]
@@ -522,6 +568,107 @@ class IntensityMeasure:
         end_time = ind2[0][-1] * dt
 
         return (end_time - start_time, start_time, end_time)
+
+    def get_asi(self, acc: List[float], dt: float, damping: float = 0.05,
+                delta_period: float = 0.01) -> float:
+        """Get acceleration spectrum intensity (ASI) in [g-sec] according to
+        Von Thun et al. (1988)
+
+        ASI = integral of Sa(T, damping) over the 0.1-0.5s period range
+
+        Parameters
+        ----------
+        acc : List[float]
+            Acceleration time series in [g]
+        dt : float
+            Time step in [s]
+        damping : float, optional
+            Damping ratio, by default 0.05
+        delta_period : float, optional
+            Step-size of the period discretisation used in the integration
+            in [s], by default 0.01
+
+        Returns
+        -------
+        float
+            ASI in [g-sec]
+        """
+        periods = _get_integration_periods(ASI_PERIOD_RANGE, delta_period)
+
+        # Pseudo spectral acceleration in [g]
+        sa = self.get_sat(periods, acc, dt, damping)
+
+        return _trapezoid(sa, periods)
+
+    def get_si(self, acc: List[float], dt: float, damping: float = 0.05,
+               delta_period: float = 0.01) -> float:
+        """Get spectrum intensity (SI), also known as Housner intensity, in
+        [cm-sec/sec] according to Housner (1952)
+
+        SI = integral of PSV(T, damping) over the 0.1-2.5s period range,
+        where PSV(T) = Sa(T) * T / (2 * pi)
+
+        Parameters
+        ----------
+        acc : List[float]
+            Acceleration time series in [g]
+        dt : float
+            Time step in [s]
+        damping : float, optional
+            Damping ratio, by default 0.05
+        delta_period : float, optional
+            Step-size of the period discretisation used in the integration
+            in [s], by default 0.01
+
+        Returns
+        -------
+        float
+            SI in [cm-sec/sec]
+        """
+        periods = _get_integration_periods(SI_PERIOD_RANGE, delta_period)
+
+        # Pseudo spectral acceleration in [m/s2]
+        sa = self.get_sat(periods, acc, dt, damping) * self.g
+
+        # Pseudo spectral velocity in [cm/s]
+        psv = sa * periods / (2 * np.pi) * 100.
+
+        return _trapezoid(psv, periods)
+
+    def get_dsi(self, acc: List[float], dt: float, damping: float = 0.05,
+                delta_period: float = 0.01) -> float:
+        """Get displacement spectrum intensity (DSI) in [cm-sec] according to
+        Bradley (2011)
+
+        DSI = integral of Sd(T, damping) over the 2.0-5.0s period range,
+        where Sd(T) = Sa(T) * (T / (2 * pi)) ** 2
+
+        Parameters
+        ----------
+        acc : List[float]
+            Acceleration time series in [g]
+        dt : float
+            Time step in [s]
+        damping : float, optional
+            Damping ratio, by default 0.05
+        delta_period : float, optional
+            Step-size of the period discretisation used in the integration
+            in [s], by default 0.01
+
+        Returns
+        -------
+        float
+            DSI in [cm-sec]
+        """
+        periods = _get_integration_periods(DSI_PERIOD_RANGE, delta_period)
+
+        # Pseudo spectral acceleration in [m/s2]
+        sa = self.get_sat(periods, acc, dt, damping) * self.g
+
+        # Spectral displacement in [cm]
+        sd = sa * (periods / (2 * np.pi)) ** 2. * 100.
+
+        return _trapezoid(sd, periods)
 
     def get_cav(self, acc: List[float], dt: float) -> float:
         """Get cumulative absolute velocity (CAV) in [m/s]
