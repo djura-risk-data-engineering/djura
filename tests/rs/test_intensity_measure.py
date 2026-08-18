@@ -187,6 +187,79 @@ class TestIntensityMeasure:
         assert ia == pytest.approx(expected, abs=0.01)
 
     @pytest.mark.parametrize(
+        "dt, damping, delta_period, expected", [
+            (0.005, 0.05, 0.01, 0.265),
+            (0.002, 0.05, 0.01, 0.148),
+            (0.010, 0.05, 0.01, 0.233),
+            (0.005, 0.02, 0.01, 0.358),
+            (0.005, 0.10, 0.01, 0.197),
+            (0.005, 0.05, 0.005, 0.265),
+            (0.005, 0.05, 0.050, 0.271),
+        ]
+    )
+    def test_get_asi(self, model: IntensityMeasure, record, dt, damping,
+                     delta_period, expected):
+        asi = model.get_asi(record, dt, damping, delta_period)
+
+        assert asi == pytest.approx(expected, abs=0.001)
+
+    @pytest.mark.parametrize(
+        "dt, damping, delta_period, expected", [
+            (0.005, 0.05, 0.01, 80.88),
+            (0.002, 0.05, 0.01, 29.22),
+            (0.010, 0.05, 0.01, 152.76),
+            (0.005, 0.02, 0.01, 107.52),
+            (0.005, 0.10, 0.01, 60.04),
+            (0.005, 0.05, 0.005, 80.88),
+            (0.005, 0.05, 0.050, 81.17),
+        ]
+    )
+    def test_get_si(self, model: IntensityMeasure, record, dt, damping,
+                    delta_period, expected):
+        si = model.get_si(record, dt, damping, delta_period)
+
+        assert si == pytest.approx(expected, abs=0.01)
+
+    @pytest.mark.parametrize(
+        "dt, damping, delta_period, expected", [
+            (0.005, 0.05, 0.01, 46.06),
+            (0.002, 0.05, 0.01, 8.26),
+            (0.010, 0.05, 0.01, 114.44),
+            (0.005, 0.02, 0.01, 58.69),
+            (0.005, 0.10, 0.01, 36.03),
+            (0.005, 0.05, 0.005, 46.06),
+            (0.005, 0.05, 0.050, 46.06),
+        ]
+    )
+    def test_get_dsi(self, model: IntensityMeasure, record, dt, damping,
+                     delta_period, expected):
+        dsi = model.get_dsi(record, dt, damping, delta_period)
+
+        assert dsi == pytest.approx(expected, abs=0.01)
+
+    @pytest.mark.parametrize(
+        "intensity_measure, delta_period, upper_bound", [
+            ("get_asi", 0.0, 0.2),
+            ("get_asi", 0.3, 0.2),
+            ("get_si", -0.01, 1.2),
+            ("get_si", 1.5, 1.2),
+            ("get_dsi", 0.0, 1.5),
+            ("get_dsi", 2.0, 1.5),
+        ]
+    )
+    def test_spectrum_intensity_period_step(
+        self, model: IntensityMeasure, record, intensity_measure,
+        delta_period, upper_bound
+    ):
+        with pytest.raises(ValueError) as exc:
+            getattr(model, intensity_measure)(
+                record, 0.005, 0.05, delta_period)
+
+        assert str(exc.value) == \
+            f"Period step-size must be within (0, {upper_bound}], " \
+            f"{delta_period} was given"
+
+    @pytest.mark.parametrize(
         "dt, expected", [
             (0.005, 10.1),
             (0.002, 4.0),
