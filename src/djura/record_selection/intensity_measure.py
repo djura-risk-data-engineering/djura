@@ -671,7 +671,10 @@ class IntensityMeasure:
         return _trapezoid(sd, periods)
 
     def get_cav(self, acc: List[float], dt: float) -> float:
-        """Get cumulative absolute velocity (CAV) in [m/s]
+        """Get cumulative absolute velocity (CAV) in [g-sec]
+
+        CAV = integral of the absolute acceleration time series over the
+        full duration of the record
 
         Parameters
         ----------
@@ -683,9 +686,9 @@ class IntensityMeasure:
         Returns
         -------
         float
-            CAV in [m/s]
+            CAV in [g-sec]
         """
-        abs_acc = np.abs(acc) * self.g
+        abs_acc = np.abs(acc)
         time = dt * np.arange(0, len(acc), 1)
 
         return _trapezoid(abs_acc, time)

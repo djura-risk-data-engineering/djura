@@ -261,15 +261,15 @@ class TestIntensityMeasure:
 
     @pytest.mark.parametrize(
         "dt, expected", [
-            (0.005, 10.1),
-            (0.002, 4.0),
-            (0.010, 20.1),
+            (0.005, 1.03),
+            (0.002, 0.41),
+            (0.010, 2.05),
         ]
     )
     def test_get_cav(self, model: IntensityMeasure, record, dt, expected):
         cav = model.get_cav(record, dt)
 
-        assert cav == pytest.approx(expected, abs=0.1)
+        assert cav == pytest.approx(expected, abs=0.01)
 
     @pytest.mark.parametrize(
         "dt, start, end, expected", [
