@@ -13,7 +13,7 @@ from .constants import SUPPORTED_IMS, CORRELATION_MODELS, \
     is_correlation_supported, get_compatible_ims
 from .gmm_tools import calculate_epsilon
 from .gsim.oq import OQ
-from .nga_west2 import NGAWest2
+from .flatfile import Flatfile
 from .correlations import Correlations
 from . import correlation_models
 from .gsim import const
@@ -49,7 +49,7 @@ class _GCIM:
         if period is None or period <= 0.0:
             return
 
-        nga = NGAWest2(self.metadata)
+        nga = Flatfile(self.metadata)
         nga.add_missing_im(im, period)
         self.metadata = nga.metadata
 

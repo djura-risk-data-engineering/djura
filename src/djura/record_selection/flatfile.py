@@ -7,7 +7,7 @@ from .intensity_measure import IntensityMeasure
 from .constants import SUPPORTED_IMS
 
 
-class NGAWest2:
+class Flatfile:
 
     def __init__(
             self, metadata: dict, verbosity: int = 0) -> None:
