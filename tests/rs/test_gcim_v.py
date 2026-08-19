@@ -5,7 +5,7 @@ DEV:
 To run the test locally
 
 ```sh
-export DJURA_METADATA_PATH=src/djura/record_selection/assets/NGA_W2_v2.pickle
+export DJURA_METADATA_PATH=/path/to/flatfile.pickle
 pytest -m slow
 ```
 
@@ -13,14 +13,14 @@ PowerShell (Windows):
 
 ```powershell
 $env:DJURA_METADATA_PATH = `
-    "src/djura/record_selection/assets/NGA_W2_v2.pickle"
+    "/path/to/flatfile.pickle"
 pytest -m slow
 ```
 
 CMD (Windows):
 
 ```cmd
-set DJURA_METADATA_PATH=src/djura/record_selection/assets/NGA_W2_v2.pickle
+set DJURA_METADATA_PATH=/path/to/flatfile.pickle
 pytest -m slow
 ```
 """

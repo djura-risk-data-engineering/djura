@@ -61,14 +61,12 @@ Record databases
 
 .. important::
 
-   **The NGA-West2 database is not distributed with djura and is not
-   downloaded by it.** It must be obtained separately by the user, converted
+   **Only one dataset is distributed with djura; any additional flatfile
+   must be provided by the user.** It must be obtained separately, converted
    to the metadata format djura expects, and supplied through the
-   ``DJURA_METADATA_PATH`` environment variable.
-
-   The dataset djura fetches on first use is the pan-European ESM flatfile
-   (``flatfile_shallow.pickle``). Nothing in the package installs, downloads
-   or redistributes NGA-West2, whose terms of use are set by PEER.
+   ``DJURA_METADATA_PATH`` environment variable. Nothing in the package
+   installs, downloads or redistributes a third-party database beyond the
+   bundled one (``flatfile_shallow.pickle``).
 
    See :doc:`../custom_metadata` for the expected schema.
 
@@ -77,15 +75,16 @@ of the prospective record set is isolated:
 
 .. code-block:: bash
 
-   # NGA-West2, supplied by the user
-   export DJURA_METADATA_PATH=/path/to/NGA_W2_v2.pickle
+   # a Californian database, supplied by the user
+   export DJURA_METADATA_PATH=/path/to/user_flatfile.pickle
 
-   # ESM, downloaded by djura on first use
+   # the bundled dataset, downloaded by djura on first use
    export DJURA_METADATA_PATH=/path/to/flatfile_shallow.pickle
 
-The article used NGA-West1, so neither run can reproduce its record list. The
-NGA-West2 run is the nearer analogue; the ESM run is a deliberate sensitivity
-test of a European database against Californian hazard.
+The article used an earlier database than either run, so neither reproduces
+its record list. The user-supplied Californian run is the nearer analogue;
+the bundled-dataset run is a deliberate sensitivity test of a pan-European
+record set against Californian hazard.
 
 
 Seismic hazard inputs
@@ -311,7 +310,7 @@ of forty record spectra in a raster figure, those readings carry an
 uncertainty of roughly a quarter, and the comparison establishes the level of
 the suite rather than its detail.
 
-.. list-table:: Suite against target and figure 3, NGA-West2, :math:`T^*` = 2.6 s
+.. list-table:: Suite against target and figure 3, user-supplied Californian database, :math:`T^*` = 2.6 s
    :header-rows: 1
    :widths: 12 18 16 16 19 19
 

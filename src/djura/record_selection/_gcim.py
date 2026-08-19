@@ -49,9 +49,9 @@ class _GCIM:
         if period is None or period <= 0.0:
             return
 
-        nga = Flatfile(self.metadata)
-        nga.add_missing_im(im, period)
-        self.metadata = nga.metadata
+        flatfile = Flatfile(self.metadata)
+        flatfile.add_missing_im(im, period)
+        self.metadata = flatfile.metadata
 
     def _validate_gmm(self, gmm: str, **kwargs):
         return OQ()._validate_gmm(gmm, **kwargs)

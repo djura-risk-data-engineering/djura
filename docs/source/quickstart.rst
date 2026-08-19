@@ -44,7 +44,7 @@ Ground motion record selection
 
    from djura.record_selection import GCIM
 
-   # NGA-West2 dataset is downloaded and cached automatically on first use
+   # the bundled dataset is downloaded and cached automatically on first use
    gcim = GCIM(data="path/to/input.json", conditional=True)
    gcim.create()
    gcim.select()

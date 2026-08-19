@@ -85,7 +85,7 @@ Save the JSON above as ``input.json``, then:
    from djura.record_selection import GCIM
 
    # Pass the path to your input file and enable conditional selection.
-   # The NGA-West2 dataset is downloaded and cached automatically on first use.
+   # The bundled dataset is downloaded and cached automatically on first use.
    gcim = GCIM("input.json", conditional=True)
 
    # Step 1: build the GCIM distributions for all IMs in "imi",

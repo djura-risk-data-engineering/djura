@@ -48,8 +48,9 @@ poetry install --with dev,docs     # also documentation dependencies
 # fast tests only (default in CI)
 poetry run pytest -m "not slow"
 
-# the full suite, including slow tests that require the local NGA-West2 dataset
-export DJURA_METADATA_PATH=src/djura/record_selection/assets/NGA_W2_v2.pickle
+# the full suite, including slow tests that require a local flatfile
+# (additional flatfiles must be provided by the user)
+export DJURA_METADATA_PATH=/path/to/flatfile.pickle
 poetry run pytest
 
 # with coverage
@@ -59,7 +60,7 @@ poetry run pytest --cov=djura --cov-report=term-missing -m "not slow"
 On Windows (PowerShell), set the dataset path with:
 
 ```powershell
-$env:DJURA_METADATA_PATH = "src/djura/record_selection/assets/NGA_W2_v2.pickle"
+$env:DJURA_METADATA_PATH = "C:\path\to\flatfile.pickle"
 ```
 
 ## Code style

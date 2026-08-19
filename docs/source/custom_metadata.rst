@@ -5,8 +5,8 @@ The record-selection routines in :mod:`djura.record_selection` never read a
 ground motion database directly. They operate on a single, in-memory
 **metadata object**: a plain Python ``dict`` of NumPy arrays in which the
 record-level fields and intensity-measure (IM) values are pre-populated in a
-common schema. The bundled ``NGA_W2_v2.pickle`` is just one realisation of
-that schema.
+common schema. The bundled dataset is just one realisation of that schema;
+any additional flatfile must be provided by the user.
 
 This means a *new* database can be incorporated by mapping its records onto
 the same schema. Once the metadata fields and IM values are populated in the

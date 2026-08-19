@@ -1,9 +1,14 @@
-Bundled dataset (NGA-West2)
-===========================
+Bundled dataset
+===============
 
-The NGA-West2 metadata (~107 MB uncompressed) is too large to ship inside
-the wheel. It is hosted as a gzip-compressed asset on a GitHub Release and
-downloaded automatically the first time it is needed.
+The bundled metadata is too large to ship inside the wheel. It is hosted as
+a gzip-compressed asset on a GitHub Release and downloaded automatically the
+first time it is needed.
+
+Only this one dataset is distributed with djura. Any additional flatfile:
+a different database, a regional subset, or an extended version of your own,
+must be provided by the user: map it onto the common metadata schema and
+point djura at it with ``DJURA_METADATA_PATH`` (see :doc:`custom_metadata`).
 
 Automatic download
 ------------------
@@ -53,9 +58,7 @@ that conforms to the expected schema, see :doc:`custom_metadata`.
 Attribution
 -----------
 
-The dataset is derived from the
-`NGA-West2 Ground Motion Database <https://ngawest2.berkeley.edu>`_
-(PEER, UC Berkeley). It contains metadata only — no waveform records.
-See
+The dataset contains metadata only — no waveform records. See
 `ATTRIBUTION.md <https://github.com/djura-risk-data-engineering/djura/blob/main/src/djura/record_selection/assets/ATTRIBUTION.md>`_
-for full attribution and instructions on downloading waveforms from PEER.
+for full attribution and for instructions on obtaining the underlying
+waveforms.

@@ -24,13 +24,6 @@ Intensity measures
    :members:
    :show-inheritance:
 
-NGA-West2 interface
--------------------
-
-.. autoclass:: djura.record_selection.nga_west2.NGAWest2
-   :members:
-   :show-inheritance:
-
 Correlation models
 ------------------
 

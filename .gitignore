@@ -162,7 +162,7 @@ cython_debug/
 
 temp/
 info.md
-src/assets/NGA_W2*
+src/assets/*.pickle
 src/assets/flatfile*
 .vscode/
 temp.py

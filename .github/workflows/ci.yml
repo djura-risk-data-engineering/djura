@@ -63,11 +63,11 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
 
-      - name: Cache NGA-West2 dataset
+      - name: Cache bundled dataset
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.cache/djura
-          key: nga-west2-data-v1
+          key: djura-flatfile-data-v1
 
       - name: Install dependencies
         # ``matrix.extras`` is "--all-extras" on the primary job and unset

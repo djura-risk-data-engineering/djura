@@ -103,7 +103,7 @@ class _GCIMSelect:
         # is being performed
         im_star_db = self._get_im_star_db()
 
-        # The structure of the database is based on NGA-W2 metadata
+        # The structure of the database follows the common metadata schema
         im_known, context, filename1, filename2, rsn, eq_id, allowed_idxs = \
             self._filter_database(imi, num_records, context_limits,
                                   num_components, component_definition)

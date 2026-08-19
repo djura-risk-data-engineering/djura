@@ -6,8 +6,10 @@ The dataset is too large (>100 MB) to ship inside the wheel, so it is
 hosted as a gzip-compressed asset on a GitHub Release and fetched on
 first use into a per-user cache directory.
 
-Override the source with the ``DJURA_METADATA_PATH`` environment variable
-to use a custom metadata file instead (see ``get_nga_west2``).
+Only this one dataset is distributed with the package; additional flatfiles
+must be provided by the user. Override the source with the
+``DJURA_METADATA_PATH`` environment variable to use a custom metadata file
+instead (see ``get_metadata``).
 """
 
 import gzip
@@ -130,27 +132,28 @@ def load_data() -> Any:
 def clear_cache() -> None:
     """Remove the cached dataset so it is re-downloaded on next load_data().
     """
-    global _nga_west2
-    _nga_west2 = None
+    global _metadata
+    _metadata = None
     cache = _cache_path()
     cache.unlink(missing_ok=True)
 
 
-_nga_west2: Any = None
+_metadata: Any = None
 
 
-def get_nga_west2() -> Any:
-    """Return the NGA-West2 metadata, loading it at most once per process.
+def get_metadata() -> Any:
+    """Return the record metadata, loading it at most once per process.
 
     Override the source by setting the ``DJURA_METADATA_PATH`` environment
-    variable to the path of a custom pickle file.
+    variable to the path of a custom pickle file. Any flatfile other than
+    the bundled one must be provided by the user.
     """
-    global _nga_west2
-    if _nga_west2 is None:
+    global _metadata
+    if _metadata is None:
         custom = os.environ.get("DJURA_METADATA_PATH")
         if custom:
             with open(custom, "rb") as f:
-                _nga_west2 = pickle.load(f)
+                _metadata = pickle.load(f)
         else:
-            _nga_west2 = load_data()
-    return _nga_west2
+            _metadata = load_data()
+    return _metadata

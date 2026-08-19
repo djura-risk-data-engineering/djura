@@ -1,7 +1,7 @@
 djura.data_loader
 =================
 
-Download, cache, and load the bundled NGA-West2 dataset.
+Download, cache, and load the bundled dataset.
 
 See :doc:`../dataset` for a user-facing explanation of how the dataset
 is distributed and how to configure a custom path.

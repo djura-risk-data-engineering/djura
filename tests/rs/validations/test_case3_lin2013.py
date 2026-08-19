@@ -81,9 +81,10 @@ Notes
 The selected records are not expected to match those of the article. The
 selection algorithm draws random realizations from the conditional
 distribution, so the suite depends on the seed, on the realization draw and on
-the prospective database, and the article used NGA-West1 whereas the runs here
-use NGA-West2 (downloaded externally) and ESM. What is validated is the target
-distribution and the properties which the selected suite must satisfy.
+the prospective database, and the article used an earlier database than either
+of the two run here (a user-supplied Californian flatfile and the bundled
+dataset). What is validated is the target distribution and the properties
+which the selected suite must satisfy.
 """
 
 import os
@@ -102,10 +103,17 @@ asset_dir = Path(
     __file__).resolve().parents[3] / "src/djura/record_selection/assets"
 
 #: The two prospective databases, run separately so that the influence of the
-#: record set is isolated. The article used NGA-West1.
+#: record set is isolated. The article used an earlier database than either.
+#: Only ``flatfile_shallow.pickle`` ships with djura; the Californian
+#: flatfile must be provided by the user and located with the
+#: ``DJURA_VALIDATION_FLATFILE`` environment variable, otherwise that
+#: parametrisation is skipped.
 DATABASES = {
-    "nga_west2": asset_dir / "NGA_W2_v2.pickle",
-    "esm": asset_dir / "flatfile_shallow.pickle",
+    "user_flatfile": Path(
+        os.environ.get("DJURA_VALIDATION_FLATFILE", "")
+        or asset_dir / "user_flatfile.pickle"
+    ),
+    "bundled": asset_dir / "flatfile_shallow.pickle",
 }
 
 #: The article obtains the correlation between spectral accelerations at pairs
@@ -284,11 +292,11 @@ def database(request, monkeypatch):
         pytest.skip(f"{path.name} is not available")
 
     monkeypatch.setitem(os.environ, "DJURA_METADATA_PATH", str(path))
-    monkeypatch.setattr(data_loader, "_nga_west2", None)
+    monkeypatch.setattr(data_loader, "_metadata", None)
 
     yield request.param
 
-    monkeypatch.setattr(data_loader, "_nga_west2", None)
+    monkeypatch.setattr(data_loader, "_metadata", None)
 
 
 @pytest.fixture(params=sorted(SUB_CASES))

@@ -81,13 +81,13 @@ Save the JSON above as ``input.json``, then:
    from djura.record_selection import GCIM
 
    # Pass the path to your input file and enable conditional selection.
-   # The NGA-West2 dataset is downloaded and cached automatically on first use.
+   # The bundled dataset is downloaded and cached automatically on first use.
    gcim = GCIM("input.json", conditional=True)
 
    # Step 1: build the GCIM distributions for all IMs in "imi".
    gcim.create()
 
-   # Step 2: select records from the NGA-West2 database.
+   # Step 2: select records from the bundled database.
    gcim.select()
 
 After ``select()`` completes, the chosen record IDs, scaling factors,
@@ -110,7 +110,7 @@ models available in the current installation:
    print(gcim.get_supported_sites_parameters())
    print(gcim.get_supported_distances_parameters())
 
-   # NGA-West2 metadata column names
+   # metadata column names
    print(gcim.get_metadata_parameters())
 
    # Correlation models and IM component conventions

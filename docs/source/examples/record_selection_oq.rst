@@ -113,7 +113,7 @@ Running the selection
    # Step 1: build GCIM distributions using the OQ rupture ensemble.
    gcim.create()
 
-   # Step 2: select records from the NGA-West2 database.
+   # Step 2: select records from the bundled database.
    gcim.select()
 
 What the OQ context overrides

@@ -11,7 +11,7 @@ from ._gcim_unconditional import _GCIMUnconditional
 from .utilities import get_list_id, get_periods_ims, get_period_im
 from .constants import DB_CAUSAL_PARS, SUPPORTED_IM_DESCRIPTORS, \
     CORRELATION_MODELS, SUPPORTED_IM_COMPONENTS, get_compatible_ims
-from ..data_loader import get_nga_west2
+from ..data_loader import get_metadata
 
 
 class GCIM:
@@ -132,7 +132,7 @@ class GCIM:
         self._parent: Union[_GCIMConditional, _GCIMUnconditional] = \
             _GCIMUnconditional(None)
 
-        self.metadata = get_nga_west2()
+        self.metadata = get_metadata()
 
         if records is not None:
             self.records = records

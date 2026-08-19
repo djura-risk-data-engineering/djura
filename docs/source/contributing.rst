@@ -20,15 +20,15 @@ Running the test suite
 
    pytest
 
-   # skip slow tests (require local NGA-West2 dataset)
+   # skip slow tests (they require a local flatfile)
    pytest -m "not slow"
 
-   # run slow tests locally (bash)
-   export DJURA_METADATA_PATH=src/djura/record_selection/assets/NGA_W2_v2.pickle
+   # run slow tests locally (bash) — the flatfile is provided by the user
+   export DJURA_METADATA_PATH=/path/to/flatfile.pickle
    pytest -m slow
 
    # run slow tests locally (PowerShell)
-   $env:DJURA_METADATA_PATH = "src/djura/record_selection/assets/NGA_W2_v2.pickle"
+   $env:DJURA_METADATA_PATH = "C:\path\to\flatfile.pickle"
    pytest -m slow
 
 Building the documentation

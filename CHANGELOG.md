@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **BREAKING.** `djura.data_loader.get_nga_west2()` is renamed to
+  `get_metadata()`, and the module-level cache `_nga_west2` to `_metadata`.
+  Behaviour is unchanged.
+
+  **Migration:** replace `from djura.data_loader import get_nga_west2` with
+  `from djura.data_loader import get_metadata`.
+
+- Documentation no longer names a specific third-party record database.
+  One dataset is distributed with djura; any additional flatfile must be
+  provided by the user and supplied through `DJURA_METADATA_PATH`.
+
 ## [2.0.0] - 2026-08-14
 
 ### Changed
@@ -69,9 +84,9 @@ First stable release.
 
 ### Changed
 - The default auto-downloaded record-selection dataset is now
-  `flatfile_shallow.pickle` (served from the `data-v2` GitHub Release)
-  instead of `NGA_W2_v2.pickle`. The NGA-West2 dataset remains usable via
-  the `DJURA_METADATA_PATH` environment variable.
+  `flatfile_shallow.pickle` (served from the `data-v2` GitHub Release).
+  Any other flatfile remains usable via the `DJURA_METADATA_PATH`
+  environment variable, and must be provided by the user.
 
 ### Added
 - Documentation page describing the record-selection metadata schema and
@@ -177,9 +192,9 @@ First stable release.
     (`gcim`, `_gcim`, `_gcim_conditional`, `_gcim_unconditional`,
     `_gcim_select`, `_filter`).
   - Ground motion model (GMM) tooling: epsilon calculation, intensity
-    measure handling, NGA-West2 database support, ground-motion-to-
+    measure handling, flatfile database support, ground-motion-to-
     response-spectrum utilities (`gmm_tools`, `intensity_measure`,
-    `nga_west2`, `gm_to_rs`).
+    `gm_to_rs`).
   - Correlation models for spectral and non-spectral IMs
     (`correlations`, `correlation_models`) including ANN-based models.
   - Vendored subset of OpenQuake's `hazardlib.gsim` machinery under
