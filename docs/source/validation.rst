@@ -83,6 +83,69 @@ that is not distributed with djura, it reads the path from an environment
 variable and skips that parametrisation when it is unset. Case 3 does this with
 ``DJURA_VALIDATION_FLATFILE``.
 
+Input files
+-----------
+
+Each case ships one input file recording its complete configuration, so every
+setting can be read in one place rather than assembled from the test module:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 34 66
+
+   * - File in ``tests/rs/validations/assets``
+     - Case
+   * - ``bradley2010_input.json``
+     - Case 1, conditioned on Sa(1.0 s) = 0.165 g, with the 1000 ruptures of
+       the disaggregation inline
+   * - ``bradley2012_input.json``
+     - Case 2 at the 10 % in 50 year level with the weights of equation (16),
+       with the 62 ruptures inline
+   * - ``lin2013_input.json``
+     - Case 3 conditioned on Sa(2.6 s) = 0.456 g, the mean deaggregation
+       rupture
+
+Each is the configuration of one sub-case; the others differ only in named
+fields, the causal band and record count for case 1, the exceedance level and
+weight vector for case 2, and the conditioning period for case 3.
+
+One step is needed before such a file can be passed to
+:class:`~djura.record_selection.gcim.GCIM`. ASI, SI and DSI are predicted by
+*indirect* models, which derive their intensity measure from an underlying
+spectral acceleration model and take that model as a constructed instance,
+whose ``REQUIRES_*`` attributes they copy onto themselves. JSON can only carry
+its name, so the name has to be resolved first:
+
+.. code-block:: python
+
+   import json
+
+   from djura.record_selection.gcim import GCIM
+   from djura.record_selection.gsim import models as gsim_models
+
+
+   def resolve(name, **kwargs):
+       """Instantiate a model by name, recursing into a nested 'gmpe'"""
+       if isinstance(kwargs.get("gmpe"), str):
+           kwargs = dict(kwargs, gmpe=resolve(kwargs["gmpe"]))
+
+       return getattr(gsim_models, name)(**kwargs)
+
+
+   data = json.loads(open("bradley2010_input.json").read())
+   for entry in data["gmms"]:
+       for spec in entry.values():
+           for kwargs in spec.get("kwargs", []):
+               if isinstance(kwargs.get("gmpe"), str):
+                   kwargs["gmpe"] = resolve(kwargs["gmpe"])
+
+   gcim = GCIM(data, conditional=True)
+   gcim.create()
+   gcim.select()
+
+The test modules build the same dictionaries directly, which is why they do not
+read these files.
+
 Case 1 — Bradley (2010), Christchurch
 -------------------------------------
 
@@ -375,6 +438,26 @@ argument, and records the check that validates the recovery: the interpolated
 Sa(2.6 s) of 0.456 g against the 0.45 g the article publishes. The procedure
 can be repeated as given.
 
+What is asserted
+~~~~~~~~~~~~~~~~
+
+The conditional spectrum has properties that follow from its definition and
+must hold whatever the database, and those are what the module checks: the
+target is pinched at the conditioning period, its median equalling the
+conditioning amplitude with no variability; the uniform hazard spectrum
+envelopes it and touches it at that period; the target peaks there; and the
+response spectra of the selected suite are pinched there too. The suite is also
+compared against the conditional mean spectrum of figure 3, at the coarse
+tolerance appropriate to values read off a logarithmic figure rather than
+tabulated.
+
+The one hazard value the article publishes, Sa at the first modal period at the
+2 % in 50 year level, is asserted against the recovered deaggregation, which is
+what validates the recovery procedure as a whole.
+
+Databases
+~~~~~~~~~
+
 This case is parametrised over two prospective databases so that the influence
 of the record set is isolated. One is bundled; the other must be supplied by
 the reader and located with ``DJURA_VALIDATION_FLATFILE``, and that
@@ -382,6 +465,22 @@ parametrisation skips when the file is absent::
 
    export DJURA_VALIDATION_FLATFILE=/path/to/your/flatfile.pickle
    pytest tests/rs/validations/test_case3_lin2013.py -m validation
+
+Deviations
+~~~~~~~~~~
+
+The article's lengthened period of 5.0 s is omitted throughout. The 2008 hazard
+model provides no spectral acceleration above 3 s, so its hazard cannot be
+deaggregated there and is not extrapolated.
+
+The deaggregation was run at 360 m/s, the nearest site class the service
+accepts, while the ground motion model is given the 400 m/s of the article. The
+service rejects an arbitrary velocity, and 360 m/s is retained on the evidence
+that it reproduces the one amplitude the article publishes to within 1.3 per
+cent, where bracketing 400 m/s between two site classes is 6.6 per cent out.
+
+With ``--plot``, two figures are written per database, the conditional spectra
+of figure 2(b) and the selected suite of figure 3.
 
 Adding a case
 -------------
