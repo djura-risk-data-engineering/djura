@@ -96,14 +96,6 @@ from djura.record_selection.gsim import models as gsim_models
 #: module carries the marker
 pytestmark = pytest.mark.validation
 
-flatfile_dir = Path(
-    __file__).resolve().parents[3] / "src/djura/record_selection/assets"
-
-#: The only bundled database carrying observed ASI and SI, which the intensity
-#: measure vector of this case requires
-#: this is the default flatfile for the record selector
-DATABASE = flatfile_dir / "flatfile_shallow_v1.pickle"
-
 #: Disaggregation behind figure 1
 DEAGGREGATION = (Path(__file__).resolve().parent
                  / "assets/bradley2010_deagg_sa1p0_2pct50.csv")
@@ -399,32 +391,34 @@ def deaggregation():
 
 
 @pytest.fixture(scope="module")
-def output_create(deaggregation):
-    """The target built once and shared, create() over 1000 ruptures being slow
+def bundled_database():
+    """Run against the bundled dataset, whatever the environment holds
 
-    The metadata is cached for the lifetime of the process, so the cache is
-    invalidated on the way in and out.
+    Any DJURA_METADATA_PATH already set would substitute another database, so
+    it is removed for the duration and restored afterwards. The bundled dataset
+    itself is downloaded on first use. The metadata is cached for the lifetime
+    of the process, so that cache is invalidated on the way in and out.
     """
-    if not DATABASE.exists():
-        pytest.skip(f"{DATABASE.name} is not available")
-
-    ruptures, _ = deaggregation
-
-    previous_path = os.environ.get("DJURA_METADATA_PATH")
+    previous_path = os.environ.pop("DJURA_METADATA_PATH", None)
     previous_metadata = data_loader._metadata
-
-    os.environ["DJURA_METADATA_PATH"] = str(DATABASE)
     data_loader._metadata = None
     try:
-        gcim = GCIM(build_input(ruptures), conditional=True)
-        gcim.create()
-        yield gcim.output_create
+        yield
     finally:
-        if previous_path is None:
-            os.environ.pop("DJURA_METADATA_PATH", None)
-        else:
+        if previous_path is not None:
             os.environ["DJURA_METADATA_PATH"] = previous_path
         data_loader._metadata = previous_metadata
+
+
+@pytest.fixture(scope="module")
+def output_create(bundled_database, deaggregation):
+    """The target built once and shared, create() over 1000 ruptures being slow
+    """
+    ruptures, _ = deaggregation
+    gcim = GCIM(build_input(ruptures), conditional=True)
+    gcim.create()
+
+    return gcim.output_create
 
 
 @pytest.mark.slow
@@ -519,7 +513,7 @@ class TestCase1:
         rows = [
             "# Bradley (2010), case 1",
             "",
-            f"Prospective database: `{DATABASE.name}`.",
+            f"Prospective database: `{data_loader.DATA_FILENAME}`.",
             "",
             "'djura' is `create()` as configured, deriving epsilon from Boore "
             "and Atkinson.",
@@ -759,8 +753,9 @@ class TestCase1Figures:
         save_panels(figure, axes, plot_dir / "case1_figure3.png")
 
     @pytest.mark.parametrize("suite, number", [("Suite 1", 4), ("Suite 2", 5)])
-    def test_plot_selected_suite(self, deaggregation, output_create, suite,
-                                 number, pyplot, plot_dir):
+    def test_plot_selected_suite(self, bundled_database, deaggregation,
+                                 output_create, suite, number, pyplot,
+                                 plot_dir):
         """Figures 4 and 5, a selected suite against the target
 
         The suite is selected within the causal band of the published suite of

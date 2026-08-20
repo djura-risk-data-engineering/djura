@@ -108,7 +108,7 @@ asset_dir = Path(
 
 #: The two prospective databases, run separately so that the influence of the
 #: record set is isolated. The article used an earlier database than either.
-#: Only ``flatfile_shallow.pickle`` ships with djura; the Californian
+#: Only ``flatfile_shallow_v1.pickle`` ships with djura; the Californian
 #: flatfile must be provided by the user and located with the
 #: ``DJURA_VALIDATION_FLATFILE`` environment variable, otherwise that
 #: parametrisation is skipped.
@@ -117,7 +117,7 @@ DATABASES = {
         os.environ.get("DJURA_VALIDATION_FLATFILE", "")
         or asset_dir / "user_flatfile.pickle"
     ),
-    "bundled": asset_dir / "flatfile_shallow.pickle",
+    "bundled": asset_dir / "flatfile_shallow_v1.pickle",
 }
 
 #: The article obtains the correlation between spectral accelerations at pairs
