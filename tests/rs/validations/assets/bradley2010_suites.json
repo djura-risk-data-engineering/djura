@@ -1,55 +1,278 @@
 {
   "reference": "Bradley, B. A. (2010). A generalized conditional intensity measure approach and holistic ground-motion selection. Earthquake Engineering & Structural Dynamics, 39(12), 1321-1342. DOI: 10.1002/eqe.995",
   "note": "Table II, the two ground-motion suites of the examples, with the causal magnitude and Joyner-Boore distance as tabulated. RSN are NGA database record sequence numbers. 'figure_6' lists the seven records of suite 2 used to show the effect of suite size, marked with an asterisk in the table.",
-  "im-star": {"type": "SA", "period": 1.0, "value": 0.165, "unit": "g"},
+  "im-star": {
+    "type": "SA",
+    "period": 1.0,
+    "value": 0.165,
+    "unit": "g"
+  },
   "suites": {
     "Suite 1": {
       "criteria": "causal magnitude below 6.0 and source-to-site distance below 20 km",
-      "columns": ["rsn", "earthquake", "year", "magnitude", "rjb_km"],
+      "columns": [
+        "rsn",
+        "earthquake",
+        "year",
+        "magnitude",
+        "rjb_km"
+      ],
       "records": [
-        [145, "Coyote Lake", 1979, 5.74, 5.30],
-        [146, "Coyote Lake", 1979, 5.74, 10.21],
-        [147, "Coyote Lake", 1979, 5.74, 8.47],
-        [148, "Coyote Lake", 1979, 5.74, 6.75],
-        [149, "Coyote Lake", 1979, 5.74, 4.79],
-        [233, "Mammoth Lakes", 1980, 5.69, 2.91],
-        [234, "Mammoth Lakes", 1980, 5.69, 14.28],
-        [235, "Mammoth Lakes", 1980, 5.69, 1.44],
-        [545, "Chalfant Valley", 1986, 5.77, 14.99],
-        [547, "Chalfant Valley", 1986, 5.77, 6.07],
-        [1641, "Sierra Madre", 1991, 5.61, 8.57],
-        [1642, "Sierra Madre", 1991, 5.61, 17.79],
-        [1645, "Sierra Madre", 1991, 5.61, 2.64],
-        [1646, "Sierra Madre", 1991, 5.61, 13.91],
-        [1740, "Little Skull Mtn", 1992, 5.65, 14.12]
+        [
+          145,
+          "Coyote Lake",
+          1979,
+          5.74,
+          5.3
+        ],
+        [
+          146,
+          "Coyote Lake",
+          1979,
+          5.74,
+          10.21
+        ],
+        [
+          147,
+          "Coyote Lake",
+          1979,
+          5.74,
+          8.47
+        ],
+        [
+          148,
+          "Coyote Lake",
+          1979,
+          5.74,
+          6.75
+        ],
+        [
+          149,
+          "Coyote Lake",
+          1979,
+          5.74,
+          4.79
+        ],
+        [
+          233,
+          "Mammoth Lakes",
+          1980,
+          5.69,
+          2.91
+        ],
+        [
+          234,
+          "Mammoth Lakes",
+          1980,
+          5.69,
+          14.28
+        ],
+        [
+          235,
+          "Mammoth Lakes",
+          1980,
+          5.69,
+          1.44
+        ],
+        [
+          545,
+          "Chalfant Valley",
+          1986,
+          5.77,
+          14.99
+        ],
+        [
+          547,
+          "Chalfant Valley",
+          1986,
+          5.77,
+          6.07
+        ],
+        [
+          1641,
+          "Sierra Madre",
+          1991,
+          5.61,
+          8.57
+        ],
+        [
+          1642,
+          "Sierra Madre",
+          1991,
+          5.61,
+          17.79
+        ],
+        [
+          1645,
+          "Sierra Madre",
+          1991,
+          5.61,
+          2.64
+        ],
+        [
+          1646,
+          "Sierra Madre",
+          1991,
+          5.61,
+          13.91
+        ],
+        [
+          1740,
+          "Little Skull Mtn",
+          1992,
+          5.65,
+          14.12
+        ]
       ]
     },
     "Suite 2": {
       "criteria": "causal magnitude above 7.0 and source-to-site distance above 50 km",
-      "columns": ["rsn", "earthquake", "year", "magnitude", "rjb_km"],
+      "columns": [
+        "rsn",
+        "earthquake",
+        "year",
+        "magnitude",
+        "rjb_km"
+      ],
       "records": [
-        [12, "Kern County", 1952, 7.36, 114.62],
-        [13, "Kern County", 1952, 7.36, 122.65],
-        [14, "Kern County", 1952, 7.36, 81.30],
-        [832, "Landers", 1992, 7.28, 69.21],
-        [833, "Landers", 1992, 7.28, 144.90],
-        [834, "Landers", 1992, 7.28, 137.25],
-        [835, "Landers", 1992, 7.28, 135.22],
-        [836, "Landers", 1992, 7.28, 87.94],
-        [837, "Landers", 1992, 7.28, 131.92],
-        [1759, "Hector Mine", 1999, 7.13, 176.59],
-        [1760, "Hector Mine", 1999, 7.13, 174.90],
-        [1761, "Hector Mine", 1999, 7.13, 166.11],
-        [1763, "Hector Mine", 1999, 7.13, 89.98],
-        [1764, "Hector Mine", 1999, 7.13, 102.40],
-        [1765, "Hector Mine", 1999, 7.13, 193.80]
+        [
+          12,
+          "Kern County",
+          1952,
+          7.36,
+          114.62
+        ],
+        [
+          13,
+          "Kern County",
+          1952,
+          7.36,
+          122.65
+        ],
+        [
+          14,
+          "Kern County",
+          1952,
+          7.36,
+          81.3
+        ],
+        [
+          832,
+          "Landers",
+          1992,
+          7.28,
+          69.21
+        ],
+        [
+          833,
+          "Landers",
+          1992,
+          7.28,
+          144.9
+        ],
+        [
+          834,
+          "Landers",
+          1992,
+          7.28,
+          137.25
+        ],
+        [
+          835,
+          "Landers",
+          1992,
+          7.28,
+          135.22
+        ],
+        [
+          836,
+          "Landers",
+          1992,
+          7.28,
+          87.94
+        ],
+        [
+          837,
+          "Landers",
+          1992,
+          7.28,
+          131.92
+        ],
+        [
+          1759,
+          "Hector Mine",
+          1999,
+          7.13,
+          176.59
+        ],
+        [
+          1760,
+          "Hector Mine",
+          1999,
+          7.13,
+          174.9
+        ],
+        [
+          1761,
+          "Hector Mine",
+          1999,
+          7.13,
+          166.11
+        ],
+        [
+          1763,
+          "Hector Mine",
+          1999,
+          7.13,
+          89.98
+        ],
+        [
+          1764,
+          "Hector Mine",
+          1999,
+          7.13,
+          102.4
+        ],
+        [
+          1765,
+          "Hector Mine",
+          1999,
+          7.13,
+          193.8
+        ]
       ]
     }
   },
-  "figure_6": [833, 835, 836, 1760, 1761, 1763, 1765],
+  "figure_6": [
+    833,
+    835,
+    836,
+    1760,
+    1761,
+    1763,
+    1765
+  ],
   "focal_mechanism": {
-    "note": "Figure 4(b), a chi-squared goodness-of-fit test comparing the focal mechanism distribution of suite 1 against the GCIM prediction. The test is post-hoc; mechanism was not screened during selection.",
-    "categories": ["strike-slip", "normal", "reverse", "other"],
+    "note": "Figure 4(b), a chi-squared goodness-of-fit test comparing the focal mechanism distribution of suite 1 against the GCIM prediction. The test is post-hoc; mechanism was not screened during selection. 'target' is the predicted distribution as published, 'suite_1_counts' the mechanism of the 15 records of suite 1. Three categories carry weight, so the test has two degrees of freedom, and these values give the published p-value exactly.",
+    "categories": [
+      "strike-slip",
+      "normal",
+      "reverse",
+      "other"
+    ],
+    "target": {
+      "strike-slip": 0.4375,
+      "normal": 0.125,
+      "reverse": 0.4375,
+      "other": 0.0
+    },
+    "suite_1_counts": {
+      "strike-slip": 10,
+      "normal": 1,
+      "reverse": 4,
+      "other": 0
+    },
+    "chi_squared": 3.21,
     "p_value": 0.2009,
     "significance_level": 0.1
   },
