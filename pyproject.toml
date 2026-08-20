@@ -104,6 +104,11 @@ edp_im = [
 hdf5 = ["h5py (>=3.16,<4)"]        # GMPETable support in record_selection
 xgboost = ["xgboost (>=1.7)"]      # gradient-boosted models in edp_im
 
+# --- Plotting ---------------------------------------------------------------
+# Nothing in the package requires it; it is needed to redraw the figures of the
+# validation cases under tests/rs/validations, which are skipped without it.
+plot = ["matplotlib (>=3.8)"]
+
 # --- Everything -------------------------------------------------------------
 # Equivalent to the pre-2.0 behaviour of a bare ``pip install djura``.
 all = [
