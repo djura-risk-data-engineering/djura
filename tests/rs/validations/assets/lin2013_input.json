@@ -1,0 +1,71 @@
+{
+  "gmms": [
+    {
+      "SA": {
+        "names": [
+          "CampbellBozorgnia2008"
+        ],
+        "weights": [
+          1
+        ]
+      }
+    }
+  ],
+  "correlation-models": {
+    "SA-SA": "baker_jayaram"
+  },
+  "site-parameters": {
+    "vs30": 400,
+    "z2pt5": 2.0,
+    "mechanism": "strike-slip fault"
+  },
+  "ruptures": [
+    {
+      "mag": 7.82,
+      "rjb": 11.2,
+      "rrup": 11.2,
+      "ztor": 0.0,
+      "d_hyp": 4.692,
+      "weight": 1.0
+    }
+  ],
+  "imi": [
+    "SA(0.1s)",
+    "SA(0.2s)",
+    "SA(0.3s)",
+    "SA(0.45s)",
+    "SA(0.5s)",
+    "SA(0.75s)",
+    "SA(0.85s)",
+    "SA(1.0s)",
+    "SA(1.5s)",
+    "SA(2.0s)",
+    "SA(2.6s)",
+    "SA(3.0s)",
+    "SA(4.0s)",
+    "SA(5.0s)",
+    "SA(7.5s)",
+    "SA(10.0s)"
+  ],
+  "im-star": {
+    "type": "SA(2.6)",
+    "value": 0.456,
+    "gmms": {
+      "names": [
+        "CampbellBozorgnia2008"
+      ],
+      "weights": [
+        1
+      ]
+    }
+  },
+  "num-components": 1,
+  "component-definition": "geomean",
+  "num_records": 40,
+  "nreplicate": 1,
+  "seed": 1,
+  "ks_alpha": 0.1,
+  "max_scaling_factor": 10,
+  "context_limits": {},
+  "im_weights": []
+}
