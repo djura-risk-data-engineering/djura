@@ -79,8 +79,10 @@ jobs:
         run: poetry run flake8 src tests
 
       - name: Run tests
+        # Validation cases replicate published case studies against the bundled
+        # record databases, which are far too slow for CI and are run on request
         run: |
-          poetry run pytest --cov=djura --cov-report=term-missing -m "not slow"
+          poetry run pytest --cov=djura --cov-report=term-missing -m "not slow and not validation"
 
   build-check:
     name: Build & metadata check

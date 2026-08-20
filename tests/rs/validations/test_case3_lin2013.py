@@ -99,6 +99,10 @@ from djura.record_selection.gcim import GCIM
 from djura.utilities import get_func_args
 
 
+#: Every test here replicates a published case study, so the whole
+#: module carries the marker
+pytestmark = pytest.mark.validation
+
 asset_dir = Path(
     __file__).resolve().parents[3] / "src/djura/record_selection/assets"
 

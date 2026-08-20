@@ -92,6 +92,10 @@ import djura.data_loader as data_loader
 from djura.record_selection.gcim import GCIM
 from djura.record_selection.gsim import models as gsim_models
 
+#: Every test here replicates a published case study, so the whole
+#: module carries the marker
+pytestmark = pytest.mark.validation
+
 flatfile_dir = Path(
     __file__).resolve().parents[3] / "src/djura/record_selection/assets"
 
