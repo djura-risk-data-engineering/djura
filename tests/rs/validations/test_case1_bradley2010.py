@@ -190,6 +190,27 @@ ASI_MEDIAN_TOLERANCE = 0.03
 
 PERIODS = sorted(PUBLISHED_SA)
 
+#: The article's intensity measure vector, one panel per entry in the figures
+PANEL_IMS = ["SA(0.05s)", "SA(0.5s)", "SI", "ASI", "IA", "Ds595"]
+
+AXIS_LABELS = {"SA(0.05s)": "Sa(0.05s) [g]", "SA(0.5s)": "Sa(0.5s) [g]",
+               "SI": "SI [cm.s]", "ASI": "ASI [g.s]", "IA": "Ia [m/s]",
+               "Ds595": "Ds595 [s]"}
+
+#: Panels where a component model of the period differs, annotated so the
+#: difference reads as documented rather than as a fault
+PANEL_NOTES = {"ASI": "later ASI-SA correlation",
+               "Ds595": "rho = 0 and no D_ratio in the article"}
+
+#: Causal bands of the two suites of table II. Selection is weighted on the
+#: article's intensity measure vector and on nothing else
+SUITE_BANDS = {
+    "Suite 1": {"magnitude": [4.0, 6.0], "Rjb": [0, 20]},
+    "Suite 2": {"magnitude": [7.0, 9.0], "Rjb": [50, 500]},
+}
+
+NUM_RECORDS = 15
+
 
 def read_deaggregation():
     """Rupture scenarios and the published epsilon of the disaggregation
@@ -228,18 +249,27 @@ def resolve_gmm(name, **kwargs):
     return getattr(gsim_models, name)(**kwargs)
 
 
-def build_input(ruptures: list) -> dict:
-    """Assemble the GCIM input for the target of figures 2 and 3
+def selection_weights(imi):
+    """Equal weight on the article's vector, zero on everything else"""
+    weight = 1.0 / len(PANEL_IMS)
+
+    return [weight if im in PANEL_IMS else 0.0 for im in imi]
+
+
+def build_input(ruptures: list, context_limits: dict = None) -> dict:
+    """Assemble the GCIM input
 
     Parameters
     ----------
     ruptures : list
         Rupture scenarios of the disaggregation
+    context_limits : dict, optional
+        Causal parameter band, by default None (no screening, targets only)
 
     Returns
     -------
     dict
-        Input arguments for GCIM creation
+        Input arguments for GCIM creation and selection
     """
     gmms = []
     for entry in GMMS:
@@ -255,13 +285,14 @@ def build_input(ruptures: list) -> dict:
             resolved[im] = spec
         gmms.append(resolved)
 
+    imi = [f"SA({period}s)" for period in PERIODS] + list(PUBLISHED_IMS)
+
     return {
         "gmms": gmms,
         "correlation-models": dict(CORRELATION_MODELS),
         "site-parameters": dict(SITE_PARAMETERS),
         "ruptures": ruptures,
-        "imi": ([f"SA({period}s)" for period in PERIODS]
-                + list(PUBLISHED_IMS)),
+        "imi": imi,
         "im-star": {
             "type": f"SA({IM_STAR_PERIOD})",
             "value": IM_STAR_VALUE,
@@ -273,13 +304,13 @@ def build_input(ruptures: list) -> dict:
         # candidates and ignores the component definition
         "num-components": 2,
         "component-definition": "geomean",
-        "num_records": 15,
+        "num_records": NUM_RECORDS,
         "nreplicate": 1,
         "seed": 1,
         "ks_alpha": 0.1,
         "max_scaling_factor": 100,
-        "context_limits": {},
-        "im_weights": [],
+        "context_limits": dict(context_limits or {}),
+        "im_weights": selection_weights(imi),
     }
 
 
@@ -567,3 +598,204 @@ class TestCase1:
 
         path = report_dir / "case1_comparison_esm.md"
         path.write_text("\n".join(rows))
+
+
+def mixture_cdf(output, im, index=0, points=400):
+    """Grid and CDF of one target entry, as a mixture over the ruptures
+
+    The target is a mixture of lognormals, not a lognormal, so the curve is
+    built from the per-rupture conditional moments rather than from the
+    reported median and dispersion.
+
+    Parameters
+    ----------
+    output : dict
+        Output of GCIM.create()
+    im : str
+        Intensity measure key of the target
+    index : int, optional
+        Entry within that key, by default 0
+    points : int, optional
+        Number of grid points, by default 400
+
+    Returns
+    -------
+    tuple
+        Intensity measure values and the cumulative probabilities at them
+    """
+    from scipy.stats import norm
+
+    data = output["data"]
+    mu = data["mu_lnIMi_lnIMj_rup"][im][index]
+    sigma = data["sigma_lnIMi_lnIMj_rup"][im][index]
+    weights = np.asarray(data["weights_imi"][im], float)
+
+    grid = np.linspace((mu - 4 * sigma).min(), (mu + 4 * sigma).max(), points)
+    cdf = (weights[:, None]
+           * norm.cdf((grid[None, :] - mu[:, None]) / sigma[:, None])).sum(0)
+
+    return np.exp(grid), cdf / weights.sum()
+
+
+def panel_mixture(output, im):
+    """Grid and CDF for one figure panel, spectral entries found by period"""
+    if im.startswith("SA"):
+        return mixture_cdf(output, "SA", PERIODS.index(float(im[3:-2])))
+
+    return mixture_cdf(output, im)
+
+
+def panel_grid(plt, title):
+    """A two by three grid of axes, one per intensity measure"""
+    figure, axes = plt.subplots(2, 3, figsize=(13, 7.5))
+    figure.suptitle(title)
+
+    return figure, dict(zip(PANEL_IMS, axes.ravel()))
+
+
+def save_panels(figure, axes, path):
+    """Label, annotate and write a panel figure"""
+    handles, labels = list(axes.values())[0].get_legend_handles_labels()
+    for im, axis in axes.items():
+        axis.set_xscale("log")
+        axis.set_xlabel(AXIS_LABELS[im])
+        axis.set_ylabel("Cumulative probability")
+        axis.set_ylim(0, 1)
+        axis.grid(alpha=0.3)
+        if im in PANEL_NOTES:
+            axis.set_title(PANEL_NOTES[im], fontsize=9, color="0.35")
+
+    figure.legend(handles, labels, loc="lower center", ncol=4, frameon=False)
+    figure.tight_layout(rect=(0, 0.06, 1, 0.96))
+    figure.savefig(path, dpi=130)
+
+
+def published_median(im):
+    """Published median of one panel intensity measure"""
+    if im.startswith("SA"):
+        return PUBLISHED_SA[float(im[3:-2])][0]
+
+    return PUBLISHED_IMS[im][0]
+
+
+@pytest.fixture(scope="module")
+def pyplot():
+    """pyplot with a non-interactive backend, skipping when absent"""
+    matplotlib = pytest.importorskip(
+        "matplotlib", reason="install djura[plot] to redraw the figures")
+    matplotlib.use("Agg")
+
+    import matplotlib.pyplot as plt
+
+    return plt
+
+
+@pytest.mark.slow
+class TestCase1Figures:
+
+    def test_plot_target_spectrum(self, output_create, pyplot, plot_dir):
+        """Figure 2, the conditional distribution of Sa"""
+        periods = np.asarray(output_create["target"]["IMi"]["SA"], float)
+        mu = np.asarray(
+            output_create["target"]["mu_lnIMi"]["SA"], float).reshape(-1)
+        sigma = np.asarray(
+            output_create["target"]["sigma_lnIMi"]["SA"], float).reshape(-1)
+
+        # The conditioning period is not an entry of the target, the
+        # distribution being degenerate there, so it is inserted for the
+        # drawing: the curve passes through the conditioning amplitude with no
+        # dispersion
+        order = np.argsort(np.append(periods, IM_STAR_PERIOD))
+        drawn = np.append(periods, IM_STAR_PERIOD)[order]
+        median = np.append(np.exp(mu), IM_STAR_VALUE)[order]
+        dispersion = np.append(sigma, 0.0)[order]
+
+        published = np.array([(period, *PUBLISHED_SA[period])
+                              for period in PERIODS])
+
+        figure, axis = pyplot.subplots(figsize=(7.5, 5.5))
+        axis.plot(drawn, median, color="C0", lw=2.0, label="djura, median")
+        axis.plot(drawn, median * np.exp(-dispersion), color="C0", lw=1.0,
+                  ls=":", label="djura, 16th and 84th")
+        axis.plot(drawn, median * np.exp(dispersion), color="C0", lw=1.0,
+                  ls=":")
+        axis.plot(published[:, 0], published[:, 1], color="k", ls="--",
+                  lw=1.6, label="article, median")
+        axis.plot(published[:, 0], published[:, 1] * np.exp(-published[:, 2]),
+                  color="0.4", lw=1.0, ls=":",
+                  label="article, 16th and 84th")
+        axis.plot(published[:, 0], published[:, 1] * np.exp(published[:, 2]),
+                  color="0.4", lw=1.0, ls=":")
+        axis.plot(IM_STAR_PERIOD, IM_STAR_VALUE, "o", color="C3", ms=7,
+                  label=f"Sa({IM_STAR_PERIOD}) = {IM_STAR_VALUE} g")
+
+        axis.set_xscale("log")
+        axis.set_yscale("log")
+        axis.set_xlabel("Period [s]")
+        axis.set_ylabel("Spectral acceleration [g]")
+        axis.set_title("Figure 2, conditional distribution of Sa given "
+                       f"Sa({IM_STAR_PERIOD}) = {IM_STAR_VALUE} g")
+        axis.grid(which="both", alpha=0.3)
+        axis.legend(fontsize=9)
+        figure.tight_layout()
+        figure.savefig(plot_dir / "case1_figure2.png", dpi=130)
+
+    def test_plot_target_distributions(self, output_create, pyplot, plot_dir):
+        """Figure 3, the conditional distribution of each intensity measure"""
+        figure, axes = panel_grid(
+            pyplot, "Figure 3, conditional distributions given "
+                    f"Sa({IM_STAR_PERIOD}) = {IM_STAR_VALUE} g")
+
+        for im, axis in axes.items():
+            grid, cdf = panel_mixture(output_create, im)
+            axis.plot(grid, cdf, color="C0", lw=2.0, label="djura")
+            axis.axvline(published_median(im), color="k", ls="--", lw=1.6,
+                         label="article, median")
+
+        save_panels(figure, axes, plot_dir / "case1_figure3.png")
+
+    @pytest.mark.parametrize("suite, number", [("Suite 1", 4), ("Suite 2", 5)])
+    def test_plot_selected_suite(self, deaggregation, output_create, suite,
+                                 number, pyplot, plot_dir):
+        """Figures 4 and 5, a selected suite against the target
+
+        The suite is selected within the causal band of the published suite of
+        the same number, from ESM rather than from the NGA-West1 database of
+        the article, so the records differ and it is the distribution that is
+        compared. The Kolmogorov-Smirnov bounds are djura's own.
+        """
+        from scipy.stats import kstwobign
+
+        ruptures, _ = deaggregation
+        gcim = GCIM(build_input(ruptures, SUITE_BANDS[suite]),
+                    conditional=True)
+        gcim.create()
+        gcim.select()
+
+        records = gcim.records["selected_scaled_best"]
+        scaled = np.asarray(records["Scaled_IMs"], float)
+        imi = [f"SA({period}s)" for period in PERIODS] + list(PUBLISHED_IMS)
+        band = SUITE_BANDS[suite]
+
+        figure, axes = panel_grid(
+            pyplot, f"Figure {number}, {suite.lower()}, magnitude "
+                    f"{band['magnitude'][0]} to {band['magnitude'][1]} and "
+                    f"Rjb {band['Rjb'][0]} to {band['Rjb'][1]} km")
+
+        width = kstwobign.ppf(1 - records["ks_alpha"]) / np.sqrt(len(scaled))
+        for im, axis in axes.items():
+            grid, cdf = panel_mixture(output_create, im)
+            axis.plot(grid, cdf, color="C0", lw=2.0, label="djura target")
+            axis.plot(grid, np.clip(cdf - width, 0, 1), color="C0", lw=0.7,
+                      ls="-.", label="Kolmogorov-Smirnov bounds")
+            axis.plot(grid, np.clip(cdf + width, 0, 1), color="C0", lw=0.7,
+                      ls="-.")
+
+            values = np.sort(scaled[:, imi.index(im)])
+            axis.step(values, np.arange(1, len(values) + 1) / len(values),
+                      where="post", color="C2", lw=1.4,
+                      label="selected suite, ESM")
+            axis.axvline(published_median(im), color="k", ls="--", lw=1.6,
+                         label="article target, median")
+
+        save_panels(figure, axes, plot_dir / f"case1_figure{number}.png")
