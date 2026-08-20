@@ -30,12 +30,6 @@ function generation into a single installable package.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Validation
-
-   validation
-
-.. toctree::
-   :maxdepth: 1
    :caption: Project
 
    contributing

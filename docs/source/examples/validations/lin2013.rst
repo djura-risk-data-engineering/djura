@@ -68,7 +68,7 @@ Record databases
    installs, downloads or redistributes a third-party database beyond the
    bundled one (``flatfile_shallow.pickle``).
 
-   See :doc:`../custom_metadata` for the expected schema.
+   See :doc:`../../custom_metadata` for the expected schema.
 
 The case is run twice, against one database at a time, so that the influence
 of the prospective record set is isolated:
