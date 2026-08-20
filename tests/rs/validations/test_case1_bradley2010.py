@@ -96,6 +96,10 @@ from djura.record_selection.gsim import models as gsim_models
 #: module carries the marker
 pytestmark = pytest.mark.validation
 
+#: The bundled database, the default of the record selector
+DATABASE = (Path(__file__).resolve().parents[3]
+            / "src/djura/record_selection/assets/flatfile_shallow_v1.pickle")
+
 #: Disaggregation behind figure 1
 DEAGGREGATION = (Path(__file__).resolve().parent
                  / "assets/bradley2010_deagg_sa1p0_2pct50.csv")
@@ -392,20 +396,27 @@ def deaggregation():
 
 @pytest.fixture(scope="module")
 def bundled_database():
-    """Run against the bundled dataset, whatever the environment holds
+    """Run against the bundled database
 
     Any DJURA_METADATA_PATH already set would substitute another database, so
-    it is removed for the duration and restored afterwards. The bundled dataset
-    itself is downloaded on first use. The metadata is cached for the lifetime
-    of the process, so that cache is invalidated on the way in and out.
+    the bundled one is named explicitly for the duration and whatever was there
+    is restored afterwards. The metadata is cached for the lifetime of the
+    process, so that cache is invalidated on the way in and out.
     """
-    previous_path = os.environ.pop("DJURA_METADATA_PATH", None)
+    if not DATABASE.exists():
+        pytest.skip(f"{DATABASE.name} is not available")
+
+    previous_path = os.environ.get("DJURA_METADATA_PATH")
     previous_metadata = data_loader._metadata
+
+    os.environ["DJURA_METADATA_PATH"] = str(DATABASE)
     data_loader._metadata = None
     try:
         yield
     finally:
-        if previous_path is not None:
+        if previous_path is None:
+            os.environ.pop("DJURA_METADATA_PATH", None)
+        else:
             os.environ["DJURA_METADATA_PATH"] = previous_path
         data_loader._metadata = previous_metadata
 
@@ -513,7 +524,7 @@ class TestCase1:
         rows = [
             "# Bradley (2010), case 1",
             "",
-            f"Prospective database: `{data_loader.DATA_FILENAME}`.",
+            f"Prospective database: `{DATABASE.name}`.",
             "",
             "'djura' is `create()` as configured, deriving epsilon from Boore "
             "and Atkinson.",
