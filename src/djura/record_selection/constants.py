@@ -261,6 +261,13 @@ MECHANISM_MAP = {
     4: 'normal/oblique fault'
 }
 
+#: Label for a record whose focal mechanism is not known. Flatfiles record an
+#: unknown mechanism with a sentinel, -999 in the bundled dataset, which is not
+#: a key of MECHANISM_MAP; such records are eligible for selection unless a
+#: mechanism is requested through the context limits, in which case they fall
+#: outside the requested set and are excluded
+UNKNOWN_MECHANISM = 'unknown'
+
 MECHANISM_MAP_REV = {
     'strike-slip fault': 0,
     'normal fault': 1,

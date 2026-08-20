@@ -6,7 +6,7 @@ from scipy.stats import lognorm, kstest, ksone, skew
 from statsmodels.distributions.empirical_distribution import ECDF
 import re
 
-from .constants import MECHANISM_MAP, SUPPORTED_IMS
+from .constants import MECHANISM_MAP, SUPPORTED_IMS, UNKNOWN_MECHANISM
 from .numba_utils import greedy_algorithm
 from .utilities import random_multivariate_normal
 # from .utilities import compute_ks_error
@@ -319,7 +319,7 @@ class _GCIMSelect:
 
         # Mechanism
         mech = self.metadata['mechanism'][rec_ids]
-        mech = [MECHANISM_MAP[x] for x in mech]
+        mech = [MECHANISM_MAP.get(x, UNKNOWN_MECHANISM) for x in mech]
 
         low_freq_u = self.metadata['lowest_usable_freq'][rec_ids]
 
