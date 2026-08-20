@@ -242,6 +242,120 @@ djura is drawn solid and the published values dashed throughout. The ASI and
 Ds595 panels carry a caption naming the component model that differs, so that
 the offset reads as documented rather than as a fault.
 
+Case 2 — Bradley (2012), Los Angeles
+------------------------------------
+
+   Bradley, B. A. (2012). A ground motion selection algorithm based on the
+   generalized conditional intensity measure approach. *Soil Dynamics and
+   Earthquake Engineering*, 40, 48-61. DOI:
+   `10.1016/j.soildyn.2012.04.007 <https://doi.org/10.1016/j.soildyn.2012.04.007>`_
+
+Site in Los Angeles, Vs30 = 760 m/s, conditioned on SA(3.0 s) at the 50, 10 and
+1 per cent in 50 year exceedance levels. The intensity measure vector runs to
+sixteen entries, spectral accelerations together with PGA, PGV, ASI, SI, DSI,
+CAV and the two significant durations.
+
+The result of the article is the effect of the weight vector. Weighting spectral
+acceleration alone leaves the CAV and duration distributions of the selected
+suite biased, and moving thirty per cent of the weight onto CAV and the two
+durations removes the bias while matching the spectral ordinates just as well.
+That contrast is what the module asserts, along with the target it is measured
+against.
+
+Why the target is not reproduced exactly
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The article built its targets from the full disaggregated rupture set, and the
+author confirms that a rupture-by-rupture listing was never archived, the
+probabilities having been computed internally. The asset
+``bradley2012_deagg_sa3pt0.json`` therefore stands in for it, recovered from the
+bars of the published disaggregation: 62 weighted magnitude-distance cells per
+level at bin centres of 10 km and 0.5 magnitude units.
+
+That substitution has two bounded consequences, and neither is a defect in
+djura.
+
+The plotted disaggregation stops at 110 km, so the recovered bars carry 96.6,
+99.2 and 99.8 per cent of the hazard at the three levels. The missing part is
+the distant tail, and dropping it raises the medians and narrows the
+distribution. The error tracks the truncation exactly, which is how it is
+identified:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 34 22 22 22
+
+   * - Quantity
+     - 50 % in 50 yr
+     - 10 % in 50 yr
+     - 1 % in 50 yr
+   * - Hazard captured by the bars
+     - 96.6 %
+     - 99.2 %
+     - 99.8 %
+   * - PGV dispersion, djura / article
+     - 0.55
+     - 0.86
+     - 0.92
+   * - Worst median, djura / article
+     - 1.31
+     - 1.10
+     - 0.92
+
+Collapsing each cell onto its centre removes the spread within it, which
+accounts for a residual five to seven per cent dispersion deficit at the 1 per
+cent level, where truncation is negligible. It touches only the
+between-rupture term of the variance, so the measures most strongly correlated
+with the conditioning one are untouched: DSI, SA(2.0 s) and SA(5.0 s) all
+reproduce their dispersion to within half a per cent at every level.
+
+Accordingly the medians are asserted, at fifteen per cent for the two rarer
+levels and thirty-five per cent for the 50 per cent level, whose rupture set is
+the most truncated; the dispersions are reported rather than asserted. Table 4
+of the article, the correlations with SA(3.0 s), is reproduced to within 0.0005
+and is reported too.
+
+Component models and assumptions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **SA(10.0 s)** is dropped from the article's vector of seventeen, so one
+  published column is not checked. Every correlation of a period-independent
+  measure with SA guards with ``0.01 <= period < 10``, excluding the endpoint.
+  The weights are renormalised over the eight ordinates retained, which
+  preserves the seventy-thirty split between the spectral and the other
+  measures that the article studies.
+* **CAV** is predicted by ``CampbellBozorgnia2008``, which carries the CB10 CAV
+  equation the article cites.
+* **Duration** runs six to seventeen per cent below the published median at
+  every level. ``BommerEtAl2009RSD`` reads ztor, which the article does not
+  state and which is assumed at 3 km.
+* Reverse faulting and dip are assumed as well, neither being stated. dip is
+  inert here: with the Joyner-Boore and rupture distances equal and ztor at
+  least 1, the hanging-wall term of ``CampbellBozorgnia2008``, the only place
+  dip enters, is zero.
+
+Selection
+~~~~~~~~~
+
+No causal screening is applied, which is explicit in the article and central to
+its argument, so the selection searches the whole database. The two suites of
+thirty records are selected at the 10 per cent level, one per weight vector.
+
+The contrast reproduces plainly. Against djura's own target median, the suite
+selected on spectral acceleration alone overshoots CAV by 1.6, Ds575 by 2.6 and
+Ds595 by 2.7, and the fuller vector brings all three back to within nine per
+cent, while both suites match the spectral ordinates to within twelve per cent.
+The article's second finding follows too: the fuller vector needs less
+amplitude scaling, a median factor of 1.2 against 3.5, where the article reports
+1.1 against 1.9.
+
+The causal parameters of the suite are not comparable. The bundled database
+holds few large-magnitude records where the article used NGA-West1, so the
+algorithm reaches for smaller ones and scales harder, giving mean magnitudes
+0.2 to 0.4 units below the published suites and wider distance dispersions. What
+survives the change of database, and is asserted, is the contrast between the
+two vectors.
+
 Case 3 — Lin, Haselton and Baker (2013), Palo Alto
 --------------------------------------------------
 
