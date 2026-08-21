@@ -3,7 +3,8 @@ Exact record selection from an OpenQuake datastore
 
 This page documents the *exact* approach to conditional record selection:
 every rupture scenario of an
-`OpenQuake Engine <https://github.com/gem/oq-engine>`_ PSHA calculation is
+`OpenQuake Engine <https://github.com/gem/oq-engine>`_
+probabilistic seismic hazard assessment (PSHA) calculation is
 carried into the GCIM target individually, with the full rupture and
 distance context the engine used to compute the hazard, and weighted by its
 own logic-tree weight and rate of occurrence. No magnitude-distance
@@ -30,12 +31,6 @@ and is driven by one script,
      representative scenario.
    * This page is the *exact* form of that same workflow, for when the
      binning is the thing to avoid.
-
-   The exact approach is also not available in the
-   `Djura web apps <https://apps.djura.it/>`_, because the payload is the
-   whole rupture ensemble rather than a handful of scenarios. It can be
-   used through the API; if you would like to run it that way, get in
-   touch.
 
 Approximate against exact
 -------------------------

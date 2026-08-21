@@ -13,7 +13,8 @@ The script has two steps:
 
 Assumptions for this example
 ----------------------------
-* An OpenQuake PSHA calculation was run with the inputs in ``assets/``,
+* An OpenQuake probabilistic seismic hazard assessment (PSHA)
+  calculation was run with the inputs in ``assets/``,
   that is, ``assets/job.ini`` together with ``assets/inputs/``::
 
       oq engine --run assets/job.ini
