@@ -154,13 +154,15 @@ style = "pep440"
 fallback-version = "0.0.0"
 # Match tags like v1.2.3 or v1.2.3rc1; the leading "v" is stripped.
 pattern = "default-unprefixed"
-# When building from a non-tagged commit, append a dev/local segment so
-# wheels uploaded by accident never collide with a real release.
+# On a tag, the tag itself, pre-release segment included, so that v2.0.0rc1
+# builds as 2.0.0rc1. Off a tag, a dev/local segment is appended so wheels
+# uploaded by accident never collide with a real release.
 format-jinja = """
     {%- if distance == 0 -%}
-        {{ base }}
+        {{ serialize_pep440(base, stage, revision) }}
     {%- else -%}
-        {{ base }}.dev{{ distance }}+g{{ commit }}
+        {{ serialize_pep440(base, stage, revision, dev=distance,
+                            metadata=[commit]) }}
     {%- endif -%}
 """
 
