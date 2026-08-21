@@ -19,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   One dataset is distributed with djura; any additional flatfile must be
   provided by the user and supplied through `DJURA_METADATA_PATH`.
 
+- The auto-downloaded dataset is now `flatfile_shallow_v1.pickle`, served
+  from the `data-v3` GitHub Release, and the name is used consistently by
+  the loader, the release workflow and the documentation. The cache is
+  keyed by filename, so the new asset is fetched on first use without any
+  action.
+
+- The bundled dataset is derived from the ESM flatfile only. Attribution
+  and the instructions for obtaining waveforms name that database alone.
+
 ## [2.0.0] - 2026-08-14
 
 ### Changed

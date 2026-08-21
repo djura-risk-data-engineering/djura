@@ -24,7 +24,7 @@ download:
    gcim = GCIM()   # downloads ~176 MB to ~/.cache/djura/ on first call
 
 Subsequent calls load directly from the local cache at
-``~/.cache/djura/flatfile_shallow.pickle``.
+``~/.cache/djura/flatfile_shallow_v1.pickle``.
 
 Manual control
 --------------

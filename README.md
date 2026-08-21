@@ -140,7 +140,7 @@ data = load_data()       # downloads on first call, then loads from cache
 clear_cache()            # delete the cached file to force a re-download
 ```
 
-The cache lives at `~/.cache/djura/flatfile_shallow.pickle`.
+The cache lives at `~/.cache/djura/flatfile_shallow_v1.pickle`.
 
 This is the only dataset distributed with djura. **Any additional flatfile
 must be provided by the user**: a different ground motion database, a
@@ -161,14 +161,49 @@ waveforms.
 
 The release is produced by the `release-data` GitHub Actions workflow,
 which compresses the pickle and uploads it to a tagged GitHub Release.
-Trigger it manually with the GitHub CLI:
 
-```bash
-gh workflow run release-data.yml -f version=data-v1
-```
+1. Put the new pickle at
+   `src/djura/record_selection/assets/flatfile_shallow_v1.pickle`. The
+   workflow reads that exact path and fails if it is absent. It is not
+   committed: the file is far too large for the repository and for the
+   wheel.
 
-After the release is published, update `GITHUB_RELEASE_URL` in
-`src/djura/data_loader.py` to point at the new tag.
+2. Compute the SHA-256 of the compressed asset **the same way the workflow
+   compresses it**, `gzip -9 -n` (the `-n` strips the filename and
+   timestamp header, so the `.gz` is byte-for-byte reproducible and its
+   digest is stable):
+
+   ```bash
+   gzip -9 -nc src/djura/record_selection/assets/flatfile_shallow_v1.pickle \
+     > flatfile_shallow_v1.pickle.gz
+   sha256sum flatfile_shallow_v1.pickle.gz
+   ```
+
+3. Publish the release, tagging it one version above the last data
+   release:
+
+   ```bash
+   gh workflow run release-data.yml -f version=data-v3
+   ```
+
+   The workflow prints the size and the SHA-256 of the asset it uploaded;
+   it must match the digest from step 2.
+
+4. Update `src/djura/data_loader.py` to the new asset: `DATA_FILENAME`,
+   the tag and filename in `GITHUB_RELEASE_URL`, and `EXPECTED_SHA256`.
+   A mismatched digest makes the download fail with a checksum error
+   rather than silently loading the wrong data.
+
+5. Verify end to end from a clean cache:
+
+   ```bash
+   python -c "from djura.data_loader import clear_cache, load_data; \
+   clear_cache(); print(len(load_data()['magnitude']))"
+   ```
+
+Users who already have the previous dataset cached keep using it until
+they call `clear_cache()`, the cache being keyed by filename, so a renamed
+asset triggers a fresh download on its own.
 
 ## How to cite
 

@@ -23,19 +23,19 @@ from pathlib import Path
 from typing import Any
 
 PACKAGE_NAME = "djura"
-DATA_FILENAME = "flatfile_shallow.pickle"
+DATA_FILENAME = "flatfile_shallow_v1.pickle"
 
 # Update both constants (and re-run the release-data workflow) when the
 # dataset changes. The release workflow compresses with `gzip -9 -n`
 # (the -n strips the filename/timestamp header so the .gz is byte-for-byte
 # reproducible). Compute the matching hash locally with:
-#   gzip -9 -nc flatfile_shallow.pickle > flatfile_shallow.pickle.gz
+#   gzip -9 -nc flatfile_shallow_v1.pickle > flatfile_shallow_v1.pickle.gz
 #   python -c "import hashlib,sys; \
 #   print(hashlib.file_digest(open(sys.argv[1],'rb'),'sha256').hexdigest())" \
-#   flatfile_shallow.pickle.gz
+#   flatfile_shallow_v1.pickle.gz
 GITHUB_RELEASE_URL = (
     "https://github.com/djura-risk-data-engineering/djura"
-    "/releases/download/data-v2/flatfile_shallow.pickle.gz"
+    "/releases/download/data-v3/flatfile_shallow_v1.pickle.gz"
 )
 EXPECTED_SHA256 = (
     # SHA-256 of the compressed .gz asset at the URL above.

@@ -22,17 +22,17 @@ jobs:
 
       - name: Verify pickle exists
         run: |
-          test -f src/djura/record_selection/assets/flatfile_shallow.pickle \
-            || { echo "Pickle not found at src/djura/record_selection/assets/flatfile_shallow.pickle"; exit 1; }
+          test -f src/djura/record_selection/assets/flatfile_shallow_v1.pickle \
+            || { echo "Pickle not found at src/djura/record_selection/assets/flatfile_shallow_v1.pickle"; exit 1; }
 
       - name: Compress pickle
         run: |
           # -n strips the filename/timestamp header so the .gz is
           # byte-for-byte reproducible and its SHA-256 is stable.
-          gzip -9 -nc src/djura/record_selection/assets/flatfile_shallow.pickle \
-            > flatfile_shallow.pickle.gz
-          ls -lh flatfile_shallow.pickle.gz
-          sha256sum flatfile_shallow.pickle.gz
+          gzip -9 -nc src/djura/record_selection/assets/flatfile_shallow_v1.pickle \
+            > flatfile_shallow_v1.pickle.gz
+          ls -lh flatfile_shallow_v1.pickle.gz
+          sha256sum flatfile_shallow_v1.pickle.gz
 
       - name: Create release and upload asset
         env:
@@ -41,4 +41,4 @@ jobs:
           gh release create "${{ inputs.version }}" \
             --title "Data release ${{ inputs.version }}" \
             --notes "Compressed record-selection dataset for djura. Consumed by djura.data_loader.load_data()." \
-            flatfile_shallow.pickle.gz
+            flatfile_shallow_v1.pickle.gz
