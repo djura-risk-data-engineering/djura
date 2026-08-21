@@ -163,7 +163,8 @@ def run_selection(im_ref):
 
 
 if __name__ == "__main__":
-    # Uncomment to (re)generate data/ctx.pickle from the datastore
+    # (Re)generate data/ctx.pickle from the datastore. Comment out to
+    # reuse the pickle that is already there.
     build_context()
 
     # One process per conditional IM, 5 at a time. Lower the pool size if
