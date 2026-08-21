@@ -159,51 +159,58 @@ waveforms.
 
 ### Publishing a new data release (maintainers)
 
-The release is produced by the `release-data` GitHub Actions workflow,
-which compresses the pickle and uploads it to a tagged GitHub Release.
+The dataset lives on a tagged GitHub Release as a gzip-compressed asset.
+The pickle itself is never committed, being far too large for the
+repository and for the wheel, so the archive is built locally and uploaded
+to the release.
+
+**One rule underlies the whole procedure: hash and upload the same file.**
+Two gzip implementations compress the same input to different bytes, so a
+digest taken from one archive does not describe another. Never hash locally
+and upload something recompressed elsewhere.
 
 1. Put the new pickle at
-   `src/djura/record_selection/assets/flatfile_shallow_v1.pickle`. The
-   workflow reads that exact path and fails if it is absent. It is not
-   committed: the file is far too large for the repository and for the
-   wheel.
+   `src/djura/record_selection/assets/flatfile_shallow_v1.pickle`.
 
-2. Compute the SHA-256 of the compressed asset **the same way the workflow
-   compresses it**, `gzip -9 -n` (the `-n` strips the filename and
-   timestamp header, so the `.gz` is byte-for-byte reproducible and its
-   digest is stable):
+2. Build the archive and read off its digest:
 
-   ```bash
-   gzip -9 -nc src/djura/record_selection/assets/flatfile_shallow_v1.pickle \
-     > flatfile_shallow_v1.pickle.gz
-   sha256sum flatfile_shallow_v1.pickle.gz
+   ```
+   python scripts/pack_dataset.py
    ```
 
-3. Publish the release, tagging it one version above the last data
-   release:
+   This writes `flatfile_shallow_v1.pickle.gz` beside the pickle and prints
+   its SHA-256. Compression is reproducible — no filename and no timestamp
+   in the gzip header — so the same pickle always gives the same archive and
+   the same digest. To hash it again independently, on Windows `cmd`:
 
-   ```bash
-   gh workflow run release-data.yml -f version=data-v3
+   ```
+   certutil -hashfile flatfile_shallow_v1.pickle.gz SHA256
    ```
 
-   The workflow prints the size and the SHA-256 of the asset it uploaded;
-   it must match the digest from step 2.
+3. Upload it. On <https://github.com/djura-risk-data-engineering/djura/releases>,
+   either edit the existing data release or draft a new tag (`data-v3`,
+   `data-v4`, …), then attach `flatfile_shallow_v1.pickle.gz`. Replacing an
+   asset of the same name requires deleting the old one first; the URL is
+   otherwise unchanged.
 
-4. Update `src/djura/data_loader.py` to the new asset: `DATA_FILENAME`,
-   the tag and filename in `GITHUB_RELEASE_URL`, and `EXPECTED_SHA256`.
-   A mismatched digest makes the download fail with a checksum error
-   rather than silently loading the wrong data.
+4. Point `src/djura/data_loader.py` at it: `DATA_FILENAME`, the tag and
+   filename in `GITHUB_RELEASE_URL`, and `EXPECTED_SHA256` from step 2. A
+   wrong digest makes every download fail with a checksum error rather than
+   silently loading the wrong data.
 
 5. Verify end to end from a clean cache:
 
-   ```bash
-   python -c "from djura.data_loader import clear_cache, load_data; \
-   clear_cache(); print(len(load_data()['magnitude']))"
+   ```
+   python -c "from djura.data_loader import clear_cache, load_data; clear_cache(); print(len(load_data()['magnitude']))"
    ```
 
-Users who already have the previous dataset cached keep using it until
-they call `clear_cache()`, the cache being keyed by filename, so a renamed
-asset triggers a fresh download on its own.
+The cache is keyed by filename, so a renamed asset is fetched afresh; users
+of the previous name keep their cached copy until they call `clear_cache()`.
+
+The `release-data` GitHub Actions workflow performs steps 2 and 3 with
+`gzip -9 -n` and prints the digest of what it uploaded — use *that* digest
+in step 4 when releasing that way. It reads the pickle from the checked-out
+repository, so it only works on a branch where the file has been committed.
 
 ## How to cite
 
