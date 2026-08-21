@@ -35,11 +35,11 @@ DATA_FILENAME = "flatfile_shallow_v1.pickle"
 #   flatfile_shallow_v1.pickle.gz
 GITHUB_RELEASE_URL = (
     "https://github.com/djura-risk-data-engineering/djura"
-    "/releases/download/data-v3/flatfile_shallow_v1.pickle.gz"
+    "/releases/download/data-v2/flatfile_shallow_v1.pickle.gz"
 )
 EXPECTED_SHA256 = (
     # SHA-256 of the compressed .gz asset at the URL above.
-    "8fb58e424bce0f0c199e5b862c726dede5cf700f12b04574e6dcaf2b0b0e84ac"
+    "90b85e6ca079ae44b9b9a4d376493f46ce692a0e2952f86bd47b1a0d1b2845a6"
 )
 
 # Refuse downloads larger than 500 MB (uncompressed pickle is ~220 MB).
