@@ -17,5 +17,9 @@ python:
     - method: pip
       path: .
       extra_requirements:
+        # autodoc imports every submodule, so all application dependencies
+        # must be present or the import failures become warnings, which
+        # fail_on_warning turns into a failed build
+        - all
         - plot
     - requirements: docs/requirements.txt
