@@ -196,95 +196,101 @@ class OQ:
         dctx = contexts.DistancesContext(case)
 
         # Hanging-wall factor
-        if 'fhw' in case.keys():
-            fhw = case['fhw']
-        else:
-            fhw = 0
+        fhw = case.get('fhw', 0)
 
         # Source-to-site azimuth, alternative of hanging wall factor
         if 'azimuth' in case.keys():
             azimuth = case['azimuth']
         else:
-            if fhw == 1:
-                azimuth = 50
-            elif fhw == 0:
-                azimuth = -50
+            # Any factor other than zero places the site on the down-dip
+            # side, as in DistancesContext._set_default_dists. Previously
+            # only 0 and 1 were handled and any other value left 'azimuth'
+            # unassigned
+            azimuth = -50 if fhw == 0 else 50
 
-        # rjb and rx
-        if 'rjb' in case.keys():
-            rjb = case['rjb']
+        # rjb and rx. Both stay None while the scenario does not define
+        # them, so that a genuine zero distance is not read as a missing one
+        rjb = case.get('rjb')
+        rx = case.get('rx')
+
+        if rjb is not None:
             if rjb == 0:
                 rx = 0.5 * width * np.cos(np.radians(dip))
-            else:
-                if dip == 90:
-                    rx = rjb * np.sin(np.radians(azimuth))
+            elif dip == 90:
+                rx = rjb * np.sin(np.radians(azimuth))
+            elif (0 <= azimuth < 90) or (90 < azimuth <= 180):
+                if rjb * np.abs(np.tan(np.radians(azimuth))) \
+                        <= width * np.cos(np.radians(dip)):
+                    rx = rjb * np.abs(np.tan(np.radians(azimuth)))
                 else:
-                    if (0 <= azimuth < 90) or (90 < azimuth <= 180):
-                        if rjb * np.abs(np.tan(np.radians(azimuth))) \
-                                <= width * np.cos(np.radians(dip)):
-                            rx = rjb * np.abs(np.tan(np.radians(azimuth)))
-                        else:
-                            rx = rjb * np.tan(np.radians(azimuth)) \
-                                * np.cos(np.radians(azimuth) - np.arcsin(
-                                    width * np.cos(np.radians(dip))
-                                    * np.cos(np.radians(azimuth)) / rjb))
-                    elif azimuth == 90:  # we assume that Rjb>0
-                        rx = rjb + width * np.cos(np.radians(dip))
-                    else:
-                        rx = rjb * np.sin(np.radians(azimuth))
-        elif 'rx' in case.keys():
-            rx = case['rx']
-            rjb = None
-        else:
-            rx = None
+                    rx = rjb * np.tan(np.radians(azimuth)) \
+                        * np.cos(np.radians(azimuth) - np.arcsin(
+                            width * np.cos(np.radians(dip))
+                            * np.cos(np.radians(azimuth)) / rjb))
+            elif azimuth == 90:  # we assume that Rjb>0
+                rx = rjb + width * np.cos(np.radians(dip))
+            else:
+                rx = rjb * np.sin(np.radians(azimuth))
 
         # ry0
         if azimuth == 90 or azimuth == -90:
-            ry0 = 0
-        elif azimuth == 0 or azimuth == 180 or azimuth == -180 and rjb:
+            ry0 = 0.0
+        elif (azimuth == 0 or azimuth == 180 or azimuth == -180) \
+                and rjb is not None:
+            # The parentheses matter: 'and' binds tighter than 'or', so the
+            # rjb guard used to apply to the -180 case alone and ry0 could
+            # be set to None for the other two
             ry0 = rjb
-        elif rx:
+        elif rx is not None:
             ry0 = np.abs(rx * 1. / np.tan(np.radians(azimuth)))
         else:
             ry0 = None
 
-        # rrup
-        if rjb and dip == 90:
+        # rrup. A value carried by the scenario is used as given; it was
+        # previously ignored on every path, and left 'rrup' unassigned
+        # whenever the geometry below could not supply one
+        if case.get('rrup') is not None:
+            rrup = case['rrup']
+        elif rjb is not None and dip == 90:
             rrup = np.sqrt(np.square(rjb) + np.square(ztor))
-        elif rx:
-            if rx < ztor * np.tan(np.radians(dip)):
+        elif rx is not None and ry0 is not None:
+            up_dip = ztor * np.tan(np.radians(dip))
+            down_dip = up_dip + width / np.cos(np.radians(dip))
+
+            # if/elif/else rather than three separate 'if's: the three
+            # conditions partition the line, so this is equivalent, and
+            # 'rrup1' can no longer be left unassigned
+            if rx < up_dip:
                 rrup1 = np.sqrt(np.square(rx) + np.square(ztor))
-            if ztor * np.tan(np.radians(dip)) <= rx <= ztor \
-                    * np.tan(np.radians(dip)) + width \
-                    * 1. / np.cos(np.radians(dip)):
+            elif rx <= down_dip:
                 rrup1 = rx * np.sin(np.radians(dip)) + \
                     ztor * np.cos(np.radians(dip))
-            if rx > ztor * np.tan(np.radians(dip)) \
-                    + width * 1. / np.cos(np.radians(dip)):
+            else:
                 rrup1 = np.sqrt(
                     np.square(rx - width * np.cos(np.radians(dip)))
                     + np.square(ztor + width * np.sin(np.radians(dip))))
+
             rrup = np.sqrt(np.square(rrup1) + np.square(ry0))
-        elif 'rrup' not in case.keys():
-            if 'rhypo' in case.keys():
-                rrup = case['rhypo']
-            elif 'repi' in case.keys():
-                rrup = case['repi']
-            else:
-                raise ValueError('No distance parameter is defined!')
+        elif case.get('rhypo') is not None:
+            rrup = case['rhypo']
+        elif case.get('repi') is not None:
+            rrup = case['repi']
+        else:
+            raise ValueError('No distance parameter is defined!')
 
         # Closest distance to coseismic rupture (km)
         setattr(dctx, 'rrup', np.array([rrup], dtype='float64'))
         # Horizontal distance from top of rupture measured perpendicular
-        # to fault strike (km)
-        if rx:
+        # to fault strike (km). Tested against None rather than for
+        # truthiness, so that a zero distance is still reported
+        if rx is not None:
             setattr(dctx, 'rx', np.array([rx], dtype='float64'))
         # The horizontal distance off the end of the rupture measured parallel
         # to strike (km)
-        if ry0:
+        if ry0 is not None:
             setattr(dctx, 'ry0', np.array([ry0], dtype='float64'))
         # Closest distance to surface projection of coseismic rupture (km)
-        if rjb:
+        if rjb is not None:
             setattr(dctx, 'rjb', np.array([rjb], dtype='float64'))
 
         for key in case.keys():
