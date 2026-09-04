@@ -213,10 +213,8 @@ class _GCIM:
                 num_components
             )
 
-            if isinstance(_sigma, np.ndarray):
-                means[gmm_name], sigmas[gmm_name] = _mean, _sigma[0]
-            else:
-                means[gmm_name], sigmas[gmm_name] = _mean, np.asarray([_sigma])
+            means[gmm_name] = _mean
+            sigmas[gmm_name] = float(np.ravel(_sigma)[0])
 
         return means, sigmas, weights
 
