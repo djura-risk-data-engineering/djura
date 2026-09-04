@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 from pathlib import Path
+from functools import lru_cache
 import math
 import numpy as np
 from scipy.interpolate import interp1d
@@ -14,12 +15,67 @@ asset_dir = Path(__file__).resolve().parent / "assets"
 
 AKKAR_CORRELATION_TABLE = "akkar_correlation_table.txt"
 
+ANN_CORRELATION_MODELS = "correlation_models.json"
+
+ASO2024_MODELS = "corr_ann.json"
+
 ACTIVATION_FUNCTIONS = {
     "linear": activation_functions.linear,
     "softmax": activation_functions.softmax,
     "tanh": activation_functions.tanh,
     "sigmoid": activation_functions.sigmoid,
 }
+
+#: Periods (sec) at which the Akkar et al. (2014) correlation table is
+#: tabulated; also the valid input range for both periods.
+AKKAR_PERIODS = np.array(
+    [0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.11, 0.12, 0.13, 0.14,
+     0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3,
+     0.32, 0.34, 0.36, 0.38, 0.4, 0.42, 0.44, 0.46, 0.48, 0.5, 0.55, 0.6,
+     0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1, 1.1, 1.2, 1.3, 1.4, 1.5,
+     1.6, 1.7, 1.8, 1.9, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8, 4])
+
+#: Intensity measure pairs whose ANN input layer expects log-periods.
+ASO2024_TRANSFORMATIONS = frozenset({
+    "SA-Ds595", "SA-Ds575",
+    "Sa_avg2-Ds595", "Sa_avg2-Ds575", "Sa_avg2-PGA", "Sa_avg2-PGV",
+    "Sa_avg3-Ds595", "Sa_avg3-Ds575", "Sa_avg3-PGA", "Sa_avg3-PGV",
+})
+
+
+# The correlation assets are read once and memoised. They are looked up for
+# every period pair of every intensity measure pair, so re-reading them per
+# call dominated the cost of building a correlation matrix. Loading is lazy
+# rather than eager at import because 'corr_ann.json' is a few MB and is only
+# needed by the ANN-based models.
+#
+# The cached objects are shared by every caller and must be treated as
+# read-only.
+@lru_cache(maxsize=None)
+def _akkar_coeff_table() -> np.ndarray:
+    """Correlation table of Akkar et al. (2014), as a (n_per, n_per) array."""
+    with open(asset_dir / AKKAR_CORRELATION_TABLE, 'r') as file:
+        content = file.read()
+
+    # NB: left writeable on purpose. Marking it read-only makes
+    # scipy's RegularGridInterpolator take a different internal path, which
+    # shifts some interpolated correlations by 1 ULP.
+    return np.fromstring(
+        content, dtype=float, sep=" ").reshape(-1, len(AKKAR_PERIODS))
+
+
+@lru_cache(maxsize=None)
+def _load_asset_json(filename: str) -> dict:
+    """Parsed contents of a JSON asset, memoised on the file name."""
+    return read_json(asset_dir / filename)
+
+
+def _ann_layer(x, biases, weights):
+    """Affine transformation of one ANN layer."""
+    biases = np.asarray(biases)
+    weights = np.asarray(weights).T
+
+    return biases.reshape(1, -1) + np.dot(weights, x.T).T
 
 
 def baker_jayaram(
@@ -104,18 +160,8 @@ def akkar(period1: float, period2: float):
     float
         Predicted correlation coefficient
     """
-    periods = np.array(
-        [0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.11, 0.12, 0.13, 0.14,
-         0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3,
-         0.32, 0.34, 0.36, 0.38, 0.4, 0.42, 0.44, 0.46, 0.48, 0.5, 0.55, 0.6,
-         0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1, 1.1, 1.2, 1.3, 1.4, 1.5,
-         1.6, 1.7, 1.8, 1.9, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8, 4])
-
-    with open(asset_dir / AKKAR_CORRELATION_TABLE, 'r') as file:
-        content = file.read()
-
-    coeff_table = np.fromstring(
-        content, dtype=float, sep=" ").reshape(-1, len(periods))
+    periods = AKKAR_PERIODS
+    coeff_table = _akkar_coeff_table()
 
     if np.any([period1, period2] < periods[0]) or \
             np.any([period1, period2] > periods[-1]):
@@ -1032,7 +1078,7 @@ def ann_corr(im_pair: str, period1: float = None,
     float
         Correlation value
     """
-    CORRELATIONS_ANN = read_json(asset_dir / "correlation_models.json")
+    CORRELATIONS_ANN = _load_asset_json(ANN_CORRELATION_MODELS)
 
     imi, imj = im_pair.split("-")
 
@@ -1096,19 +1142,7 @@ def aso2024(im_pair: str, period1: float = None,
     float
         Correlation value
     """
-    MODELS_ANN = read_json(asset_dir / "corr_ann.json")
-
-    def _generate_function(x, biases, weights):
-        biases = np.asarray(biases)
-        weights = np.asarray(weights).T
-
-        return biases.reshape(1, -1) + np.dot(weights, x.T).T
-
-    TRANSFORMATIONS = frozenset({
-        "SA-Ds595", "SA-Ds575",
-        "Sa_avg2-Ds595", "Sa_avg2-Ds575", "Sa_avg2-PGA", "Sa_avg2-PGV",
-        "Sa_avg3-Ds595", "Sa_avg3-Ds575", "Sa_avg3-PGA", "Sa_avg3-PGV",
-    })
+    MODELS_ANN = _load_asset_json(ASO2024_MODELS)
 
     imi, imj = im_pair.split("-")
 
@@ -1145,10 +1179,10 @@ def aso2024(im_pair: str, period1: float = None,
     for i, act in enumerate(act_funcs):
         activation = ACTIVATION_FUNCTIONS[act]
 
-        if im_pair in TRANSFORMATIONS and i == 0:
+        if im_pair in ASO2024_TRANSFORMATIONS and i == 0:
             x = np.log(x)
 
-        _data = _generate_function(x, biases[i], weights[i])
+        _data = _ann_layer(x, biases[i], weights[i])
         x = activation(_data)
 
     if isinstance(x[0], float):
