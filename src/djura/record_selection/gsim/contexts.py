@@ -174,9 +174,11 @@ class RuptureContext(BaseContext):
 
         if hasattr(self, "rake"):
             # 1st mask for identifying strike-slip faulting
+            # Element-wise (& |) rather than Python's and/or, which cannot
+            # combine arrays holding more than a single value
             mask1 = (
-                ((-45 <= self.rake) and (self.rake <= 45))
-                or (self.rake >= 135) or (self.rake <= -135)
+                ((-45 <= self.rake) & (self.rake <= 45))
+                | (self.rake >= 135) | (self.rake <= -135)
             )
             # 2nd mask for identifying Thrust/Reverse faulting
             mask2 = self.rake > 0
@@ -432,7 +434,11 @@ class DistancesContext(BaseContext):
             rjb = np.asarray(self.rjb)
             mask1 = rjb == 0
             mask2 = dip == 90
-            mask3 = (0 <= self.azimuth < 90) or (90 < self.azimuth <= 180)
+            # Element-wise (& |) rather than Python's and/or and rather than
+            # a chained comparison, neither of which can combine arrays
+            # holding more than a single value
+            mask3 = (((0 <= self.azimuth) & (self.azimuth < 90))
+                     | ((90 < self.azimuth) & (self.azimuth <= 180)))
             mask4 = (rjb * np.abs(np.tan(np.radians(self.azimuth)))
                      <= width * np.cos(np.radians(dip)))
             mask5 = self.azimuth == 90  # we assume that Rjb>0
@@ -467,15 +473,17 @@ class DistancesContext(BaseContext):
 
         # ry0 calculation
         if not hasattr(self, 'ry0'):
-            mask1 = self.azimuth == 90 or self.azimuth == -90
+            # Element-wise (& |) rather than Python's and/or, which cannot
+            # combine arrays holding more than a single value
+            mask1 = (self.azimuth == 90) | (self.azimuth == -90)
             mask2 = (
-                self.azimuth == 0
-                or self.azimuth == 180
-                or self.azimuth == -180
-            ) and np.full(len(self.azimuth), hasattr(self, "rjb"), dtype=bool)
+                (self.azimuth == 0)
+                | (self.azimuth == 180)
+                | (self.azimuth == -180)
+            ) & np.full(len(self.azimuth), hasattr(self, "rjb"), dtype=bool)
             mask3 = np.full(len(self.azimuth), hasattr(self, "rx"), dtype=bool)
 
-            if np.all(mask1 or mask2 or mask3):
+            if np.all(mask1 | mask2 | mask3):
                 # Init rjb and rx arrays to avoid issues
                 if hasattr(self, "rjb"):
                     rjb = self.rjb
@@ -498,12 +506,14 @@ class DistancesContext(BaseContext):
 
         # rrup calculation
         if not hasattr(self, 'rrup'):
+            # Element-wise (& |) rather than Python's and/or, which cannot
+            # combine arrays holding more than a single value
             mask1 = (np.full(len(dip), hasattr(self, "rjb"), dtype=bool)
-                     and dip == 90)
+                     & (dip == 90))
             mask2 = np.full(len(dip), hasattr(self, "rx"), dtype=bool)
             mask3 = np.full(len(dip), hasattr(self, "rhypo"), dtype=bool)
             mask4 = np.full(len(dip), hasattr(self, "repi"), dtype=bool)
-            if np.all(mask1 or mask2 or mask3 or mask4):
+            if np.all(mask1 | mask2 | mask3 | mask4):
                 # Init rjb array to avoid issues
                 if hasattr(self, "rjb"):
                     rjb = self.rjb
@@ -518,20 +528,38 @@ class DistancesContext(BaseContext):
 
                 if np.any(np.isnan(self.rrup)) and hasattr(self, "rx"):
                     rrup1 = np.ones_like(ztor)
-                    mask5 = self.rx < ztor * np.tan(np.radians(dip))
-                    mask6 = ztor * np.tan(np.radians(dip)) <= self.rx <= ztor \
-                        * np.tan(np.radians(dip)) + width \
-                        * 1. / np.cos(np.radians(dip))
-                    mask7 = self.rx > ztor * np.tan(np.radians(dip)) \
-                        + width * 1. / np.cos(np.radians(dip))
+                    _up_dip = ztor * np.tan(np.radians(dip))
+                    _down_dip = _up_dip + width / np.cos(np.radians(dip))
 
-                    rrup1[mask5] = np.sqrt(
-                        np.square(self.rx) + np.square(ztor))
-                    rrup1[mask6] = self.rx * np.sin(np.radians(dip)) + \
-                        ztor * np.cos(np.radians(dip))
-                    rrup1[mask7] = np.sqrt(
-                        np.square(self.rx - width * np.cos(np.radians(dip)))
-                        + np.square(ztor + width * np.sin(np.radians(dip))))
+                    mask5 = self.rx < _up_dip
+                    # Element-wise (&) rather than a chained comparison,
+                    # which cannot be applied to an array holding more than
+                    # a single value
+                    mask6 = (_up_dip <= self.rx) & (self.rx <= _down_dip)
+                    mask7 = self.rx > _down_dip
+
+                    # np.where rather than masked assignment: the values
+                    # below span the whole context, so assigning them into a
+                    # masked selection only lines up while there is exactly
+                    # one element. Applied in the original order, so a later
+                    # mask still takes precedence where masks overlap.
+                    rrup1 = np.where(
+                        mask5,
+                        np.sqrt(np.square(self.rx) + np.square(ztor)),
+                        rrup1)
+                    rrup1 = np.where(
+                        mask6,
+                        self.rx * np.sin(np.radians(dip))
+                        + ztor * np.cos(np.radians(dip)),
+                        rrup1)
+                    rrup1 = np.where(
+                        mask7,
+                        np.sqrt(
+                            np.square(
+                                self.rx - width * np.cos(np.radians(dip)))
+                            + np.square(
+                                ztor + width * np.sin(np.radians(dip)))),
+                        rrup1)
 
                     self.rrup = np.where(
                         np.isnan(self.rrup),
