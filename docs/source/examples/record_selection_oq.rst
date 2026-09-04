@@ -16,7 +16,7 @@ This page covers the *approximate* form, in which each
 magnitude-distance bin of the disaggregation becomes one representative
 scenario. For the *exact* form, in which every rupture of the PSHA is
 carried with its full context, see
-:doc:`record_selection_exact`. That workflow additionally needs the
+:doc:`record_selection_exact/index`. That workflow additionally needs the
 OQ-engine installed; this one does not.
 
 Prerequisites
