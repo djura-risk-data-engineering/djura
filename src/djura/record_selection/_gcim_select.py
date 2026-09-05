@@ -1026,8 +1026,8 @@ class _GCIMSelect:
         ValueError
             NaNs found in input response spectra
         ValueError
-            There are not enough records which satisfy, the given record
-            selection criteria...Please broaden your selection criteria...
+            Fewer records satisfy the given record selection criteria than
+            the number requested
         """
 
         unique_key = "RSN"
@@ -1049,8 +1049,10 @@ class _GCIMSelect:
         # get the unique values
         not_allowed = set(not_allowed)
 
-        # Allowed set of indices
-        allowed = np.array(list(all_indexes - not_allowed))
+        # Allowed set of indices. Typed, so that criteria which leave no
+        # record at all still produce an array usable as an index and the
+        # count below reports the shortfall
+        allowed = np.array(list(all_indexes - not_allowed), dtype=int)
 
         # Use only allowed records
         for key, val in im_known.items():
@@ -1075,9 +1077,11 @@ class _GCIMSelect:
         im_known = self._parse_imi_of_interest(im_known, imi)
 
         if num_records > len(eq_id):
-            raise ValueError('There are not enough records which satisfy',
-                             'the given record selection criteria...',
-                             'Please use broaden your selection criteria...')
+            raise ValueError(
+                "There are not enough records which satisfy the given record "
+                f"selection criteria: {num_records} were requested and "
+                f"{len(eq_id)} are available. Please broaden your selection "
+                "criteria")
 
         return im_known, context, filename1, filename2, rsn, eq_id, allowed
 
