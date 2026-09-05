@@ -809,8 +809,10 @@ class GCIM:
         for site_key in site_parameters:
             try:
                 site_parameters[site_key] = float(site_parameters[site_key])
-            except ValueError:
-                site_parameters[site_key] = site_parameters[site_key]
+            except (TypeError, ValueError):
+                # Kept as given: a site parameter which is not a number,
+                # such as a region code or a flag
+                pass
 
         for i, rupture in enumerate(self.data["ruptures"]):
             if "z_tor" in rupture.keys() and "rrup" not in rupture.keys():
