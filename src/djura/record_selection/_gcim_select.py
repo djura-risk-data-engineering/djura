@@ -758,17 +758,13 @@ class _GCIMSelect:
         im1 = f"{name}_1"
         im2 = f"{name}_2"
 
-        if im1 not in self.metadata and num_components == 3:
-            # period-independent IMs or vertical component IMs
+        if im1 not in self.metadata:
+            # Period-independent IMs, and the vertical component, are held
+            # under the plain name rather than one entry per component
+            if num_components == 1:
+                return np.append(
+                    self.metadata[name], self.metadata[name], axis=0)
             return self.metadata[name]
-
-        if im1 not in self.metadata and num_components == 2:
-            # period-independent IMs
-            return self.metadata[name]
-
-        if im1 not in self.metadata and num_components == 1:
-            # period-independent IMs
-            return np.append(self.metadata[name], self.metadata[name], axis=0)
 
         if num_components == 1:
             im_vals = np.append(
