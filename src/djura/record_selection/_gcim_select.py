@@ -291,26 +291,31 @@ class _GCIMSelect:
         rec_ids = []  # rec IDs in the metadata
         rec_comp = []
         rec_filenames = []
-        for fname in rec_f1:
-            if self.output_create["num_components"] == 3:
-                idx = list(self.metadata['Filename_1']).index(fname)
-                fname2 = self.metadata['Filename_2'][idx]
-                fname3 = self.metadata['Filename_vert'][idx]
-                rec_filenames.append(f"{fname}, {fname2}, {fname3}")
-                rec_comp.append('H1, H2, V')
-            elif self.output_create["num_components"] == 2:
-                idx = list(self.metadata['Filename_1']).index(fname)
-                fname2 = self.metadata['Filename_2'][idx]
-                rec_filenames.append(f"{fname}, {fname2}")
-                rec_comp.append('H1, H2')
-            elif fname in self.metadata['Filename_1']:
-                idx = list(self.metadata['Filename_1']).index(fname)
+        # Position of each selected record in the metadata. The arrays the
+        # selection works on are the metadata reduced to 'allowed_idxs', so
+        # indexing that by the selected rows gives the metadata rows back
+        selected_idxs = np.asarray(allowed_idxs)[rec_id]
+
+        # For a single-component selection the pool is Filename_1 followed
+        # by Filename_2, so a position below the number of records belongs
+        # to the first component and one above it to the second
+        n_records = len(self.metadata['Filename_1'])
+
+        for fname, selected in zip(rec_f1, selected_idxs):
+            if num_components == 1:
+                idx = int(selected % n_records)
                 rec_filenames.append(f"{fname}")
-                rec_comp.append('H1')
-            elif fname in self.metadata['Filename_2']:
-                idx = list(self.metadata['Filename_2']).index(fname)
-                rec_filenames.append(f"{fname}")
-                rec_comp.append('H2')
+                rec_comp.append('H1' if selected < n_records else 'H2')
+            else:
+                idx = int(selected)
+                fname2 = self.metadata['Filename_2'][idx]
+                if num_components == 3:
+                    fname3 = self.metadata['Filename_vert'][idx]
+                    rec_filenames.append(f"{fname}, {fname2}, {fname3}")
+                    rec_comp.append('H1, H2, V')
+                else:
+                    rec_filenames.append(f"{fname}, {fname2}")
+                    rec_comp.append('H1, H2')
             rec_ids.append(idx)
 
         # Mechanism
