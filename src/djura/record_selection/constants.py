@@ -268,13 +268,8 @@ MECHANISM_MAP = {
 #: outside the requested set and are excluded
 UNKNOWN_MECHANISM = 'unknown'
 
-MECHANISM_MAP_REV = {
-    'strike-slip fault': 0,
-    'normal fault': 1,
-    'reverse fault': 2,
-    'reverse/oblique fault': 3,
-    'normal/oblique fault': 4,
-}
+#: Name to code, the inverse of MECHANISM_MAP
+MECHANISM_MAP_REV = {name: code for code, name in MECHANISM_MAP.items()}
 
 ESHM20_COEFFICIENTS = {
     "total": (0.18141134, 0.1555742, -0.10851875, 0.08, 0.2),
