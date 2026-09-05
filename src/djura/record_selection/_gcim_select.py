@@ -399,10 +399,6 @@ class _GCIMSelect:
         num_records = realization.shape[0]
         num_im = len(sigma_imi)
 
-        min_limit = np.zeros((num_im))
-        max_limit = np.zeros((num_im))
-
-        x_theoretical = np.zeros((num_im, self.N_P))
         cdf_theoretical = np.zeros((num_im, self.N_P))
         ksstat_sim = np.zeros((num_im))
         ksstat_scaled = np.zeros((num_im))
@@ -938,7 +934,7 @@ class _GCIMSelect:
 
         return mask
 
-    def _limit_context(self, context, context_limits, im_known, rsn):
+    def _limit_context(self, context, context_limits, im_known):
         """Create a list of RSNs of ground motion records to disregard
         during selection based on causal context limits imposed
 
@@ -950,8 +946,6 @@ class _GCIMSelect:
             Causal context limits
         im_known : dict
             IMis and respective values for each ground motion
-        rsn : np.ndarray
-            Ground motion unqiue identifiers
 
         Returns
         -------
@@ -959,7 +953,6 @@ class _GCIMSelect:
             Ground motion with unqiue identifiers to be ignored
         """
         not_allowed = []
-        mask = np.zeros(len(rsn), dtype=bool)
         for im_vals in im_known.values():
             not_allowed.extend(np.unique(np.where(im_vals <= 0)[0]).tolist())
 
@@ -1058,7 +1051,7 @@ class _GCIMSelect:
         # `not_allowed' variable
         # IM values cannot be negative or zero, remove those
         not_allowed = self._limit_context(
-            context, context_limits, im_known, rsn)
+            context, context_limits, im_known)
 
         # Initialize indices for all available records
         all_indexes = set(range(len(rsn)))
