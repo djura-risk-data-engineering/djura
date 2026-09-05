@@ -31,10 +31,6 @@ Correlation models
    :members:
    :show-inheritance:
 
-.. automodule:: djura.record_selection.correlations
-   :members:
-   :show-inheritance:
-
 Utilities
 ---------
 

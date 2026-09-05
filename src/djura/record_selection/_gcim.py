@@ -14,7 +14,6 @@ from .constants import SUPPORTED_IMS, CORRELATION_MODELS, \
 from .gmm_tools import calculate_epsilon
 from .gsim.oq import OQ
 from .flatfile import Flatfile
-from .correlations import Correlations
 from . import correlation_models
 from .gsim import const
 from .gsim import imt
@@ -32,8 +31,6 @@ class _GCIM:
         #: Correlation model applied to each IM pair, populated during the
         #: creation of the distribution and reported with its output
         self.correlation_models_used = {}
-
-        self._correlations = Correlations()
 
     def _add_missing_im(
             self, im: str, period: float) -> None:
