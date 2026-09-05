@@ -746,7 +746,13 @@ class GCIM:
                     continue
 
                 bgmpes = []
-                src_gmms = [f"{s}_{ii}" for ii, s in enumerate(val["names"])]
+                # Index each name so that a model appearing more than once
+                # in the list keeps a unique key. _validate_gmm reads the
+                # class back from the part before the underscore, and taking
+                # that part here as well makes the naming settle on the same
+                # result however many times this runs
+                src_gmms = [f"{s.split('_')[0]}_{ii}"
+                            for ii, s in enumerate(val["names"])]
                 kwargs = val.get('kwargs', None)
                 if kwargs is None:
                     kwargs = [{}] * len(src_gmms)
