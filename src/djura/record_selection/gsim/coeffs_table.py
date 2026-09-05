@@ -4,7 +4,6 @@
 # for files under models/) for full attribution.
 
 
-import re
 from math import log
 from scipy.interpolate import interp1d
 import numpy as np
@@ -40,15 +39,10 @@ class CoeffsTable(object):
         self.rb = self._setup_table_from_str(table, sa_damping)
         if self.opt == 1:
             keys = list(self._coeffs.keys())
-            num_coeff = len(self._coeffs[keys[0]])
-            self.cmtx = np.zeros((len(self._coeffs.keys()), num_coeff))
             periods = np.array([i.period for i in keys])
             idxs = np.argsort(periods)
-            tmp = []
-            for i, idx in enumerate(idxs):
-                key = keys[i]
-                tmp.append(np.array(self._coeffs[key].tolist()))
-            tmp = np.array(tmp)
+            tmp = np.array(
+                [np.array(self._coeffs[key].tolist()) for key in keys])
             self.cmtx = tmp[idxs, :]
             self.periods = periods[idxs]
 
@@ -80,30 +74,6 @@ class CoeffsTable(object):
     def non_sa_coeffs(self):
         return {imt: self._coeffs[imt] for imt in self._coeffs
                 if imt.string[:2] not in SA_LIKE_PREFIXES}
-
-    def get_coeffs(self, coeff_list):
-        """
-        :param coeff_list:
-            A list with the names of the coefficients
-        """
-        coeffs = []
-        pof = []
-        for imt in self._coeffs:
-            if re.search('^(SA|EAS|FAS|DRVT)', imt.string):
-                tmp = np.array(self._coeffs[imt])
-                coeffs.append([tmp[i] for i in coeff_list])
-                if re.search('^(SA)', imt.string):
-                    pof.append(imt.period)
-                elif re.search('^(EAS|FAS|DRVT)', imt.string):
-                    pof.append(imt.frequency)
-                else:
-                    raise ValueError('Unknown IMT: {:s}'.format(imt.string))
-        pof = np.array(pof)
-        coeffs = np.array(coeffs)
-        idx = np.argsort(pof)
-        pof = pof[idx]
-        coeffs = coeffs[idx, :]
-        return pof, coeffs
 
     def __getitem__(self, imt):
         try:  # see if already in cache
