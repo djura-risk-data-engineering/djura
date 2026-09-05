@@ -855,49 +855,43 @@ class _GCIMSelect:
         Raises
         ------
         ValueError
-            If number of components is neither 0 or 1
+            If the number of components is not 1, 2 or 3
         """
         # sa_known is from arbitrary ground motion component
         filename2 = None
         context = {}
         if num_components == 1:
-
+            # The pool is the first component followed by the second, each
+            # record appearing once per component
             filename1 = np.append(
                 self.metadata['Filename_1'], self.metadata['Filename_2'],
                 axis=0)
-            eq_id = np.append(
-                self.metadata['EQID'], self.metadata['EQID'], axis=0)
-
-            rsn = np.append(
-                self.metadata[unique_key], self.metadata[unique_key], axis=0)
-
-            for key, val in context_limits.items():
-                if val is None or key not in self.metadata.keys() \
-                        or all(_val is None for _val in val):
-                    continue
-
-                context[key] = np.append(
-                    self.metadata[key], self.metadata[key], axis=0)
-
-        elif num_components == 2 or num_components == 3:
-
+        elif num_components in (2, 3):
             component_definition = component_definition.lower()
             filename1 = self.metadata['Filename_1']
             filename2 = self.metadata['Filename_2']
-            eq_id = self.metadata['EQID']
-            rsn = self.metadata[unique_key]
-
-            for key, val in context_limits.items():
-                if val is None or key not in self.metadata.keys() \
-                        or all(_val is None for _val in val):
-                    continue
-
-                context[key] = self.metadata[key]
-
         else:
             raise ValueError(
-                'Selection can only be performed for one or two components at '
-                'the moment, exiting...')
+                f'Number of components must be 1, 2 or 3, {num_components} '
+                'was given. Use 1 to select each horizontal component on its '
+                'own, 2 for a horizontal pair, or 3 to add the vertical '
+                'component')
+
+        def per_record(values):
+            """Repeat a per-record column to match the pool of filenames"""
+            if num_components == 1:
+                return np.append(values, values, axis=0)
+            return values
+
+        eq_id = per_record(self.metadata['EQID'])
+        rsn = per_record(self.metadata[unique_key])
+
+        for key, val in context_limits.items():
+            if val is None or key not in self.metadata.keys() \
+                    or all(_val is None for _val in val):
+                continue
+
+            context[key] = per_record(self.metadata[key])
 
         im_known = self._get_imi_database(
             imi, num_components, component_definition)
@@ -1031,8 +1025,7 @@ class _GCIMSelect:
         ValueError
             Unexpected Sa definition, exiting... Wrong spectrum definition
         ValueError
-            Wrong number of components. Selection can only be performed
-            for one or two components at the moment, exiting...
+            If the number of components is not 1, 2 or 3
         ValueError
             NaNs found in input response spectra
         ValueError

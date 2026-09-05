@@ -492,12 +492,14 @@ class GCIM:
         **Optional parameters of** ``data``
 
         num-components : int, optional
-            1 for single-component selection and arbitrary component sigma.
-            2 for two-component selection and average component sigma,
-            by default 2
+            1 for single-component selection and arbitrary component sigma,
+            each horizontal component being selected on its own.
+            2 for two-component selection and average component sigma.
+            3 to select the horizontal pair together with the vertical
+            component, by default 2
         component-definition : str, optional
             The spectra definition, 'GeoMean', 'RotD50', 'RotD100'. Necessary
-            if num-components = 2, by default 'RotD50'
+            if num-components is 2 or 3, by default 'RotD50'
         imi : List[str], optional
             IMis to be used for GCIM distribution creation. Default::
 
