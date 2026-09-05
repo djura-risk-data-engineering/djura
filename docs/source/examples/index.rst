@@ -10,7 +10,7 @@ self-contained and can be run locally after ``pip install djura``.
    record_selection
    record_selection_vertical
    record_selection_oq
-   record_selection_exact
+   record_selection_exact/index
    validations/index
    hazard_consistency
    fragility_converter

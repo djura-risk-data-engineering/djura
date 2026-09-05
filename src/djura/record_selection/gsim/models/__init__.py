@@ -48,7 +48,7 @@ from .abrahamson_silva_1996 import AbrahamsonSilva1996
 # Global GMPEs from NGA-West 1 Project: PGA, PGV, SA
 from .abrahamson_silva_2008 import AbrahamsonSilva2008
 from .boore_atkinson_2008 import BooreAtkinson2008
-from .boore_atkinson_2011 import BooreAtkinson2011
+from .boore_atkinson_2011 import BooreAtkinson2011, Atkinson2008prime
 from .chiou_youngs_2008 import ChiouYoungs2008
 # Global GMPEs from NGA-West 1 Project: PGA, PGV, PGD, SA, CAV
 from .campbell_bozorgnia_2008 import (

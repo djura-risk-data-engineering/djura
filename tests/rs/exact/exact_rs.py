@@ -13,21 +13,25 @@ The script has two steps:
 
 Assumptions for this example
 ----------------------------
+There are two example PSHA runs bundled under ``assets/`` and ``data/``,
+distinguished by a numeric suffix ``<n>`` (``1`` or ``2``). Pick one via
+the ``dstore`` variable below; everything else follows from it.
+
 * An OpenQuake probabilistic seismic hazard assessment (PSHA)
   calculation was run with the inputs in ``assets/``,
-  that is, ``assets/job.ini`` together with ``assets/inputs/``::
+  that is, ``assets/job_<n>.ini`` together with ``assets/inputs_<n>/``::
 
-      oq engine --run assets/job.ini
+      oq engine --run assets/job_<n>.ini
 
-* The resulting datastore was copied here as ``data/calc_9.hdf5``.
+* The resulting datastore was copied here as ``data/calc_<n>.hdf5``.
   OQ-engine writes datastores into its own data directory, typically:
 
       C:\Users\<your-username>\oqdata\calc_<id>.hdf5
       C:\Users\<your-username>\Documents\oqdata\calc_<id>.hdf5
       ~/oqdata/calc_<id>.hdf5
 
-* Running this script writes ``data/ctx.pickle``, the pickled context
-  consumed by ``GCIM(..., dis_oq=ctx)``.
+* Running this script writes ``data/ctx_<n>.pickle``, the pickled context
+  consumed by ``GCIM(..., dis_oq=ctx_<n>)``.
 
 Requirements
 ------------
@@ -70,13 +74,13 @@ from djura.utilities import export_results
 path = Path(__file__).resolve().parent
 
 # Datastore ID, i.e. data/calc_<dstore>.hdf5
-dstore = "9"
+dstore = "1"
 
 # Pickled context produced by build_context()
-ctx_pickle = path / "data" / "ctx.pickle"
+ctx_pickle = path / "data" / "ctx_1.pickle"
 
 
-def read_job_ini(job_ini=path / "assets" / "job.ini"):
+def read_job_ini(job_ini=path / "assets" / "job_1.ini"):
     """Read the conditional IMs and the PoEs out of the OQ job file.
 
     Returns the keys of ``intensity_measure_types_and_levels`` (in file
