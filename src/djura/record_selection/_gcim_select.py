@@ -121,10 +121,6 @@ class _GCIMSelect:
         imi_db, mu_imi, sigma_imi, correlations, alpha, covariance = \
             self._combine_imi(im_known, target, alpha_hash, total_rec)
 
-        rec_context = {}
-        for _arg in context.keys():
-            rec_context[_arg] = np.zeros((nreplicate, num_records))
-
         # Generate random realizations of IMi (num_records, num_imi)
         realization = self._simulate(
             nreplicate, num_records, mu_imi, covariance, sigma_imi, seed)
@@ -322,6 +318,14 @@ class _GCIMSelect:
         mech = [MECHANISM_MAP.get(x, UNKNOWN_MECHANISM) for x in mech]
 
         low_freq_u = self.metadata['lowest_usable_freq'][rec_ids]
+
+        # Causal context of each selected record, one entry per record.
+        # 'context' is indexed the same way as 'rsn', both having been
+        # reduced to the records the limits allow, so 'rec_id' selects the
+        # values belonging to the chosen suite. Only the parameters named in
+        # 'context_limits' and present in the metadata appear here
+        rec_context = {_arg: np.asarray(_val)[rec_id]
+                       for _arg, _val in context.items()}
 
         # All selected records for export
         self.selected_scaled_total = {
