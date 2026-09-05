@@ -1190,28 +1190,45 @@ def aso2024(im_pair: str, period1: float = None,
         return x[0][0]
 
 
-def eshm20(period1: float, period2: float):
-    d1, d2, d3, d4, d5 = ESHM20_COEFFICIENTS["total"]
+def _eshm20_model(name: str, component: str):
+    """SA vs SA correlation of one ESHM20 variance component
 
-    return baker_jayaram(period1, period2, d1, d2, d3, d4, d5)
+    The functional form is that of Baker and Jayaram (2008), refitted per
+    component; only the five coefficients differ between them.
+
+    Parameters
+    ----------
+    name : str
+        Name to give the correlation function, as registered in
+        CORRELATION_MODELS
+    component : str
+        Key of the component in ESHM20_COEFFICIENTS
+
+    Returns
+    -------
+    callable
+        Correlation function of two periods
+    """
+    d1, d2, d3, d4, d5 = ESHM20_COEFFICIENTS[component]
+
+    def correlation(period1: float, period2: float):
+        return baker_jayaram(period1, period2, d1, d2, d3, d4, d5)
+
+    correlation.__name__ = name
+    correlation.__qualname__ = name
+    correlation.__doc__ = (
+        f"SA vs SA correlation of the ESHM20 {component} component\n\n"
+        "    Parameters\n    ----------\n    period1 : float\n"
+        "        First period\n    period2 : float\n        Second period\n\n"
+        "    Returns\n    -------\n    float\n"
+        "        Predicted correlation coefficient\n    ")
+    return correlation
 
 
-def eshm20_between_event(period1: float, period2: float):
-    d1, d2, d3, d4, d5 = ESHM20_COEFFICIENTS["between-event"]
-
-    return baker_jayaram(period1, period2, d1, d2, d3, d4, d5)
-
-
-def eshm20_between_site(period1: float, period2: float):
-    d1, d2, d3, d4, d5 = ESHM20_COEFFICIENTS["between-site"]
-
-    return baker_jayaram(period1, period2, d1, d2, d3, d4, d5)
-
-
-def eshm20_within_event(period1: float, period2: float):
-    d1, d2, d3, d4, d5 = ESHM20_COEFFICIENTS["within-event"]
-
-    return baker_jayaram(period1, period2, d1, d2, d3, d4, d5)
+eshm20 = _eshm20_model("eshm20", "total")
+eshm20_between_event = _eshm20_model("eshm20_between_event", "between-event")
+eshm20_between_site = _eshm20_model("eshm20_between_site", "between-site")
+eshm20_within_event = _eshm20_model("eshm20_within_event", "within-event")
 
 
 def baker2007_ia_sa(period: float):
