@@ -1040,9 +1040,39 @@ class _GCIM:
         return ((phi_b - ndtr(epsilon)) / z).clip(0., 1.)
 
     @staticmethod
-    def _find_gmm_by_key(dicts, imt, idxs):
-        dicts = np.asarray(dicts)[idxs]
-        return next((d for d in dicts if imt in list(d.keys())), None)[imt]
+    def _find_gmm_by_key(gmms, im_type, gmm_ids):
+        """Entry of the first associated GMM which defines an IM type
+
+        Parameters
+        ----------
+        gmms : List[dict]
+            GMMs and associated weights, each carrying its own 'ID'
+        im_type : str
+            Intensity measure type to look for
+        gmm_ids : List[int]
+            IDs of the GMMs associated with a rupture scenario
+
+        Returns
+        -------
+        dict
+            Names and weights registered for 'im_type'
+
+        Raises
+        ------
+        ValueError
+            If none of the associated GMMs defines the intensity measure
+        """
+        # Resolved through the 'ID' of each entry, as in get_conditional_im,
+        # so that the two agree for a 'gmms' list whose IDs are given by the
+        # input rather than taken from the position in the list
+        for gmm_id in gmm_ids:
+            gmm = get_list_id(gmms, "ID", gmm_id, "GMM")
+            if im_type in gmm:
+                return gmm[im_type]
+
+        raise ValueError(
+            f"IM* type: {im_type}, was not defined for any of the GMMs "
+            f"associated with the rupture scenario: {list(gmm_ids)}")
 
     @staticmethod
     def _identify_indirect_sa_avg(avg_sa, im_star, imi, gmms, total_weights):
