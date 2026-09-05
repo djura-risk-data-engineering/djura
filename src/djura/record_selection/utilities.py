@@ -241,7 +241,7 @@ def interpolate_2d(
     elif val < -1:
         return -1
 
-    return interp((x_int, y_int))
+    return val
 
 
 def inspect_file_for_classes(module):
