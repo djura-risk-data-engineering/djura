@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
+from copy import deepcopy
 from pathlib import Path
 import yaml
 import json
@@ -949,10 +950,14 @@ class GCIM:
         """
         # Defaults are normalised alongside the input, so that every key of
         # self.data carries the '-' separator the rest of the class reads and
-        # a caller's value replaces the default of the same name
-        self.data = self._normalize_keys(self.default_data)
+        # a caller's value replaces the default of the same name.
+        #
+        # Both are deep-copied: self.data is written to in place while the
+        # target is built, so it has to own its nested lists and dicts rather
+        # than share them with the class attribute or with the caller
+        self.data = self._normalize_keys(deepcopy(self.default_data))
         if isinstance(filename, dict):
-            self.data.update(self._normalize_keys(filename))
+            self.data.update(self._normalize_keys(deepcopy(filename)))
             return
 
         filename = Path(filename)
