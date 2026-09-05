@@ -317,7 +317,7 @@ class GCIM:
                 ruptures.append(ctx_i)
 
         self.data['ruptures'] = ruptures
-        self.data['add_data_for_dis'] = {
+        self.data['add-data-for-dis'] = {
             "inv_time": dis_oq['invtime'],
             "phi_b": dis_oq["phi_b"],
             "poe_for_selection": poe_for_selection,
@@ -689,10 +689,12 @@ class GCIM:
             If length of 'imi' and 'im_weights' do not match
         """
         # Infer self.data parameters based on create() output
-        # to avoid using the defaults if data was not provided
-        self.data["component_definition"] = \
+        # to avoid using the defaults if data was not provided. Written under
+        # the separator the rest of the class reads, so that the values
+        # actually replace the defaults rather than sitting beside them
+        self.data["component-definition"] = \
             self.output_create["component_definition"]
-        self.data["num_components"] = self.output_create["num_components"]
+        self.data["num-components"] = self.output_create["num_components"]
 
         imi = []
         for im_type, periods in self.output_create["target"]["IMi"].items():
@@ -708,10 +710,13 @@ class GCIM:
             self.data["im-star"] = self.output_create["im-star"]
 
         # If weights are missing, use default values, i.e.
-        # equal weight for each IM type
-        if len(self.data["im-weights"]) == 0 or "im-weights" not in self.data \
-                or self.data["im-weights"] is None:
-            self.data["im-weights"] = np.ones(len(self.data["imi"]))
+        # equal weight for each IM type. The absent, None and empty cases are
+        # tested in that order; the length used to be taken first, so the
+        # fallbacks below it could never be reached
+        im_weights = self.data.get("im-weights")
+        if im_weights is None or len(im_weights) == 0:
+            im_weights = np.ones(len(self.data["imi"]))
+        self.data["im-weights"] = im_weights
 
         if len(self.data["imi"]) != len(self.data["im-weights"]):
             raise ValueError("Length of 'imi' and 'im-weights' must match")
@@ -937,7 +942,12 @@ class GCIM:
         filename : Union[Path, str, dict]
             Path to datafile or datafile content as a dict
         """
-        self.data = self.default_data.copy()
+        # The defaults are normalised alongside the input so that every key
+        # of self.data uses one separator. Both were previously mixed, which
+        # left a default such as 'im_weights' sitting beside the 'im-weights'
+        # the rest of the class reads, so a value the caller did supply won
+        # only by virtue of being inserted later
+        self.data = self._normalize_keys(self.default_data)
         if isinstance(filename, dict):
             self.data.update(self._normalize_keys(filename))
             return
