@@ -199,6 +199,20 @@ class _GCIMSelect:
         # Redefine ln(imi)
         ln_imi_db = np.log(imi_db)
 
+        # Every record has to be usable at a scaling factor the caller allows.
+        # Records are taken by increasing residual and one at most once, so a
+        # pool holding fewer records within those bounds than the number
+        # requested fills the remaining slots from outside them
+        outside = (sf_opt < 1 / max_scaling_factor) \
+            | (sf_opt > max_scaling_factor)
+        if np.any(outside):
+            raise ValueError(
+                f"{int(np.sum(outside))} of the {num_records} requested "
+                "records could only be matched by scaling beyond the maximum "
+                f"scaling factor of {max_scaling_factor}. Raise "
+                "'max_scaling_factor', ask for fewer records, or broaden the "
+                "selection criteria")
+
         # Compute the initial error
         im_weights = np.array(im_weights)
         dev_mean = (np.mean(scaled_imi, axis=0) - mu_imi) * im_weights
@@ -241,12 +255,15 @@ class _GCIMSelect:
                 # Add the record information to the outputs
                 sf_opt[rec] = sf[rec][sel_rec_id]
 
-                # Update the sample IMi
-                _idx = np.where(db_idxs == sel_rec_id)[0][0]
-
+                # Update the sample IMi. 'sel_rec_id' indexes the database,
+                # as it does for the scaling factor above, so the intensities
+                # are read straight from it. The greedy algorithm returns the
+                # record it was given when no candidate improves on it, and
+                # that record is not among the ones within the scaling bounds
+                # whenever the pool is too small to fill every slot from them
                 scaled_imi = np.concatenate((
                     scaled_imi[:rec],
-                    filtered_ln_imi_db[_idx].reshape(1, ln_imi_db.shape[1])
+                    ln_imi_db[sel_rec_id].reshape(1, ln_imi_db.shape[1])
                     + np.log(sf_opt[rec] ** alpha),
                     scaled_imi[rec:]
                 ), axis=0)
