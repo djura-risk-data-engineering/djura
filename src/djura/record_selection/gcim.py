@@ -804,7 +804,6 @@ class GCIM:
         self.data["im-star"] = im_star
 
         # Rupture distance estimation
-        self.data["ruptures"] = self.data.pop("ruptures")
         site_parameters = self.data.pop("site-parameters", {})
 
         for site_key in site_parameters:

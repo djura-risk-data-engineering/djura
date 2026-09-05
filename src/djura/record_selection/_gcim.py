@@ -961,7 +961,9 @@ class _GCIM:
                             ws_sample.shape[1]))
 
         start_idx = 0
-        for gmm, w_lt in zip(gmms['names'], gmms['weights']):
+        # The logic tree leaf weight is carried by the values themselves,
+        # having been applied where eps_im_star['ws'] was assembled
+        for gmm in gmms['names']:
             ws_list = np.asarray(eps_im_star['ws'][gmm])
             if ws_list.ndim == 1:
                 ws_list = ws_list[:, np.newaxis]

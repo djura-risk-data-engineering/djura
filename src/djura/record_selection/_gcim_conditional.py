@@ -142,7 +142,7 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
         # No reference for it
         # In the case of usage of diassgregation results,
         # this will never be used
-        for i, _rupture in enumerate(ruptures):
+        for i in range(len(ruptures)):
             eps_im_star_comb[i] = self._calculate_epsilon_for_rup(
                 im_star["value"], mu_im_star[i], sigma_im_star[i],
                 weights_im_star[i]
