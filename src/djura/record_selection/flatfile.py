@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
+from typing import Sequence
+
 from scipy.interpolate import interp1d
 import numpy as np
 
@@ -54,70 +56,53 @@ class Flatfile:
         im = np.append(self.metadata[im_key], vals, axis=1)
         return im
 
-    def add_missing_sa(self, period: float):
-        period_key = "Periods_SA"
+    def _add_missing_period(
+            self, period_key: str, im_keys: Sequence[str], period: float):
+        """Add a period to the metadata, interpolating every component
+
+        The periods are read before the components are interpolated, since
+        _interpolator rounds the stored periods as it goes, and the ordering
+        they give is shared by every component.
+
+        Parameters
+        ----------
+        period_key : str
+            Metadata key holding the periods of the intensity measure
+        im_keys : Sequence[str]
+            Metadata keys of the components to interpolate
+        period : float
+            Period of interest
+        """
         if period in self.metadata[period_key]:
             return
 
         periods = np.append(self.metadata[period_key], period)
+        order = np.argsort(periods)
 
-        im = self._interpolator("SA_1", period_key, period)
-        self.metadata['SA_1'] = im[:, np.argsort(periods)]
-
-        im = self._interpolator("SA_2", period_key, period)
-        self.metadata['SA_2'] = im[:, np.argsort(periods)]
-
-        im = self._interpolator("SA_vert", period_key, period)
-        self.metadata['SA_vert'] = im[:, np.argsort(periods)]
-
-        im = self._interpolator("SA_RotD50", period_key, period)
-        self.metadata['SA_RotD50'] = im[:, np.argsort(periods)]
-
-        im = self._interpolator("SA_RotD100", period_key, period)
-        self.metadata['SA_RotD100'] = im[:, np.argsort(periods)]
+        for im_key in im_keys:
+            im = self._interpolator(im_key, period_key, period)
+            self.metadata[im_key] = im[:, order]
 
         self.metadata[period_key] = np.sort(periods)
+
+    def add_missing_sa(self, period: float):
+        self._add_missing_period(
+            "Periods_SA",
+            ("SA_1", "SA_2", "SA_vert", "SA_RotD50", "SA_RotD100"),
+            period)
 
     def add_missing_sa_avg(self, period: float):
-        period_key = "Periods_Sa_avg"
-        if period in self.metadata[period_key]:
-            return
-        periods = np.append(self.metadata[period_key], period)
-
-        im = self._interpolator(
-            f"{self.im_name}_1", period_key, period)
-        self.metadata[f"{self.im_name}_1"] = im[:, np.argsort(periods)]
-
-        im = self._interpolator(
-            f"{self.im_name}_2", period_key, period)
-        self.metadata[f"{self.im_name}_2"] = im[:, np.argsort(periods)]
-
-        im = self._interpolator(
-            f"{self.im_name}_RotD50", period_key, period)
-        self.metadata[f"{self.im_name}_RotD50"] = im[:, np.argsort(periods)]
-
-        im = self._interpolator(
-            f"{self.im_name}_RotD100", period_key, period)
-        self.metadata[f"{self.im_name}_RotD100"] = im[:, np.argsort(periods)]
-
-        self.metadata[period_key] = np.sort(periods)
+        name = self.im_name
+        self._add_missing_period(
+            "Periods_Sa_avg",
+            (f"{name}_1", f"{name}_2",
+             f"{name}_RotD50", f"{name}_RotD100"),
+            period)
 
     def add_missing_fiv3(self, period: float):
-        period_key = "Periods_FIV3"
-        if period in self.metadata[period_key]:
-            return
-
-        periods = np.append(self.metadata[period_key], period)
-
-        im = self._interpolator(
-            f"{self.im_name}_1", period_key, period)
-        self.metadata[f"{self.im_name}_1"] = im[:, np.argsort(periods)]
-
-        im = self._interpolator(
-            f"{self.im_name}_2", period_key, period)
-        self.metadata[f"{self.im_name}_2"] = im[:, np.argsort(periods)]
-
-        self.metadata[period_key] = np.sort(periods)
+        name = self.im_name
+        self._add_missing_period(
+            "Periods_FIV3", (f"{name}_1", f"{name}_2"), period)
 
     def get_im(self, im_type, period, acc, dt, damping, bounds, size):
         if "avg" in im_type.lower():
