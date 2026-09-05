@@ -777,6 +777,12 @@ class GCIM:
             im_type, period = get_period_im(im_star["type"])
             im_star_value = im_star["value"]
 
+            if period is None:
+                # The period may be carried by the type, as in 'SA(1.0s)', or
+                # given on its own, which is the documented form and also the
+                # shape this method leaves behind once it has split the type
+                period = im_star.get("period")
+
             im_star = {
                 "type": im_type,
                 "value": im_star_value,
