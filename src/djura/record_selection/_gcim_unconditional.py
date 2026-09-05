@@ -32,8 +32,6 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
         component_definition: str,
         correlation_models: dict = None,
     ):
-        num_components = int(num_components)
-
         """Create unconditional GCIM distribution
 
         Parameters
@@ -53,7 +51,11 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
             Number of components to consider
         component_definition : str
             Component definition
+        correlation_models : dict, optional
+            Correlation model to use for each IM pair, by default None
         """
+        num_components = int(num_components)
+
         self.output_create["num_components"] = num_components
         if num_components == 1:
             component_definition = "RotD50"
