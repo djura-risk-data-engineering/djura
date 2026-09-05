@@ -37,7 +37,3 @@ Utilities
 .. automodule:: djura.record_selection.metrics
    :members:
    :show-inheritance:
-
-.. automodule:: djura.record_selection.data_reader
-   :members:
-   :show-inheritance:
