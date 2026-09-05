@@ -7,22 +7,7 @@ import abc
 import numpy as np
 import copy as cp
 
-
-MECHANISM_MAP = {
-    0: 'strike-slip fault',
-    1: 'normal fault',
-    2: 'reverse fault',
-    3: 'reverse/oblique fault',
-    4: 'normal/oblique fault'
-}
-
-MECHANISM_MAP_REV = {
-    'strike-slip fault': 0,
-    'normal fault': 1,
-    'reverse fault': 2,
-    'reverse/oblique fault': 3,
-    'normal/oblique fault': 4,
-}
+from ..constants import MECHANISM_MAP_REV
 
 
 class BaseContext(metaclass=abc.ABCMeta):
