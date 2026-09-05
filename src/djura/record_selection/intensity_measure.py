@@ -8,9 +8,6 @@ from scipy.signal import butter, lfilter, find_peaks
 from scipy.integrate import cumulative_trapezoid, trapezoid
 
 
-_trapezoid = np.trapezoid if np.lib.NumpyVersion(np.__version__) >= "2.0.0" \
-    else np.trapz
-
 #: Period range over which ASI is defined in [s],
 #: Von Thun et al. (1988)
 ASI_PERIOD_RANGE = (0.1, 0.5)
@@ -598,7 +595,7 @@ class IntensityMeasure:
         # Pseudo spectral acceleration in [g]
         sa = self.get_sat(periods, acc, dt, damping)
 
-        return _trapezoid(sa, periods)
+        return trapezoid(sa, periods)
 
     def get_si(self, acc: List[float], dt: float, damping: float = 0.05,
                delta_period: float = 0.01) -> float:
@@ -633,7 +630,7 @@ class IntensityMeasure:
         # Pseudo spectral velocity in [cm/s]
         psv = sa * periods / (2 * np.pi) * 100.
 
-        return _trapezoid(psv, periods)
+        return trapezoid(psv, periods)
 
     def get_dsi(self, acc: List[float], dt: float, damping: float = 0.05,
                 delta_period: float = 0.01) -> float:
@@ -668,7 +665,7 @@ class IntensityMeasure:
         # Spectral displacement in [cm]
         sd = sa * (periods / (2 * np.pi)) ** 2. * 100.
 
-        return _trapezoid(sd, periods)
+        return trapezoid(sd, periods)
 
     def get_cav(self, acc: List[float], dt: float) -> float:
         """Get cumulative absolute velocity (CAV) in [g-sec]
@@ -691,7 +688,7 @@ class IntensityMeasure:
         abs_acc = np.abs(acc)
         time = dt * np.arange(0, len(acc), 1)
 
-        return _trapezoid(abs_acc, time)
+        return trapezoid(abs_acc, time)
 
     def sa_to_sd(self, sa: float, period: float) -> float:
         """Convert to spectral displacement (Sd) from pseudo spectral
