@@ -174,8 +174,7 @@ class RuptureContext(BaseContext):
 
         if hasattr(self, "rake"):
             # 1st mask for identifying strike-slip faulting
-            # Element-wise (& |) rather than Python's and/or, which cannot
-            # combine arrays holding more than a single value
+            # Combined element-wise: the context may hold several ruptures
             mask1 = (
                 ((-45 <= self.rake) & (self.rake <= 45))
                 | (self.rake >= 135) | (self.rake <= -135)
@@ -434,9 +433,7 @@ class DistancesContext(BaseContext):
             rjb = np.asarray(self.rjb)
             mask1 = rjb == 0
             mask2 = dip == 90
-            # Element-wise (& |) rather than Python's and/or and rather than
-            # a chained comparison, neither of which can combine arrays
-            # holding more than a single value
+            # Combined element-wise: the context may hold several sites
             mask3 = (((0 <= self.azimuth) & (self.azimuth < 90))
                      | ((90 < self.azimuth) & (self.azimuth <= 180)))
             mask4 = (rjb * np.abs(np.tan(np.radians(self.azimuth)))
@@ -473,8 +470,7 @@ class DistancesContext(BaseContext):
 
         # ry0 calculation
         if not hasattr(self, 'ry0'):
-            # Element-wise (& |) rather than Python's and/or, which cannot
-            # combine arrays holding more than a single value
+            # Combined element-wise: the context may hold several sites
             mask1 = (self.azimuth == 90) | (self.azimuth == -90)
             mask2 = (
                 (self.azimuth == 0)
@@ -506,8 +502,7 @@ class DistancesContext(BaseContext):
 
         # rrup calculation
         if not hasattr(self, 'rrup'):
-            # Element-wise (& |) rather than Python's and/or, which cannot
-            # combine arrays holding more than a single value
+            # Combined element-wise: the context may hold several sites
             mask1 = (np.full(len(dip), hasattr(self, "rjb"), dtype=bool)
                      & (dip == 90))
             mask2 = np.full(len(dip), hasattr(self, "rx"), dtype=bool)
@@ -532,17 +527,14 @@ class DistancesContext(BaseContext):
                     _down_dip = _up_dip + width / np.cos(np.radians(dip))
 
                     mask5 = self.rx < _up_dip
-                    # Element-wise (&) rather than a chained comparison,
-                    # which cannot be applied to an array holding more than
-                    # a single value
+                    # Combined element-wise: rx may hold several values
                     mask6 = (_up_dip <= self.rx) & (self.rx <= _down_dip)
                     mask7 = self.rx > _down_dip
 
-                    # np.where rather than masked assignment: the values
-                    # below span the whole context, so assigning them into a
-                    # masked selection only lines up while there is exactly
-                    # one element. Applied in the original order, so a later
-                    # mask still takes precedence where masks overlap.
+                    # Each expression below spans the whole context, so it
+                    # is selected with np.where rather than assigned into a
+                    # masked slice. Order matters: a later mask wins where
+                    # two overlap.
                     rrup1 = np.where(
                         mask5,
                         np.sqrt(np.square(self.rx) + np.square(ztor)),

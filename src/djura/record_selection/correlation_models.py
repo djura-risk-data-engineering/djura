@@ -43,11 +43,10 @@ ASO2024_TRANSFORMATIONS = frozenset({
 })
 
 
-# The correlation assets are read once and memoised. They are looked up for
-# every period pair of every intensity measure pair, so re-reading them per
-# call dominated the cost of building a correlation matrix. Loading is lazy
-# rather than eager at import because 'corr_ann.json' is a few MB and is only
-# needed by the ANN-based models.
+# The correlation assets are memoised: building one correlation matrix looks
+# them up once per period pair of every intensity measure pair. Loading is
+# lazy because 'corr_ann.json' is a few MB and only the ANN-based models
+# need it.
 #
 # The cached objects are shared by every caller and must be treated as
 # read-only.
@@ -57,9 +56,9 @@ def _akkar_coeff_table() -> np.ndarray:
     with open(asset_dir / AKKAR_CORRELATION_TABLE, 'r') as file:
         content = file.read()
 
-    # NB: left writeable on purpose. Marking it read-only makes
-    # scipy's RegularGridInterpolator take a different internal path, which
-    # shifts some interpolated correlations by 1 ULP.
+    # Keep the array writeable: scipy's RegularGridInterpolator takes a
+    # different internal path for read-only input, which shifts some
+    # interpolated correlations by 1 ULP.
     return np.fromstring(
         content, dtype=float, sep=" ").reshape(-1, len(AKKAR_PERIODS))
 

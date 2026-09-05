@@ -3,6 +3,7 @@
 # licensed under AGPL-3.0-or-later. See ./NOTICE.md for full attribution.
 
 from typing import Tuple
+import inspect
 import numpy as np
 
 from .const import site_param_dt, KNOWN_DISTANCES, RUPTURE_PARAMETERS
@@ -52,38 +53,32 @@ class OQ:
         """
         gmm = gmm.split("_")[0]
 
-        try:
-            import inspect
+        # An unrecognised name is the only failure reported here, so that
+        # errors raised while constructing the model keep their own cause
+        if gmm not in inspect_file_for_classes(gsim_models):
+            raise KeyError(f'{gmm} is not a valid gmpe name')
 
-            methods = inspect_file_for_classes(gsim_models)
+        gmm_class = getattr(gsim_models, gmm)
 
-            if gmm in methods:
-                gmm_class = getattr(gsim_models, gmm)
+        init_params = inspect.signature(gmm_class.__init__).parameters
+        filtered_kwargs = {key: kwargs[key]
+                           for key in init_params if key in kwargs}
 
-                init_params = inspect.signature(gmm_class.__init__).parameters
-                filtered_kwargs = {key: kwargs[key]
-                                   for key in init_params if key in kwargs}
+        # Validate kwargs
+        gmm_models = inspect_file_for_classes(gmm_pydantic_models)
+        model = f"{gmm}Model"
 
-                # Validate kwargs
-                gmm_models = inspect_file_for_classes(gmm_pydantic_models)
-                model = f"{gmm}Model"
+        if model in gmm_models:
+            model_class = getattr(gmm_pydantic_models, model)
+            filtered_kwargs = dict(
+                model_class.model_validate(filtered_kwargs))
 
-                if model in gmm_models:
-                    model_class = getattr(gmm_pydantic_models, model)
-                    filtered_kwargs = dict(
-                        model_class.model_validate(filtered_kwargs))
+        return gmm_class(**filtered_kwargs)
 
-                return gmm_class(**filtered_kwargs)
-            else:
-                raise KeyError(f'{gmm} is not a valid gmpe name"')
-        except KeyError:
-            raise KeyError(f'{gmm} is not a valid gmpe name"')
-
-    def _validate_gmm_indirect_sa_avg(self, gmm: str, **kwargs):
-        try:
-            return gsim_models.GmpeIndirectAvgSA(gmm, **kwargs)
-        except KeyError:
-            raise KeyError(f'{gmm} is not a valid gmpe name"')
+    def _validate_gmm_indirect_sa_avg(self, gmm, **kwargs):
+        # 'gmm' is a constructed GMPE instance, not a name: GmpeIndirectAvgSA
+        # reads the REQUIRES_ and DEFINED_ attributes off it
+        return gsim_models.GmpeIndirectAvgSA(gmm, **kwargs)
 
     def _set_sites_context(self, case: dict) -> SitesContext:
         """Sets sites calculation context for ground shaking intensity models
@@ -202,10 +197,9 @@ class OQ:
         if 'azimuth' in case.keys():
             azimuth = case['azimuth']
         else:
-            # Any factor other than zero places the site on the down-dip
-            # side, as in DistancesContext._set_default_dists. Previously
-            # only 0 and 1 were handled and any other value left 'azimuth'
-            # unassigned
+            # A zero factor places the site on the up-dip side, any other
+            # value on the down-dip side, as in
+            # DistancesContext._set_default_dists
             azimuth = -50 if fhw == 0 else 50
 
         # rjb and rx. Both stay None while the scenario does not define
@@ -238,17 +232,16 @@ class OQ:
         elif (azimuth == 0 or azimuth == 180 or azimuth == -180) \
                 and rjb is not None:
             # The parentheses matter: 'and' binds tighter than 'or', so the
-            # rjb guard used to apply to the -180 case alone and ry0 could
-            # be set to None for the other two
+            # rjb guard has to be written around all three azimuths
             ry0 = rjb
         elif rx is not None:
             ry0 = np.abs(rx * 1. / np.tan(np.radians(azimuth)))
         else:
             ry0 = None
 
-        # rrup. A value carried by the scenario is used as given; it was
-        # previously ignored on every path, and left 'rrup' unassigned
-        # whenever the geometry below could not supply one
+        # A value carried by the scenario is used as given; the branches
+        # below derive one from the geometry, in decreasing order of
+        # directness, and the last of them reports that none is available
         if case.get('rrup') is not None:
             rrup = case['rrup']
         elif rjb is not None and dip == 90:
@@ -257,9 +250,8 @@ class OQ:
             up_dip = ztor * np.tan(np.radians(dip))
             down_dip = up_dip + width / np.cos(np.radians(dip))
 
-            # if/elif/else rather than three separate 'if's: the three
-            # conditions partition the line, so this is equivalent, and
-            # 'rrup1' can no longer be left unassigned
+            # The three conditions partition the line, so exactly one
+            # branch assigns rrup1
             if rx < up_dip:
                 rrup1 = np.sqrt(np.square(rx) + np.square(ztor))
             elif rx <= down_dip:
@@ -281,8 +273,8 @@ class OQ:
         # Closest distance to coseismic rupture (km)
         setattr(dctx, 'rrup', np.array([rrup], dtype='float64'))
         # Horizontal distance from top of rupture measured perpendicular
-        # to fault strike (km). Tested against None rather than for
-        # truthiness, so that a zero distance is still reported
+        # to fault strike (km). Tested against None so that a zero distance
+        # counts as a defined one
         if rx is not None:
             setattr(dctx, 'rx', np.array([rx], dtype='float64'))
         # The horizontal distance off the end of the rupture measured parallel

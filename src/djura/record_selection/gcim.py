@@ -235,10 +235,11 @@ class GCIM:
 
             try:
                 im_star_idx = self.data['imi'].index(dis_oq['im_ref'])
-            except KeyError:
+            except ValueError:
+                # list.index raises ValueError
                 raise ValueError(
-                    f"IM* {dis_oq['im_ref']} not in the list of"
-                    f"defined IMs: {self.data['imi']}")
+                    f"IM* {dis_oq['im_ref']} not in the list of "
+                    f"defined IMs: {self.data['imi']}") from None
 
             # Hazard curves (imls.shape=(1, len(poes)))
             imls = compute_hazard_maps(
@@ -689,9 +690,8 @@ class GCIM:
             If length of 'imi' and 'im_weights' do not match
         """
         # Infer self.data parameters based on create() output
-        # to avoid using the defaults if data was not provided. Written under
-        # the separator the rest of the class reads, so that the values
-        # actually replace the defaults rather than sitting beside them
+        # to avoid using the defaults if data was not provided. Keys carry the
+        # '-' separator so they land on the entries the class reads
         self.data["component-definition"] = \
             self.output_create["component_definition"]
         self.data["num-components"] = self.output_create["num_components"]
@@ -711,8 +711,7 @@ class GCIM:
 
         # If weights are missing, use default values, i.e.
         # equal weight for each IM type. The absent, None and empty cases are
-        # tested in that order; the length used to be taken first, so the
-        # fallbacks below it could never be reached
+        # tested in that order
         im_weights = self.data.get("im-weights")
         if im_weights is None or len(im_weights) == 0:
             im_weights = np.ones(len(self.data["imi"]))
@@ -948,11 +947,9 @@ class GCIM:
         filename : Union[Path, str, dict]
             Path to datafile or datafile content as a dict
         """
-        # The defaults are normalised alongside the input so that every key
-        # of self.data uses one separator. Both were previously mixed, which
-        # left a default such as 'im_weights' sitting beside the 'im-weights'
-        # the rest of the class reads, so a value the caller did supply won
-        # only by virtue of being inserted later
+        # Defaults are normalised alongside the input, so that every key of
+        # self.data carries the '-' separator the rest of the class reads and
+        # a caller's value replaces the default of the same name
         self.data = self._normalize_keys(self.default_data)
         if isinstance(filename, dict):
             self.data.update(self._normalize_keys(filename))
