@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 import logging
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import List, Union
-from zipfile import ZipFile, ZIP_DEFLATED
+from typing import List, Tuple, Union
+from zipfile import BadZipFile, ZipFile, ZIP_DEFLATED
 
 import requests
 
@@ -19,6 +19,8 @@ class DownloaderBase(ABC):
     """
     ZIPFILE_NAME: str = 'UnscaledRecords.zip'
     """Name of the zipfile which contains the downloaded records."""
+    FAILURES_NAME: str = 'FailedRecords.txt'
+    """Name of the report listing the records that could not be downloaded."""
 
     @abstractmethod
     def download(self) -> Path:
@@ -63,6 +65,9 @@ class ESMDownloader(DownloaderBase):
 
     token_path: Path
     """Download path for token used to retrieve records from ESM database."""
+    failed_records: List[Tuple[str, str, str]]
+    """Records the last :meth:`download` could not retrieve, as
+    ``(event, station, reason)`` triples. Empty until it has run."""
     username: str
     """Account username"""
     password: str
@@ -121,15 +126,23 @@ class ESMDownloader(DownloaderBase):
         self.password = password
         self.events = events
         self.stations = stations
+        self.failed_records = []
 
     def download(self) -> Path:
         """
         Downloads the records with requested station and event IDs.
 
+        Every requested record is attempted: one the database will not
+        serve is skipped instead of abandoning the request, so a failure
+        partway through still returns the records that did arrive. See
+        :meth:`_send_request` for what is reported about the ones left
+        out.
+
         Returns
         -------
         Path
-            Path to the zipfile containing downloaded records.
+            Path to the zipfile containing downloaded records. It is
+            empty when no record could be downloaded at all.
 
         Raises
         ------
@@ -137,7 +150,9 @@ class ESMDownloader(DownloaderBase):
             Neither username and password nor an existing token file are
             provided.
         requests.exceptions.HTTPError
-            The ESM database rejected the credentials or a download request.
+            The ESM database rejected the credentials while issuing a
+            token. Failures of the record requests themselves are
+            reported rather than raised.
         """
 
         logger.info('Started executing download method to retrieve selected '
@@ -159,15 +174,18 @@ class ESMDownloader(DownloaderBase):
         Sends request to download the records and if successful,
         writes them to ZIPFILE.
 
+        A record the database refuses, or whose request errors out, is
+        skipped so that the remaining ones are still downloaded. Those
+        left out are collected in :attr:`failed_records` and written to
+        ``download_dir / FAILURES_NAME``; the report of an earlier run is
+        removed, so it always describes the latest one.
+
         Returns
         -------
         Path
-            Path to the zipfile which contains downloaded records.
-
-        Raises
-        ------
-        requests.exceptions.HTTPError
-            The ESM database rejected one of the download requests.
+            Path to the zipfile which contains downloaded records. The
+            zipfile is written even when every record failed, in which
+            case it is empty and the report names them all.
 
         Notes
         -----
@@ -182,6 +200,7 @@ class ESMDownloader(DownloaderBase):
         DATA_TYPE = 'ACC'
         FORMAT = 'ascii'
         total = len(self.events)
+        self.failed_records = []
         # Create a temporary directory to extract downloaded records
         with TemporaryDirectory() as temp_dir:
             temp_zip = Path(temp_dir) / 'temp.zip'
@@ -195,30 +214,40 @@ class ESMDownloader(DownloaderBase):
                         ('station', station),
                         ('format', FORMAT)
                 )
-                # The token is reopened per request: a file object handed to
-                # requests is read to the end and would upload nothing on
-                # the next request.
-                with open(self.token_path, 'rb') as token:
-                    response = requests.post(
-                        url=self.EVENTDATA_URL, params=params,
-                        files={'message': (self.token_path.name, token)},
-                        timeout=self.TIMEOUT)
-                # Check the status code to write the downloaded record
-                if response.status_code != 200:
-                    raise requests.exceptions.HTTPError(
-                        f'Download of event {event!r} at station {station!r} '
-                        f'failed with HTTP status code '
-                        f'{response.status_code}. Make sure that the '
-                        f'credentials or token are valid.',
-                        response=response)
-                # Write the record to a temporary zip
-                with open(temp_zip, 'wb') as zf:
-                    zf.write(response.content)
-                # Extract the record
-                with ZipFile(temp_zip, 'r') as zipObj:
-                    zipObj.extractall(temp_dir)
-                temp_zip.unlink()  # Delete the temporary file
-                logger.info('%d/%d of requests are done.', i, total)
+                try:
+                    # The token is reopened per request: a file object handed
+                    # to requests is read to the end and would upload nothing
+                    # on the next request.
+                    with open(self.token_path, 'rb') as token:
+                        response = requests.post(
+                            url=self.EVENTDATA_URL, params=params,
+                            files={'message': (self.token_path.name, token)},
+                            timeout=self.TIMEOUT)
+                    # Check the status code to write the downloaded record
+                    if response.status_code != 200:
+                        raise requests.exceptions.HTTPError(
+                            f'HTTP status code {response.status_code}',
+                            response=response)
+                    # Write the record to a temporary zip
+                    with open(temp_zip, 'wb') as zf:
+                        zf.write(response.content)
+                    # Extract the record
+                    with ZipFile(temp_zip, 'r') as zipObj:
+                        zipObj.extractall(temp_dir)
+                except (requests.exceptions.RequestException, BadZipFile,
+                        OSError) as exc:
+                    # One unavailable record must not cost the whole suite.
+                    reason = f'{type(exc).__name__}: {exc}'
+                    self.failed_records.append((event, station, reason))
+                    logger.warning('%d/%d failed for event %s at station '
+                                   '%s (%s).', i, total, event, station,
+                                   reason)
+                else:
+                    logger.info('%d/%d of requests are done.', i, total)
+                finally:
+                    temp_zip.unlink(missing_ok=True)
+
+            self._report_failures()
 
             # Now write all back into the brand new zipfile initially targeted
             with ZipFile(zip_path, 'w', ZIP_DEFLATED) as zipObj:
@@ -226,6 +255,36 @@ class ESMDownloader(DownloaderBase):
                     zipObj.write(file_path, file_path.name)
 
         return zip_path
+
+    def _report_failures(self) -> Path:
+        """
+        Writes :attr:`failed_records` to ``download_dir / FAILURES_NAME``.
+
+        Returns
+        -------
+        Path
+            Path to the report. It is deleted, rather than left stale from
+            a previous run, when every record was downloaded.
+        """
+
+        failures_path = self.download_dir / self.FAILURES_NAME
+        if not self.failed_records:
+            failures_path.unlink(missing_ok=True)
+            return failures_path
+
+        lines = [
+            f'{len(self.failed_records)} of {len(self.events)} record(s) '
+            f'could not be downloaded from {self.EVENTDATA_URL}',
+            '',
+            'event\tstation\treason',
+        ]
+        lines += [f'{event}\t{station}\t{reason}'
+                  for event, station, reason in self.failed_records]
+        failures_path.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+        logger.warning('%d of %d record(s) failed; wrote the list to %s',
+                       len(self.failed_records), len(self.events),
+                       failures_path)
+        return failures_path
 
     def get_token(self) -> None:
         """
