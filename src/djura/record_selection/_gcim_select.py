@@ -144,10 +144,7 @@ class _GCIMSelect:
             nreplicate, num_records, mu_imi, covariance, sigma_imi, seed)
 
         # Scaling factors
-        if max_scaling_factor == 1.0:
-            self.scaling = False
-        else:
-            self.scaling = True
+        self.scaling = max_scaling_factor != 1.0
 
         # Ln of IMi of the entire database
         ln_imi_db = np.log(imi_db)

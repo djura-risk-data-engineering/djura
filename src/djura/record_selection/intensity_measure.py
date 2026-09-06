@@ -63,7 +63,7 @@ class IntensityMeasure:
         self, acc: List[float], dt: float
     ) -> tuple[List[float], List[float], List[float]]:
         # Create time series
-        time = dt * np.arange(0, len(acc), 1)
+        time = dt * np.arange(len(acc))
         # transform into [m/s2]
         acc = np.array(acc) * self.g
 
@@ -145,7 +145,7 @@ class IntensityMeasure:
         """
         h, fas = self._fft_signal(acc, dt, period, damping)
 
-        if isinstance(period, float) or isinstance(period, int):
+        if isinstance(period, (float, int)):
             sa = np.max(abs(np.real(np.fft.ifft(np.multiply(h, fas)))))
         else:
             sa = np.max(
@@ -397,7 +397,7 @@ class IntensityMeasure:
         acc = np.array(acc) * self.g
 
         # Time series of the signal
-        time = dt * np.arange(0, len(acc), 1)
+        time = dt * np.arange(len(acc))
 
         # apply a 2nd order Butterworth low pass filter to the ground motion
         wn = beta / tn / (0.5 / dt)
@@ -686,7 +686,7 @@ class IntensityMeasure:
             CAV in [g-sec]
         """
         abs_acc = np.abs(acc)
-        time = dt * np.arange(0, len(acc), 1)
+        time = dt * np.arange(len(acc))
 
         return trapezoid(abs_acc, time)
 

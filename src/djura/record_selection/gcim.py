@@ -344,11 +344,7 @@ class GCIM:
         bool
             True for Conditional; False for Unconditional
         """
-        if "im-star" not in self.data:
-            return False
-        if self.data["im-star"] is None:
-            return False
-        return True
+        return self.data.get("im-star") is not None
 
     def create(
         self,

@@ -107,7 +107,7 @@ class Flatfile:
     def get_im(self, im_type, period, acc, dt, damping, bounds, size):
         if "avg" in im_type.lower():
             return self._IM.get_sa_avg(acc, dt, period, damping, bounds, size)
-        elif im_type.lower() == "sat" or im_type.lower() == "sa":
+        elif im_type.lower() in ("sat", "sa"):
             return self._IM.get_sat(period, acc, dt, damping)
 
         raise ValueError(f"IM type {im_type} not supported...")

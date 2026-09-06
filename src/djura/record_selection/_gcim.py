@@ -422,7 +422,7 @@ class _GCIM:
             # modify spectral targets if RotD100 values were specified for
             # two-component selection
             if component_definition == 'RotD100' and not rotd100_exists \
-                    and (num_components == 2 or num_components == 3):
+                    and num_components in (2, 3):
                 rotd100_mu_ratio, rotd100_sigma = \
                     self._gmpe_sb_2014_ratios(period_i)
 
@@ -605,7 +605,7 @@ class _GCIM:
 
             model_name = [f"{im}-{im_star_type}", f"{im_star_type}-{im}"]
             models = set(model_name) & set(CORRELATION_MODELS.keys())
-            if not bool(models):
+            if not models:
                 # Guarded by _validate_correlation_pairs, which reports every
                 # unsupported pair at once
                 raise ValueError(
@@ -671,7 +671,7 @@ class _GCIM:
                 # Check if correlation model is supported
                 # if not supported zero correlation is assumed
                 models = set(model_name) & set(CORRELATION_MODELS.keys())
-                if not bool(models):
+                if not models:
                     # Guarded by _validate_correlation_pairs, which reports
                     # every unsupported pair at once
                     raise ValueError(
