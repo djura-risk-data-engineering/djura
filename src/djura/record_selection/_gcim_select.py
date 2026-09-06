@@ -11,6 +11,24 @@ from .numba_utils import greedy_algorithm
 from .utilities import random_multivariate_normal
 # from .utilities import compute_ks_error
 
+#: Power of the scaling factor that each intensity measure follows.
+#: Amplitude scaling multiplies a linear measure once and Arias intensity
+#: twice, and leaves the significant durations untouched. Spectral
+#: accelerations are recognised by their 'SA' or 'Sa' prefix instead, which
+#: covers the vertical component and the averaged forms alongside SA itself
+ALPHA_BY_IM = {
+    'PGA': 1,
+    'PGV': 1,
+    'FIV3': 1,
+    'ASI': 1,
+    'SI': 1,
+    'DSI': 1,
+    'CAV': 1,
+    'IA': 2,
+    'Ds575': 0,
+    'Ds595': 0,
+}
+
 
 class _GCIMSelect:
     NEGLIGIBLE = 1e-16
@@ -559,29 +577,13 @@ class _GCIMSelect:
             if name in alpha:
                 continue
 
-            if name == 'PGA':
+            if name.startswith('SA') or name.startswith('Sa'):
                 alpha[name] = 1
-            elif name == 'PGV':
-                alpha[name] = 1
-            elif name == "FIV3":
-                alpha[name] = 1
-            elif name.startswith('SA') or name.startswith("Sa"):
-                alpha[name] = 1
-            elif name == 'ASI':
-                alpha[name] = 1
-            elif name == 'SI':
-                alpha[name] = 1
-            elif name == 'DSI':
-                alpha[name] = 1
-            elif name == "IA":      # AI - Arias Intensity
-                alpha[name] = 2
-            elif name == 'CAV':
-                alpha[name] = 1
-            elif name == 'Ds575':
-                alpha[name] = 0
-            elif name == 'Ds595':
-                alpha[name] = 0
-            # No else condition, to force Error and avoid silent failure
+            elif name in ALPHA_BY_IM:
+                alpha[name] = ALPHA_BY_IM[name]
+            # An intensity measure which is covered by neither is left out,
+            # so that looking its alpha up fails rather than scaling it by
+            # the wrong power
         return alpha
 
     def _combine_imi(self, im_known: dict, target: dict, alpha: dict,
