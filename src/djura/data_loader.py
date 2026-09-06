@@ -39,7 +39,7 @@ GITHUB_RELEASE_URL = (
 )
 EXPECTED_SHA256 = (
     # SHA-256 of the compressed .gz asset at the URL above.
-    "90b85e6ca079ae44b9b9a4d376493f46ce692a0e2952f86bd47b1a0d1b2845a6"
+    "4eb754c5c08e9e72d13fdd5d1b4cc7f58ba2c7ff017788d3532ea52d94f6d610"
 )
 
 # Refuse downloads larger than 500 MB (uncompressed pickle is ~220 MB).
