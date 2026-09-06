@@ -11,7 +11,10 @@ import bisect
 import re
 
 import numpy as np
+from pandas import DataFrame, read_csv
+from scipy.interpolate import RegularGridInterpolator, interp1d
 from scipy.stats import lognorm, kstest, norm, binom
+from scipy.stats.qmc import LatinHypercube
 from scipy.optimize import curve_fit, minimize
 
 from ..utilities import (     # noqa: F401 (re-exported)
@@ -109,8 +112,6 @@ def random_uniform(
     numpy.ndarray (num_samples x num_dimensions)
         Array which contains randomly generated numbers between 0 and 1
     """
-    from scipy.stats.qmc import LatinHypercube
-
     # A zero seed means "randomise", so derive one from the wall clock.
     # Any non-zero seed is honoured as given, which is what makes a
     # selection reproducible.
@@ -220,8 +221,6 @@ def select_function(module, function_name):
 def interpolate_2d(
         x, y, data, x_int, y_int, bounds_error: bool = False,
         fill_value: float = None, message: str = ""):
-    from scipy.interpolate import RegularGridInterpolator
-
     interp = RegularGridInterpolator(
         (x, y), data, bounds_error=bounds_error, fill_value=fill_value)
 
@@ -318,9 +317,6 @@ def proc_oq_hazard_curve(
     This will process hazard curve files from the directory `path/to/results`
     and save the results in `outputs.json`.
     """
-    from scipy.interpolate import interp1d
-    from pandas import read_csv
-
     # Convert paths to Path objects
     path_hazard_results = Path(path_hazard_results)
     json_file = Path(json_file)
@@ -467,8 +463,6 @@ def proc_oq_disaggregation_exc(
 
     This will generate a JSON file with all the processed disaggregation data.
     """
-    from pandas import read_csv, DataFrame
-
     # Convert paths to Path objects
     path_disagg_results = Path(path_disagg_results)
 
@@ -781,25 +775,23 @@ def mlefit(param1: float, param2: float, total_count: int, count: int,
     float
         Negative Log likelihood to be minimized
     """
-    import warnings
-    warnings.filterwarnings("ignore", category=RuntimeWarning)
+    # Parameter values the optimiser probes raise RuntimeWarnings from the
+    # logarithm and the probability mass; the filter is scoped so that the
+    # caller keeps whatever warning configuration it had
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)
 
-    try:
-        p = norm.cdf(np.log(data), loc=np.log(param1), scale=param2)
+        try:
+            p = norm.cdf(np.log(data), loc=np.log(param1), scale=param2)
 
-        likelihood = binom.pmf(count, total_count, p)
-        likelihood[likelihood == 0] = 1e-290
-        loglik = -sum(np.log10(likelihood))
+            likelihood = binom.pmf(count, total_count, p)
+            likelihood[likelihood == 0] = 1e-290
 
-        warnings.resetwarnings()
-
-        return loglik
-    except OverflowError:
-        warnings.resetwarnings()
-        return 1e+8
-    except Exception:
-        warnings.resetwarnings()
-        return 1e+8
+            return -sum(np.log10(likelihood))
+        except Exception:
+            # A parameter pair which cannot be evaluated is reported as a
+            # very poor fit, so the optimiser moves away from it
+            return 1e+8
 
 
 def neg_log_likelihood(params, data):

@@ -5,6 +5,7 @@
 from typing import Tuple
 import inspect
 import logging
+import warnings
 import numpy as np
 
 from .const import site_param_dt, KNOWN_DISTANCES, RUPTURE_PARAMETERS
@@ -505,8 +506,6 @@ def compute_hazard_maps(curves, imls, poes):
     """
     # cutoff value for the poe
     EPSILON = 1E-30
-
-    import warnings
 
     P = len(poes)
     N, L = curves.shape  # number of levels

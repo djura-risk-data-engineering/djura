@@ -3,6 +3,7 @@
 from typing import Tuple, List
 from itertools import combinations
 from scipy.interpolate import interp1d
+from scipy.special import ndtr
 import numpy as np
 
 from ..utilities import get_func_args
@@ -1017,8 +1018,6 @@ class _GCIM:
             range between 0 and 1.
             For phi_b close to .5 returns a step function 1 1 1 1 .5 0 0 0 0 0.
         """
-        from scipy.special import ndtr
-
         # notation from
         # http://en.wikipedia.org/wiki/Truncated_normal_distribution.
         # given that mu = 0 and sigma = 1, we have alpha = a and beta = b.

@@ -12,6 +12,7 @@ from ._gcim_unconditional import _GCIMUnconditional
 from .utilities import get_list_id, get_periods_ims, get_period_im
 from .constants import DB_CAUSAL_PARS, SUPPORTED_IM_DESCRIPTORS, \
     CORRELATION_MODELS, SUPPORTED_IM_COMPONENTS, get_compatible_ims
+from .gsim.oq import compute_hazard_maps
 from ..data_loader import get_metadata
 
 
@@ -231,7 +232,6 @@ class GCIM:
 
         # IM*
         if self.conditional and dis_oq['im_ref'] is not None:
-            from .gsim.oq import compute_hazard_maps
             curves = dis_oq["hazard-curves"]
 
             try:
