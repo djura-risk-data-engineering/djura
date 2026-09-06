@@ -9,6 +9,20 @@ import copy as cp
 
 from ..constants import MECHANISM_MAP_REV
 
+#: Context parameters whose type is fixed however they arrive: whether Vs30
+#: was measured is a flag, and the categorical codes are small integers.
+#: Everything else numeric is carried as float32
+FIXED_DTYPES = {
+    'vs30measured': bool,
+    'mechanism': np.int8,
+    'bas': np.int8,
+    'soil': np.int8,
+    'soiltype': np.int8,
+    'in_cshm': np.int8,
+    'region': np.int8,
+    'backarc': np.int8,
+}
+
 
 class BaseContext(metaclass=abc.ABCMeta):
     """
@@ -591,25 +605,10 @@ class Context(RuptureContext, DistancesContext, SitesContext):
         OQ mostly set ctx to float16, this can create minor differences
         in the last digits. I think we do not need to be that precise.
         """
-        for key, value in self.__dict__.items():
-            # vs30measured should be bool
-            if key == 'vs30measured':
-                self.vs30measured = self.vs30measured.astype(bool)
-            # flags should be integer
-            elif key == 'mechanism':
-                self.mechanism = self.mechanism.astype(np.int8)
-            elif key == 'bas':
-                self.bas = self.bas.astype(np.int8)
-            elif key == 'soil':
-                self.soil = self.soil.astype(np.int8)
-            elif key == 'soiltype':
-                self.soiltype = self.soiltype.astype(np.int8)
-            elif key == 'in_cshm':
-                self.in_cshm = self.in_cshm.astype(np.int8)
-            elif key == 'region':
-                self.region = self.region.astype(np.int8)
-            elif key == 'backarc':
-                self.backarc = self.backarc.astype(np.int8)
+        # A copy of the items, as the attributes are replaced while looping
+        for key, value in list(self.__dict__.items()):
+            if key in FIXED_DTYPES:
+                setattr(self, key, value.astype(FIXED_DTYPES[key]))
             elif isinstance(value, np.ndarray) and (
                 np.issubdtype(value.dtype, np.integer)
                 or np.issubdtype(value.dtype, np.floating)
