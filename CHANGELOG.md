@@ -6,31 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.0] - 2026-08-21
+## [2.0.0] - 2026-09-06
 
-### Changed
+### Added
 
-- **BREAKING.** `djura.data_loader.get_nga_west2()` is renamed to
-  `get_metadata()`, and the module-level cache `_nga_west2` to `_metadata`.
-  Behaviour is unchanged.
-
-  **Migration:** replace `from djura.data_loader import get_nga_west2` with
-  `from djura.data_loader import get_metadata`.
-
-- Documentation no longer names a specific third-party record database.
-  One dataset is distributed with djura; any additional flatfile must be
-  provided by the user and supplied through `DJURA_METADATA_PATH`.
-
-- The auto-downloaded dataset is now `flatfile_shallow_v1.pickle`, served
-  from the `data-v3` GitHub Release, and the name is used consistently by
-  the loader, the release workflow and the documentation. The cache is
-  keyed by filename, so the new asset is fetched on first use without any
-  action.
-
-- The bundled dataset is derived from the ESM flatfile only. Attribution
-  and the instructions for obtaining waveforms name that database alone.
-
-## [2.0.0] - 2026-08-14
+- `ESMDownloader`, exported from `djura.record_selection`, retrieves the
+  unscaled acceleration time histories of selected records from the
+  [ESM database](https://esm-db.eu) into a single zipfile. A record the
+  database will not serve is skipped and listed in `FailedRecords.txt`
+  rather than abandoning the rest of the suite. It is provided by the
+  `record_selection` extra, which now carries `requests`. Documented at
+  `examples/record_downloader.html`.
+- `MODELS.md`, a catalogue of every supported ground motion model and
+  intensity measure correlation model with citations to the publication each
+  implements, rendered into the documentation at `models.html`.
+- `myst-parser` in the documentation dependency group, so Markdown pages can
+  be included in the Sphinx build.
 
 ### Changed
 
@@ -46,6 +37,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `pip install "djura[record_selection,slf]"`. Extras are additive and may be
   combined freely. No import paths, class names or signatures changed.
 
+- **BREAKING.** `djura.data_loader.get_nga_west2()` is renamed to
+  `get_metadata()`, and the module-level cache `_nga_west2` to `_metadata`.
+  Behaviour is unchanged.
+
+  **Migration:** replace `from djura.data_loader import get_nga_west2` with
+  `from djura.data_loader import get_metadata`.
+
 - Importing an application whose extra is missing now raises an `ImportError`
   naming the required `pip install` command, instead of a bare
   `ModuleNotFoundError` for a transitive package.
@@ -54,20 +52,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `statsmodels`, `pandas`) via a single helper, `find_nearest`, which has
   moved to `djura.utilities` and is re-exported from
   `djura.record_selection.utilities` for backwards compatibility.
+- The auto-downloaded dataset is now `flatfile_shallow_v1.pickle`, served
+  from the
+  [`data-v2`](https://github.com/djura-risk-data-engineering/djura/releases/tag/data-v2)
+  GitHub Release, and the name is used consistently by the loader, the
+  release workflow and the documentation. The cache is keyed by filename, so
+  the new asset is fetched on first use without any action.
+- The bundled dataset is derived from the ESM flatfile only. Attribution
+  and the instructions for obtaining waveforms name that database alone.
+- Documentation no longer names a specific third-party record database.
+  One dataset is distributed with djura; any additional flatfile must be
+  provided by the user and supplied through `DJURA_METADATA_PATH`.
+- `matplotlib` is no longer part of the `all` extra. The `plot` extra still
+  provides it, and is needed only to redraw the figures of the validation
+  cases under `tests/rs/validations`, which are skipped without it.
 
 ### Removed
 
-- The `plot` extra and the `matplotlib` dependency it provided. Neither was
-  imported anywhere in the package.
 - `joblib` as a core dependency. It was declared but never imported.
-
-### Added
-
-- `MODELS.md`, a catalogue of every supported ground motion model and
-  intensity measure correlation model with citations to the publication each
-  implements, rendered into the documentation at `models.html`.
-- `myst-parser` in the documentation dependency group, so Markdown pages can
-  be included in the Sphinx build.
 
 ## [1.0.0] - 2026-06-19
 
