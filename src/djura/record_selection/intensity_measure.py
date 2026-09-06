@@ -59,9 +59,6 @@ class IntensityMeasure:
     # Acceleration of gravity in [m/s2]
     g = 9.81
 
-    def __init__(self) -> None:
-        pass
-
     def _get_signal(
         self, acc: List[float], dt: float
     ) -> tuple[List[float], List[float], List[float]]:

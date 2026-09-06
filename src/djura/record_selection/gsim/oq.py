@@ -16,6 +16,8 @@ from ..utilities import inspect_file_for_classes
 
 
 class OQ:
+    """Methods to prepare data"""
+
     MODEL_ATTRIBUTES = {
         "DEFINED_FOR_TECTONIC_REGION_TYPE": "Tectonic region type",
         "DEFINED_FOR_INTENSITY_MEASURE_TYPES": "Intensity measure types",
@@ -27,11 +29,6 @@ class OQ:
         "REQUIRES_DISTANCES": "Requires distance parameters",
         "SUGGESTED_LIMITS": "Recommended parameter limits",
     }
-
-    def __init__(self) -> None:
-        """Methods to prepare data
-        """
-        pass
 
     def _validate_gmm(self, gmm: str, **kwargs):
         """Ensure that GMPE input is available
