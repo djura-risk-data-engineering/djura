@@ -531,10 +531,9 @@ class IntensityMeasure:
         """
         acc = np.array(acc) * self.g
 
-        arias = np.pi / (2 * self.g) * \
-            cumulative_trapezoid(acc ** 2, dx=dt, initial=0)
-
-        return arias[-1]
+        # Only the total is wanted, so the acceleration is integrated once
+        # rather than accumulated over the record
+        return np.pi / (2 * self.g) * trapezoid(acc ** 2, dx=dt)
 
     def get_significant_duration(
         self, acc: List[float], dt: float,
