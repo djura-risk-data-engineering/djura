@@ -1048,15 +1048,18 @@ def ann_corr(im_pair: str, period1: float = None,
 
     imi, imj = im_pair.split("-")
 
-    try:
+    if f"corr_{imi}-{imj}" in CORRELATIONS_ANN:
         im_pair = f"{imi}-{imj}"
-        corr = CORRELATIONS_ANN[f"corr_{im_pair}"]
-    except KeyError:
+    elif f"corr_{imj}-{imi}" in CORRELATIONS_ANN:
         im_pair = f"{imj}-{imi}"
-        corr = CORRELATIONS_ANN[f"corr_{im_pair}"]
         # Switch positions too
         period2, period1 = period1, period2
         imj, imi = imi, imj
+    else:
+        raise ValueError(
+            f"No ANN correlation model is available for {imi}-{imj}")
+
+    corr = CORRELATIONS_ANN[f"corr_{im_pair}"]
 
     corr = np.asarray(corr)
 
@@ -1112,15 +1115,18 @@ def aso2024(im_pair: str, period1: float = None,
 
     imi, imj = im_pair.split("-")
 
-    try:
+    if f"{imi}-{imj}" in MODELS_ANN:
         im_pair = f"{imi}-{imj}"
-        model = MODELS_ANN[im_pair]
-    except KeyError:
+    elif f"{imj}-{imi}" in MODELS_ANN:
         im_pair = f"{imj}-{imi}"
-        model = MODELS_ANN[im_pair]
         # Switch positions too
         period2, period1 = period1, period2
         imj, imi = imi, imj
+    else:
+        raise ValueError(
+            f"No ANN correlation model is available for {imi}-{imj}")
+
+    model = MODELS_ANN[im_pair]
 
     if period1 is None or period2 is None:
         # Only one IM is period-independent

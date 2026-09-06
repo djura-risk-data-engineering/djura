@@ -130,15 +130,15 @@ def random_uniform(
 
 
 def get_list_id(elements, key, val, name):
-    generator = (ele for ele in elements if ele.get(key) == val)
+    element = next(
+        (ele for ele in elements if ele.get(key) == val), None)
 
-    try:
-        element = next(generator)
-        return element
-    except StopIteration:
+    if element is None:
         raise ValueError(
             f"{name} with {key} {val} not found!\n"
             "Double-check input keys 'gmms' and 'ruptures'")
+
+    return element
 
 
 def find_right_index(arr: List, value: float):
