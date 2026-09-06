@@ -315,8 +315,8 @@ class _GCIMSelect:
         ecdfy_scal = np.zeros((scaled_imi.shape[1], scaled_imi.shape[0] + 1))
 
         for i, im in enumerate(scaled_imi_transposed):
-            ecdfx_scal[i] = ECDF(im).x
-            ecdfy_scal[i] = ECDF(im).y
+            _e = ECDF(im)
+            ecdfx_scal[i], ecdfy_scal[i] = _e.x, _e.y
 
         ecdfx_scal[np.isinf(ecdfx_scal)] = 0
 
