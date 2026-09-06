@@ -18,6 +18,9 @@ from . import correlation_models
 from .gsim import const
 from .gsim import imt
 
+#: OQ carries no state of its own, so one instance answers every call
+_OQ = OQ()
+
 
 class _GCIM:
     NEGLIGIBLE = 1e-16
@@ -51,10 +54,10 @@ class _GCIM:
         self.metadata = flatfile.metadata
 
     def _validate_gmm(self, gmm: str, **kwargs):
-        return OQ()._validate_gmm(gmm, **kwargs)
+        return _OQ._validate_gmm(gmm, **kwargs)
 
     def _validate_gmm_indirect_sa_avg(self, gmm: str, **kwargs):
-        return OQ()._validate_gmm_indirect_sa_avg(gmm, **kwargs)
+        return _OQ._validate_gmm_indirect_sa_avg(gmm, **kwargs)
 
     def _gmpe_sb_2014_ratios(self, periods: np.ndarray) -> Tuple[float, float]:
         """Computes Sa_RotD100/Sa_RotD50 ratios.
@@ -134,7 +137,7 @@ class _GCIM:
             distances between sites and a rupture.
         """
 
-        return OQ()._set_contexts(case)
+        return _OQ._set_contexts(case)
 
     def get_conditional_im(
         self,
@@ -944,7 +947,7 @@ class _GCIM:
         return sigma_exact, cov_exact
 
     def _get_supported_parameters(self, which: str):
-        return OQ()._get_supported_parameters(which)
+        return _OQ._get_supported_parameters(which)
 
     def _get_par_from_scenarios(self, par: str, scenarios: List):
         return [sc[par] for sc in scenarios]
@@ -985,13 +988,13 @@ class _GCIM:
         return calculate_epsilon(im_star_value, mean, sigma)
 
     def get_available_gsims(self):
-        return OQ().get_available_gsims()
+        return _OQ.get_available_gsims()
 
     def check_gmpe_attributes(self, gmpe: str):
-        OQ().check_gmpe_attributes(gmpe)
+        _OQ.check_gmpe_attributes(gmpe)
 
     def get_gmpe_attributes(self, gmpe: str):
-        return OQ().get_gmpe_attributes(gmpe)
+        return _OQ.get_gmpe_attributes(gmpe)
 
     @staticmethod
     def _truncnorm_sf(phi_b, epsilon):
