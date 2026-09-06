@@ -829,19 +829,16 @@ class _GCIM:
         # transpose into an array of shape (n_imi, )
         corr_arr = corr_arr.reshape(-1)
 
-        correlations = np.zeros(corr.shape)
-        for i in range(n_imi):
-            for k in range(n_imi):
-                if corr_arr[i] == 1:
-                    corr_arr[i] -= self.NEGLIGIBLE
-                if corr_arr[k] == 1:
-                    corr_arr[k] -= self.NEGLIGIBLE
-                if corr[i][k] == 1:
-                    corr[i][k] -= self.NEGLIGIBLE
+        # A correlation of exactly one leaves no variance to condition on and
+        # divides by zero below, so it is nudged just under one. Both the
+        # array and the matrix are clamped in place
+        corr_arr[corr_arr == 1] -= self.NEGLIGIBLE
+        corr[corr == 1] -= self.NEGLIGIBLE
 
-                correlations[i, k] = (
-                    corr[i][k] - corr_arr[i] * corr_arr[k]) / \
-                    (np.sqrt(1 - corr_arr[i]**2) * np.sqrt(1 - corr_arr[k]**2))
+        correlations = (
+            corr - corr_arr[:, None] * corr_arr[None, :]) / (
+                np.sqrt(1 - corr_arr[:, None] ** 2)
+                * np.sqrt(1 - corr_arr[None, :] ** 2))
 
         # Create the dictionary pairs too
         corr_dict = {}
