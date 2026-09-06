@@ -17,6 +17,13 @@ Response spectrum
    :members:
    :show-inheritance:
 
+Record downloaders
+------------------
+
+.. autoclass:: djura.record_selection.downloader.ESMDownloader
+   :members:
+   :show-inheritance:
+
 Intensity measures
 ------------------
 
