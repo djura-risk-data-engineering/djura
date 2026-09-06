@@ -991,7 +991,7 @@ class _GCIM:
         return _OQ.get_available_gsims()
 
     def check_gmpe_attributes(self, gmpe: str):
-        _OQ.check_gmpe_attributes(gmpe)
+        return _OQ.check_gmpe_attributes(gmpe)
 
     def get_gmpe_attributes(self, gmpe: str):
         return _OQ.get_gmpe_attributes(gmpe)

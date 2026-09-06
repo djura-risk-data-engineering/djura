@@ -4,6 +4,7 @@
 
 from typing import Tuple
 import inspect
+import logging
 import numpy as np
 
 from .const import site_param_dt, KNOWN_DISTANCES, RUPTURE_PARAMETERS
@@ -13,6 +14,8 @@ from . import contexts
 from .contexts import SitesContext, RuptureContext, \
     DistancesContext, Context
 from ..utilities import inspect_file_for_classes
+
+logger = logging.getLogger(__name__)
 
 
 class OQ:
@@ -442,14 +445,28 @@ class OQ:
         return inspect_file_for_classes(gsim_models)
 
     def check_gmpe_attributes(self, gmpe: str):
+        """Attributes a ground motion model declares
 
+        Parameters
+        ----------
+        gmpe : str
+            Ground motion model (GMM) name
+
+        Returns
+        -------
+        dict
+            Description and value of each attribute the model defines
+        """
         model = self._validate_gmm(gmpe)
 
+        attributes = {}
         for attr, description in self.MODEL_ATTRIBUTES.items():
             if hasattr(model, attr):
                 value = getattr(model, attr)
+                attributes[description] = value
+                logger.info("%s: %s", description, value)
 
-                print(f"{description}: {value}")
+        return attributes
 
     def get_gmpe_attributes(self, gmpe: str):
         model = self._validate_gmm(gmpe)

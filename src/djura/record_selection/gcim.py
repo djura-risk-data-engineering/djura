@@ -1059,7 +1059,7 @@ class GCIM:
         return self._parent.get_available_gsims()
 
     def check_gmpe_attributes(self, gmpe: str):
-        self._parent.check_gmpe_attributes(gmpe)
+        return self._parent.check_gmpe_attributes(gmpe)
 
     def get_gmpe_parameters(self, gmpe: str):
         return self._parent.get_gmpe_attributes(gmpe)

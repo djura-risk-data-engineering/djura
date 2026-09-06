@@ -2,6 +2,7 @@
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 from typing import List
 from pathlib import Path
+import logging
 from datetime import datetime
 import json
 import inspect
@@ -15,6 +16,9 @@ from scipy.optimize import curve_fit, minimize
 
 from ..utilities import (     # noqa: F401 (re-exported)
     to_json_serializable, export_results, read_json, find_nearest)
+
+
+logger = logging.getLogger(__name__)
 
 
 def random_multivariate_normal(
@@ -861,7 +865,7 @@ def fit_cdf_to_data(
                     mu_fit, sigma_fit = params
                     perr = np.sqrt(np.diag(pcov))
                 except Exception as e:
-                    print(f"Curve fit failed: {e}")
+                    logger.warning("Curve fit failed: %s", e)
                     return None
 
             elif method.lower() == 'mle':

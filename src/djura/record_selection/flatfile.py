@@ -1,12 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 from typing import Sequence
+import logging
 
 from scipy.interpolate import interp1d
 import numpy as np
 
 from .intensity_measure import IntensityMeasure
 from .constants import SUPPORTED_IMS
+
+logger = logging.getLogger(__name__)
 
 
 class Flatfile:
@@ -30,9 +33,25 @@ class Flatfile:
         }
 
     def get_metadata_keys(self, get_meta: bool = False):
-        print(self.metadata.keys())
+        """Keys held by the metadata
+
+        Parameters
+        ----------
+        get_meta : bool, optional
+            Also report the '__meta__' entry, by default False
+
+        Returns
+        -------
+        List[str]
+            Names of the metadata entries
+        """
+        keys = list(self.metadata.keys())
+        logger.info("Metadata keys: %s", keys)
+
         if get_meta:
-            print(self.metadata["__meta__"])
+            logger.info("Metadata __meta__: %s", self.metadata["__meta__"])
+
+        return keys
 
     def add_missing_im(self, im_name: str, period: float):
         if im_name not in SUPPORTED_IMS:
