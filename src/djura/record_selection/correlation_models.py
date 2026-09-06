@@ -197,6 +197,29 @@ def bradley2011_ds() -> float:
     return 0.843
 
 
+def _log_linear_correlation(period, a, b):
+    """Correlation interpolated linearly in log-period between anchors
+
+    Parameters
+    ----------
+    period : float
+        Period of interest, at least b[0] and below b[-1]
+    a : List[float]
+        Correlation at each anchor period
+    b : List[float]
+        Anchor periods, strictly increasing
+
+    Returns
+    -------
+    float
+        Correlation at 'period'
+    """
+    idx = find_right_index(b, period) - 1
+
+    return a[idx] + (np.log(period / b[idx])
+                     / np.log(b[idx + 1] / b[idx])) * (a[idx + 1] - a[idx])
+
+
 def bradley2011_ds595_sa(period: float = None) -> float:
     """Duration 595 vs SA correlation
 
@@ -227,41 +250,10 @@ def bradley2011_ds595_sa(period: float = None) -> float:
     if not 0.01 <= period < 10:
         raise ValueError(f"Period ({period}) must be 0.01 <= x < 10")
 
-    a0 = -0.41
-    b0 = 0.01
-    a1 = -0.41
-    b1 = 0.04
-    a2 = -0.38
-    b2 = 0.08
-    a3 = -0.35
-    b3 = 0.26
-    a4 = -0.02
-    b4 = 1.40
-    a5 = 0.23
-    b5 = 6.00
-    a6 = 0.02
-    b6 = 10.0
+    a = [-0.41, -0.41, -0.38, -0.35, -0.02, 0.23, 0.02]
+    b = [0.01, 0.04, 0.08, 0.26, 1.40, 6.00, 10.0]
 
-    if period >= b0 and period < b1:
-        rho_ds595_sa = a0 + (np.log(period / b0)
-                             / np.log(b1 / b0)) * (a1 - a0)
-    elif period >= b1 and period < b2:
-        rho_ds595_sa = a1 + (np.log(period / b1)
-                             / np.log(b2 / b1)) * (a2 - a1)
-    elif period >= b2 and period < b3:
-        rho_ds595_sa = a2 + (np.log(period / b2)
-                             / np.log(b3 / b2)) * (a3 - a2)
-    elif period >= b3 and period < b4:
-        rho_ds595_sa = a3 + (np.log(period / b3)
-                             / np.log(b4 / b3)) * (a4 - a3)
-    elif period >= b4 and period < b5:
-        rho_ds595_sa = a4 + (np.log(period / b4)
-                             / np.log(b5 / b4)) * (a5 - a4)
-    else:
-        rho_ds595_sa = a5 + (np.log(period / b5)
-                             / np.log(b6 / b5)) * (a6 - a5)
-
-    return rho_ds595_sa
+    return _log_linear_correlation(period, a, b)
 
 
 def bradley2011_ds575_sa(period: float = None) -> float:
@@ -294,35 +286,10 @@ def bradley2011_ds575_sa(period: float = None) -> float:
     if not 0.01 <= period < 10:
         raise ValueError(f"Period ({period}) must be 0.01 <= x < 10")
 
-    a0 = -0.45
-    b0 = 0.01
-    a1 = -0.39
-    b1 = 0.09
-    a2 = -0.39
-    b2 = 0.30
-    a3 = -0.06
-    b3 = 1.40
-    a4 = 0.16
-    b4 = 6.50
-    a5 = 0.00
-    b5 = 10.00
+    a = [-0.45, -0.39, -0.39, -0.06, 0.16, 0.00]
+    b = [0.01, 0.09, 0.30, 1.40, 6.50, 10.00]
 
-    if period >= b0 and period < b1:
-        rho_ds575_sa = a0 + (np.log(period / b0)
-                             / np.log(b1 / b0)) * (a1 - a0)
-    elif period >= b1 and period < b2:
-        rho_ds575_sa = a1 + (np.log(period / b1)
-                             / np.log(b2 / b1)) * (a2 - a1)
-    elif period >= b2 and period < b3:
-        rho_ds575_sa = a2 + (np.log(period / b2)
-                             / np.log(b3 / b2)) * (a3 - a2)
-    elif period >= b3 and period < b4:
-        rho_ds575_sa = a3 + (np.log(period / b3)
-                             / np.log(b4 / b3)) * (a4 - a3)
-    else:
-        rho_ds575_sa = a4 + (np.log(period / b4)
-                             / np.log(b5 / b4)) * (a5 - a4)
-    return rho_ds575_sa
+    return _log_linear_correlation(period, a, b)
 
 
 def bradley2011_ds595_pgv() -> float:
