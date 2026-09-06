@@ -641,18 +641,33 @@ class _GCIMSelect:
         correlations = np.asarray(target["combined_correlations"])
 
         # Combined covariance
-        covariance, sigmas = self._compute_exact_covariance(
-            correlations, sigmas)
+        covariance = self._compute_exact_covariance(correlations, sigmas)
 
         alpha_proc = np.asarray(alpha_proc)
 
         return imi_db, means, sigmas, correlations, alpha_proc, covariance
 
     def _compute_exact_covariance(self, corr, sigmas):
-        cov = np.zeros(corr.shape)
-        for i in range(corr.shape[0]):
-            for j in range(corr.shape[1]):
-                cov[i, j] = corr[i, j] * sigmas[i] * sigmas[j]
+        """Covariance of the target from its correlations and stdevs
+
+        Parameters
+        ----------
+        corr : np.ndarray
+            Correlation matrix over all IMi
+        sigmas : np.ndarray
+            Standard deviation of each IMi
+
+        Returns
+        -------
+        np.ndarray
+            Covariance matrix, shifted where needed to keep it positive
+            semi-definite
+        """
+        sigmas = np.asarray(sigmas)
+
+        # Scaled by row and then by column, so that every entry multiplies
+        # its correlation and the two stdevs in that order
+        cov = (corr * sigmas[:, None]) * sigmas[None, :]
 
         # Making sure that cov is a positive semi-definite matrix
         w, _ = np.linalg.eigh(cov)
@@ -660,7 +675,7 @@ class _GCIMSelect:
         if min_eig < 0:
             cov -= 2 * min_eig * np.eye(*cov.shape)
 
-        return cov, sigmas
+        return cov
 
     def _simulate_realization_lhs(
             self, nreplicate, num_records, mu, cov, sigma, seed):
