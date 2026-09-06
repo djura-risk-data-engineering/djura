@@ -45,6 +45,9 @@ class CoeffsTable(object):
                 [np.array(self._coeffs[key].tolist()) for key in keys])
             self.cmtx = tmp[idxs, :]
             self.periods = periods[idxs]
+            # The coefficients do not change, so one fit serves every period
+            self.fit = interp1d(np.log10(self.periods), self.cmtx,
+                                axis=0, kind='cubic')
 
     def _setup_table_from_str(self, table, sa_damping):
         """
@@ -115,9 +118,7 @@ class CoeffsTable(object):
         elif self.opt == 1:
             if imt.period < self.periods[0] or imt.period > self.periods[-1]:
                 raise KeyError(imt)
-            fit = interp1d(np.log10(self.periods), self.cmtx,
-                           axis=0, kind='cubic')
-            vals = fit(np.log10(imt.period))
+            vals = self.fit(np.log10(imt.period))
             self._coeffs[imt] = c = self.rb(*vals)
         return c
 
