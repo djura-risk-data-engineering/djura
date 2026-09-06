@@ -1,11 +1,16 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 from abc import ABC, abstractmethod
+import logging
 from pathlib import Path
-import requests
-import subprocess
-import sys
 from tempfile import TemporaryDirectory
 from typing import List, Union
 from zipfile import ZipFile, ZIP_DEFLATED
+
+import requests
+
+
+logger = logging.getLogger(__name__)
 
 
 class DownloaderBase(ABC):
@@ -36,9 +41,27 @@ class ESMDownloader(DownloaderBase):
     ----------
     RecordDownloader : ABC
         Abstract Base Class used for RecordDownloaders
+
+    Examples
+    --------
+    >>> downloader = ESMDownloader(          # doctest: +SKIP
+    ...     download_dir=".",
+    ...     events=["EMSC-20161030_0000029"],
+    ...     stations=["T1213"],
+    ...     username="you@example.com",
+    ...     password="secret",
+    ... )
+    >>> downloader.download()                # doctest: +SKIP
     """
 
-    token_path: Union[str, Path]
+    TOKEN_URL: str = 'https://esm-db.eu/esmws/generate-signed-message/1/query'
+    """Endpoint issuing the signed message used to authenticate downloads."""
+    EVENTDATA_URL: str = 'https://esm-db.eu/esmws/eventdata/1/query'
+    """Endpoint serving the record waveforms."""
+    TIMEOUT: int = 120
+    """Seconds to wait for a response before giving up on a request."""
+
+    token_path: Path
     """Download path for token used to retrieve records from ESM database."""
     username: str
     """Account username"""
@@ -61,7 +84,7 @@ class ESMDownloader(DownloaderBase):
         Parameters
         ----------
         download_dir : Union[str, Path]
-            Path to the download directory
+            Path to the download directory. Created if it does not exist.
         events : List[str]
             Records' event IDs
         stations : List[str]
@@ -73,14 +96,29 @@ class ESMDownloader(DownloaderBase):
             Account password (https://esm-db.eu)
             By default ""
         token_path : Union[str, Path], optional
-            Download path for token used to retrieve records from ESM database
-            By default ""
+            Download path for token used to retrieve records from ESM
+            database. An existing file there is reused as the token;
+            otherwise the token fetched with the credentials is written
+            to it. By default "", i.e. ``download_dir / "token.txt"``.
+
+        Raises
+        ------
+        ValueError
+            ``events`` and ``stations`` differ in length, since the two are
+            paired element-wise into one request per record.
         """
 
-        self.token_path = token_path
+        if len(events) != len(stations):
+            raise ValueError(
+                f"events and stations must be paired element-wise, but got "
+                f"{len(events)} event(s) and {len(stations)} station(s).")
+
+        self.download_dir = Path(download_dir)
+        self.token_path = (
+            Path(token_path) if token_path
+            else self.download_dir / 'token.txt')
         self.username = username
         self.password = password
-        self.dowload_directory = Path(download_dir)
         self.events = events
         self.stations = stations
 
@@ -96,12 +134,16 @@ class ESMDownloader(DownloaderBase):
         Raises
         ------
         TypeError
-            Neither username and password nor token_path are provided.
+            Neither username and password nor an existing token file are
+            provided.
+        requests.exceptions.HTTPError
+            The ESM database rejected the credentials or a download request.
         """
 
-        print('\nStarted executing download method to retrieve selected '
-              'records from https://esm-db.eu')
-        if not self.token_path:
+        logger.info('Started executing download method to retrieve selected '
+                    'records from https://esm-db.eu')
+        self.download_dir.mkdir(parents=True, exist_ok=True)
+        if not self.token_path.is_file():
             # Check if username and password are entered
             if self.username and self.password:
                 self.get_token()  # Get a new token with credentials
@@ -122,55 +164,62 @@ class ESMDownloader(DownloaderBase):
         Path
             Path to the zipfile which contains downloaded records.
 
+        Raises
+        ------
+        requests.exceptions.HTTPError
+            The ESM database rejected one of the download requests.
+
         Notes
         -----
-        Couldn't figure out why but need to download each record
-        and zip them into a file.
+        The web service serves one record per request, so the records are
+        downloaded one by one and collected into a single zipfile.
         """
 
-        print("Sending download requests...")
+        logger.info('Sending download requests...')
         # Set the zip path which contains the downloaded records
-        zip_path = self.dowload_directory / self.ZIPFILE_NAME
-        # Set the request url
-        URL = 'https://esm-db.eu/esmws/eventdata/1/query'
-        # Set the files used in request
-        files = {
-                 'message': ('path/to/token.txt', open(self.token_path, 'rb'))
-        }
+        zip_path = self.download_dir / self.ZIPFILE_NAME
         # Constant request parameters
         DATA_TYPE = 'ACC'
         FORMAT = 'ascii'
+        total = len(self.events)
         # Create a temporary directory to extract downloaded records
         with TemporaryDirectory() as temp_dir:
             temp_zip = Path(temp_dir) / 'temp.zip'
             # Starting to download each record one by one
-            for i in range(len(self.events)):
+            for i, (event, station) in enumerate(
+                    zip(self.events, self.stations), start=1):
                 # Set the parameters
                 params = (
-                        ('eventid', self.events[i]),
+                        ('eventid', event),
                         ('data-type', DATA_TYPE),
-                        ('station', self.stations[i]),
+                        ('station', station),
                         ('format', FORMAT)
                 )
-                # Get the response
-                response = requests.post(url=URL, params=params, files=files)
+                # The token is reopened per request: a file object handed to
+                # requests is read to the end and would upload nothing on
+                # the next request.
+                with open(self.token_path, 'rb') as token:
+                    response = requests.post(
+                        url=self.EVENTDATA_URL, params=params,
+                        files={'message': (self.token_path.name, token)},
+                        timeout=self.TIMEOUT)
                 # Check the status code to write the downloaded record
-                if response.status_code == 200:
-                    # Write the record to a temporary zip
-                    with open(temp_zip, 'wb') as zf:
-                        zf.write(response.content)
-                    # Extract the record
-                    with ZipFile(temp_zip, 'r') as zipObj:
-                        zipObj.extractall(temp_dir)
-                    temp_zip.unlink()  # Delete the temporary file
-                    print(f'{i+1}/{len(self.events)} of requests are done.')
-
-                # Something went wrong
-                else:
-                    print('Problem with the download operation occurred. \n'
-                          'Make sure that the credentials or token are valid.')
+                if response.status_code != 200:
                     raise requests.exceptions.HTTPError(
-                        f"Unexpected HTTP status code: {response.status_code}")
+                        f'Download of event {event!r} at station {station!r} '
+                        f'failed with HTTP status code '
+                        f'{response.status_code}. Make sure that the '
+                        f'credentials or token are valid.',
+                        response=response)
+                # Write the record to a temporary zip
+                with open(temp_zip, 'wb') as zf:
+                    zf.write(response.content)
+                # Extract the record
+                with ZipFile(temp_zip, 'r') as zipObj:
+                    zipObj.extractall(temp_dir)
+                temp_zip.unlink()  # Delete the temporary file
+                logger.info('%d/%d of requests are done.', i, total)
+
             # Now write all back into the brand new zipfile initially targeted
             with ZipFile(zip_path, 'w', ZIP_DEFLATED) as zipObj:
                 for file_path in Path(temp_dir).iterdir():
@@ -180,52 +229,29 @@ class ESMDownloader(DownloaderBase):
 
     def get_token(self) -> None:
         """
-        Retrieves the ESM token.
+        Retrieves the ESM token and writes it to :attr:`token_path`.
+
+        Raises
+        ------
+        requests.exceptions.HTTPError
+            The credentials were rejected by the ESM database.
 
         Notes
         -------
-        Data is obtained using any program supporting the
-        HTTP-POST method, e.g., CURL. See:
+        The token is the signed message documented at
         https://esm-db.eu/esmws/generate-signed-message/1/query-options.html
         """
 
-        if self.token_path:
-            self.token_path = Path(self.token_path)
-        else:
-            self.token_path = self.dowload_directory / 'token.txt'
-        # Arguments used to utilise HTTP-POST method via CURL
-        args = [
-            'curl',
-            '-X', 'POST',
-            '-F', f'message={{"user_email": "{self.username}", \
-                             "user_password": "{self.password}"}}',
-            '-o', f'{self.token_path}',
-            'https://esm-db.eu/esmws/generate-signed-message/1/query'
-        ]
-        # In the case of Windows OS, disable revocation checking
-        if sys.platform.startswith('win'):
-            args.insert(args.index('curl') + 1, '--ssl-no-revoke')
-        # Run CURL through the subprocess package
-        subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-
-if __name__ == '__main__':
-    import os
-    import pickle
-    from dotenv import load_dotenv
-
-    load_dotenv()
-    flatfile = Path(__file__).parent / 'assets/flatfile_shallow_v1.pickle'
-    with open(flatfile, "rb") as f:
-        data = pickle.load(f)
-
-    # Test for ESMDownloader
-    username = os.environ["ESM_USERNAME"]
-    password = os.environ["ESM_PASSWORD"]
-    download_path = Path.cwd()
-    station_codes = [s.split('-')[1]
-                     for s in data['Station_name'][:2].tolist()]
-    event_ids = data['esm_event_id'][:2].tolist()
-    downloader = ESMDownloader(download_path, event_ids, station_codes,
-                               username, password)
-    downloader.download()
+        self.token_path.parent.mkdir(parents=True, exist_ok=True)
+        message = (f'{{"user_email": "{self.username}", '
+                   f'"user_password": "{self.password}"}}')
+        response = requests.post(url=self.TOKEN_URL,
+                                 files={'message': (None, message)},
+                                 timeout=self.TIMEOUT)
+        if response.status_code != 200:
+            raise requests.exceptions.HTTPError(
+                f'Could not obtain an ESM token (HTTP status code '
+                f'{response.status_code}). Make sure that the credentials '
+                f'are valid.', response=response)
+        self.token_path.write_bytes(response.content)
+        logger.info('Token written to %s', self.token_path)

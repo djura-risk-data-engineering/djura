@@ -4,9 +4,10 @@
 from .._extras import require_extra
 
 with require_extra("record_selection"):
+    from .downloader import DownloaderBase, ESMDownloader
     from .gcim import GCIM
 
-__all__ = ["GCIM", "cite"]
+__all__ = ["DownloaderBase", "ESMDownloader", "GCIM", "cite"]
 
 __citation__ = (
     "@inproceedings{shahnazaryan2025djuraRS,\n"
