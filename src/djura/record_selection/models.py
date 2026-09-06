@@ -37,8 +37,8 @@ class ESHM20CratonModel(BaseModel):
     tau_model: str = Field(default='global')
     phi_model: str = Field(default='global')
     ergodic: bool = Field(default=True)
-    tau_quantile: float = Field(default=None)
-    phi_ss_quantile: float = Field(default=None)
+    tau_quantile: Optional[float] = Field(default=None)
+    phi_ss_quantile: Optional[float] = Field(default=None)
     site_epsilon: float = Field(default=0.0)
 
 
@@ -57,7 +57,7 @@ class AtkinsonBoore2006SGSModel(AtkinsonBoore2006Model):
 
 class AbrahamsonEtAl2014Model(BaseModel):
     sigma_mu_epsilon: float = Field(default=0.0)
-    region: str = Field(default=None)
+    region: Optional[str] = Field(default=None)
 
 
 class AbrahamsonEtAl2014RegCHNModel(BaseModel):
@@ -148,8 +148,8 @@ class ChiouYoungs2014Model(BaseModel):
     use_hw: bool = Field(default=True)
     add_delta_c1: bool = Field(default=False)
     alpha_nm: float = Field(default=1.0)
-    stress_par_host: float = Field(default=None)
-    stress_par_target: float = Field(default=None)
+    stress_par_host: Optional[float] = Field(default=None)
+    stress_par_target: Optional[float] = Field(default=None)
 
 
 class ChiouYoungs2014ItalyModel(ChiouYoungs2014Model):

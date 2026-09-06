@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
-from typing import Sequence
+from typing import Optional, Sequence
 import logging
 
 from scipy.interpolate import interp1d
@@ -17,7 +17,7 @@ class Flatfile:
     def __init__(
             self, metadata: dict, verbosity: int = 0) -> None:
         self._meta = None
-        self.im_name: str = None
+        self.im_name: Optional[str] = None
         self.metadata = metadata
         self.verbosity = verbosity
         self._IM = IntensityMeasure()

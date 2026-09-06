@@ -29,7 +29,7 @@ class ResponseSpectrumFromGM:
     def derive_response_spectrum_batch(
         self, gm_dir_path: Path, dt_filepath: Path,
         gm_filepath: Union[Path, List[Path]], periods: List = None
-    ) -> None:
+    ) -> Union[dict, DataFrame]:
         """Derives response spectrum for 1 or more ground motion records
         and stores into self.rs
 

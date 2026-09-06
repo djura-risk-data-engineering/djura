@@ -164,16 +164,17 @@ class IntensityMeasure:
         acc : List[float]
             Acceleration time series in [g]
         dt : float
-            Time step in [s], if period==0.0, may be set to any value
+            Time step in [s]
         period : float
-            Period of interest, where the Sd(T) is being calculated in [s]
+            Period of interest, where the Sd(T) is being calculated
+            in [s], must not be zero
         damping : float
-            Damping ratio, if period==0.0, may be set to any value
+            Damping ratio
 
         Returns
         -------
         float
-            Sd(period, damping) in [m], if T=0, Sd = PGD
+            Sd(period, damping) in [m]
         """
         h, fas = self._fft_signal(acc, dt, period, damping)
 
@@ -193,16 +194,17 @@ class IntensityMeasure:
         acc : List[float]
             Acceleration time series in [g]
         dt : float
-            Time step in [s], if period==0.0, may be set to any value
+            Time step in [s]
         period : float
-            Period of interest, where the Sv(T) is being calculated in [s]
+            Period of interest, where the Sv(T) is being calculated
+            in [s], must not be zero
         damping : float
-            Damping ratio, if period==0.0, may be set to any value
+            Damping ratio
 
         Returns
         -------
         float
-            Sv(period, damping) in [m/s], if T=0, Sv = PGV
+            Sv(period, damping) in [m/s]
         """
         h, fas = self._fft_signal(acc, dt, period, damping)
 

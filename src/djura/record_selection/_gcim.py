@@ -59,7 +59,9 @@ class _GCIM:
     def _validate_gmm_indirect_sa_avg(self, gmm: str, **kwargs):
         return _OQ._validate_gmm_indirect_sa_avg(gmm, **kwargs)
 
-    def _gmpe_sb_2014_ratios(self, periods: np.ndarray) -> Tuple[float, float]:
+    def _gmpe_sb_2014_ratios(
+            self, periods: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Computes Sa_RotD100/Sa_RotD50 ratios.
 
         References
@@ -876,8 +878,8 @@ class _GCIM:
         ----------
         sigmas : np.ndarray
             Stdevs
-        covs : np.ndarray
-            Covariance matrix
+        means : np.ndarray
+            Means for each rupture scenario
         mean_exact : np.ndarray
             Exact mean
         weights : List[float]

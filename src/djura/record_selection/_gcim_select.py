@@ -93,7 +93,8 @@ class _GCIMSelect:
         im_weights : List[float]
             IMis and associated weights for selection prioritisation
         max_scaling_factor : float
-            Maximum scaling factor allowed
+            Maximum scaling factor allowed, and the smallest allowed is
+            its reciprocal
         greedy_loops : int
             Number of greedy loops to run
         """
@@ -910,8 +911,8 @@ class _GCIMSelect:
 
     @staticmethod
     def _create_mask_for_strings(arr, search_string):
-        """Create a boolean mask where True indicates the element contains
-        any of the search terms (case-insensitive).
+        """Create a boolean mask where True indicates the element starts
+        with any of the search terms (case-insensitive)
 
         Parameters
         ----------

@@ -56,9 +56,6 @@ def random_multivariate_normal(
     numpy.ndarray (num_samples x num_dimensions)
         Array which contains randomly generated numbers between 0 and 1
     """
-
-    from scipy.stats import norm
-
     num_dimensions = len(mu)
     if mu.size == mu.shape[0]:
         mu = mu.reshape(-1, 1)
@@ -263,7 +260,7 @@ def proc_oq_hazard_curve(
     path_hazard_results: str | Path,
     json_file: str | Path = 'hazard.json',
     haz_file_start: str = 'hazard_curve-mean'
-) -> None:
+) -> dict:
     """
     Process OpenQuake hazard curve results and store them in a JSON file.
 
@@ -592,7 +589,7 @@ def proc_oq_disaggregation_occ(
     json_file: str | Path = 'disaggregation.json',
     disagg_file_start: str = 'Mag_Dist',
     tol: float = 0.05
-) -> None:
+) -> dict:
 
     disagg = proc_oq_disaggregation_exc(
         path_disagg_results, None, disagg_file_start

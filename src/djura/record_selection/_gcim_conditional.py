@@ -58,6 +58,13 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
             Number of components to consider
         component_definition : str
             Component definition
+        add_data_for_dis : dict, optional
+            Investigation time, truncation probability and POE carried
+            over from a disaggregation, by default None
+        avg_sa : dict, optional
+            Period range of an indirect Sa_avg, by default None
+        correlation_models : dict, optional
+            Correlation model to use for each IM pair, by default None
         """
         num_components = int(num_components)
 

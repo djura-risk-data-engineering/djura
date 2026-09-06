@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 from pathlib import Path
+from typing import Union
 from functools import lru_cache
 import math
 import numpy as np
@@ -223,8 +224,7 @@ def _log_linear_correlation(period, a, b):
 def bradley2011_ds595_sa(period: float = None) -> float:
     """Duration 595 vs SA correlation
 
-    Lowest period is 0.01!
-    Highest period is 10!
+    Valid for 0.01 <= period < 10 sec
 
     References
     ----------
@@ -259,8 +259,7 @@ def bradley2011_ds595_sa(period: float = None) -> float:
 def bradley2011_ds575_sa(period: float = None) -> float:
     """Duration 575 vs SA correlation
 
-    Lowest period is 0.01!
-    Highest period is 10!
+    Valid for 0.01 <= period < 10 sec
 
     References
     ----------
@@ -475,8 +474,7 @@ def bradley2011_ds595_cav() -> float:
 def bradley2011_pga(period: float) -> float:
     """PGA vs SA correlation
 
-    Lowest period is 0.01!
-    Highest period is 10!
+    Valid for 0.01 <= period < 10 sec
 
     References
     ----------
@@ -518,8 +516,7 @@ def bradley2011_pga(period: float) -> float:
 def bradley2011_asi_sa(period: float = None) -> float:
     """ASI vs SA correlation
 
-    Lowest period is 0.01!
-    Highest period is 10!
+    Valid for 0.01 <= period < 10 sec
 
     References
     ----------
@@ -562,8 +559,7 @@ def bradley2011_asi_sa(period: float = None) -> float:
 def bradley2011_si_sa(period: float = None) -> float:
     """SI vs SA correlation
 
-    Lowest period is 0.01!
-    Highest period is 10!
+    Valid for 0.01 <= period < 10 sec
 
     References
     ----------
@@ -660,8 +656,7 @@ def bradley2011_asi_si() -> float:
 def bradley2011_dsi_sa(period: float = None) -> float:
     """DSI vs SA correlation
 
-    Lowest period is 0.01!
-    Highest period is 10!
+    Valid for 0.01 <= period < 10 sec
 
     References
     ----------
@@ -777,8 +772,7 @@ def bradley2012_pgv(period: float = None) -> float:
     """PGV vs SA correlation and PGV vs PGA correlation
 
     For vs SA correlation:
-    Lowest period is 0.01!
-    Highest period is 10!
+    Valid for 0.01 <= period < 10 sec
 
     References
     ----------
@@ -821,8 +815,7 @@ def bradley2012_pgv(period: float = None) -> float:
 def bradley2012_cav_sa(period: float = None) -> float:
     """CAV vs SA correlation
 
-    Lowest period is 0.01!
-    Highest period is 10!
+    Valid for 0.01 <= period < 10 sec
 
     References
     ----------
@@ -1027,7 +1020,7 @@ def dm18(period1: float, period2: float) -> float:
 
 
 def ann_corr(im_pair: str, period1: float = None,
-             period2: float = None) -> float:
+             period2: float = None) -> Union[float, np.ndarray]:
     """Correlation matrices predicted through an ANN model
 
     Parameters
@@ -1094,7 +1087,7 @@ def ann_corr(im_pair: str, period1: float = None,
 
 
 def aso2024(im_pair: str, period1: float = None,
-            period2: float = None) -> float:
+            period2: float = None) -> Union[float, np.ndarray]:
     """Correlation matrices predicted through an ANN model
 
     Parameters

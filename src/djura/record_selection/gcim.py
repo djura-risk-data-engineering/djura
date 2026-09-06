@@ -579,8 +579,6 @@ class GCIM:
 
         **Parameters of** ``data``
 
-        nrun : int, optional
-            Number of separate runs, by default 1
         nreplicate : int, optional
             Number of replicates, by default 1
             The algorithm is repeated for nreplicate times
@@ -1003,22 +1001,22 @@ class GCIM:
         """
         return self._parent._get_supported_parameters("rupture")
 
-    def get_supported_sites_parameters(self) -> frozenset:
+    def get_supported_sites_parameters(self) -> dict:
         """Gets supported sites parameters
 
         Returns
         -------
-        set
+        dict
             Names of sites parameters supported
         """
         return self._parent._get_supported_parameters("sites")
 
-    def get_supported_distances_parameters(self) -> dict:
+    def get_supported_distances_parameters(self) -> frozenset:
         """Gets supported distances parameters
 
         Returns
         -------
-        set
+        frozenset
             Names of distances parameters supported
         """
         return self._parent._get_supported_parameters("distances")
