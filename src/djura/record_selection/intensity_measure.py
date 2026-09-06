@@ -408,14 +408,18 @@ class IntensityMeasure:
         ugf = lfilter(b, a, acc, axis=0)
 
         # filtered incremental velocity (FIV)
-        ugf_pc = np.zeros(
-            (np.sum(time < time[-1] - alpha * tn),
-             int(np.floor(alpha * tn / dt)) + 1))
-        for i in range(int(np.floor(alpha * tn / dt)) + 1):
-            ugf_pc[:, i] = ugf[np.where(time < time[-1] - alpha * tn)[0] + i]
+        # Windows of alpha * tn are taken from every sample early enough to
+        # hold one, so both the count of windows and their length are fixed
+        within_record = time < time[-1] - alpha * tn
+        window_starts = np.where(within_record)[0]
+        window_length = int(np.floor(alpha * tn / dt)) + 1
+
+        ugf_pc = np.zeros((window_starts.size, window_length))
+        for i in range(window_length):
+            ugf_pc[:, i] = ugf[window_starts + i]
 
         fiv = dt * trapezoid(ugf_pc, axis=1)
-        t = time[time < time[-1] - alpha * tn]
+        t = time[within_record]
 
         # Convert
         # Find the peaks and troughs of the FIV array
