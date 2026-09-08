@@ -3,8 +3,8 @@ from pathlib import Path
 import json
 import pickle
 
-from djura.fragility_converter.ff import FF
-from djura.fragility_converter.ff_approximate import FFApproximate
+from djura.im_conversion.ff import FF
+from djura.im_conversion.ff_approximate import FFApproximate
 
 path = Path(__file__).resolve().parent
 

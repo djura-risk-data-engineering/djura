@@ -35,12 +35,19 @@ the submodule:
      - :mod:`djura.hazard_consistency`
    * - ``pip install "djura[edp_im]"``
      - :mod:`djura.edp_im`
-   * - ``pip install "djura[fragility_converter]"``
-     - :mod:`djura.fragility_converter`
+   * - ``pip install "djura[im_conversion]"``
+     - :mod:`djura.im_conversion`
    * - ``pip install "djura[vulnerability_modeller]"``
      - :mod:`djura.vulnerability_modeller`
    * - ``pip install "djura[slf]"``
      - :mod:`djura.slf`
+
+.. note::
+
+   ``im_conversion`` was named ``fragility_converter`` before 2.0.1, since it
+   converts vulnerability models as well as fragility ones. The old extra and
+   the ``djura.fragility_converter`` import path still work — the latter with
+   a :class:`DeprecationWarning` — and are removed in 3.0.
 
 Extras are additive, so several applications can be requested together:
 

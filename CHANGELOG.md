@@ -6,6 +6,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-09-08
+
+### Changed
+
+- `djura.fragility_converter` is renamed to `djura.im_conversion`, and its
+  install extra along with it, because the application converts vulnerability
+  models as well as fragility ones. The name now describes the operation —
+  conversion of a model to an alternative intensity measure — and no longer
+  reads as a sibling of `djura.vulnerability_modeller`.
+
+  **Migration:** import from `djura.im_conversion` and install
+  `pip install "djura[im_conversion]"`. Nothing breaks in the meantime: the
+  `fragility_converter` extra remains as an alias of the new one, and
+  `djura.fragility_converter` still exposes `FF`, `FFApproximate` and `cite`,
+  as do the dotted paths `djura.fragility_converter.ff` and
+  `.ff_approximate`. Importing the old path emits a `DeprecationWarning`.
+  `djura.cite("fragility_converter")` also keeps working. Both aliases are
+  removed in 3.0.
+
 ## [2.0.0] - 2026-09-06
 
 ### Added

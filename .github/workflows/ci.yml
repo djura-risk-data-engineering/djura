@@ -37,7 +37,7 @@ jobs:
       # only numpy/scipy/pydantic, so the test suite needs these to import
       # the submodules under test.
       APP_EXTRAS: >-
-        --extras "record_selection hazard_consistency fragility_converter
+        --extras "record_selection hazard_consistency im_conversion
         vulnerability_modeller edp_im slf"
 
     steps:

@@ -22,7 +22,10 @@ __citation__ = """\
 """ % __version__
 
 _SUBMODULES = ("record_selection", "hazard_consistency", "edp_im",
-               "vulnerability_modeller", "slf", "fragility_converter")
+               "vulnerability_modeller", "slf", "im_conversion")
+
+# Renamed submodules, still accepted by :func:`cite`. Removed in 3.0.
+_SUBMODULE_ALIASES = {"fragility_converter": "im_conversion"}
 
 
 def cite(
@@ -56,6 +59,7 @@ def cite(
     if submodule is None:
         return __citation__
 
+    submodule = _SUBMODULE_ALIASES.get(submodule, submodule)
     if submodule not in _SUBMODULES:
         raise ValueError(
             f"Unknown submodule: {submodule!r}. "

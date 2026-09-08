@@ -5,7 +5,7 @@ This example shows how to convert a seismic fragility model from one
 intensity measure (IM) to another using ``FF`` (exact conversion via OQ
 disaggregation context) and ``FFApproximate`` (closed-form approximation).
 
-Both classes are in ``djura.fragility_converter``.
+Both classes are in ``djura.im_conversion``.
 
 Exact conversion with ``FF``
 ----------------------------
@@ -29,7 +29,7 @@ Input files:
 
     import json
     import pickle
-    from djura.fragility_converter import FF
+    from djura.im_conversion import FF
 
     # Base input: GMM ensemble and site/rupture parameters
     with open("input.json", encoding="utf-8") as f:
@@ -99,7 +99,7 @@ Input files:
 .. code-block:: python
 
     import json
-    from djura.fragility_converter import FFApproximate
+    from djura.im_conversion import FFApproximate
 
     # Pre-computed approximation input (encodes IM correlations for the site)
     with open("approx_SA(0.5).json", encoding="utf-8") as f:

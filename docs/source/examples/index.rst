@@ -14,7 +14,7 @@ self-contained and can be run locally after ``pip install djura``.
    record_downloader
    validations/index
    hazard_consistency
-   fragility_converter
+   im_conversion
    edp_im
    slf
    vulnerability_modeller

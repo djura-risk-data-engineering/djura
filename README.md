@@ -38,7 +38,7 @@ other copyleft scientific tools (e.g. `openquake.engine`).
 | `djura.record_selection`          | GCIM-based ground motion record selection                 |
 | `djura.hazard_consistency`        | Hazard-consistent intensity measure analysis              |
 | `djura.edp_im`                    | ML-based EDP-IM relationship prediction                   |
-| `djura.fragility_converter`       | Fragility/vulnerability model conversion across IMs       |
+| `djura.im_conversion`             | Fragility/vulnerability model conversion across IMs       |
 | `djura.vulnerability_modeller`    | Seismic vulnerability and loss modelling (incl. ML models)|
 | `djura.slf`                       | Storey loss function generation                           |
 
@@ -59,10 +59,16 @@ submodule:
 pip install "djura[record_selection]"        # ground motion record selection
 pip install "djura[hazard_consistency]"      # hazard-consistent IM analysis
 pip install "djura[edp_im]"                  # EDP-IM prediction
-pip install "djura[fragility_converter]"     # fragility/vulnerability conversion
+pip install "djura[im_conversion]"           # fragility/vulnerability conversion
 pip install "djura[vulnerability_modeller]"  # vulnerability and loss modelling
 pip install "djura[slf]"                     # storey loss functions
 ```
+
+> [!NOTE]
+> `im_conversion` was named `fragility_converter` before 2.0.1, since it
+> converts vulnerability models as well as fragility ones. The old extra and
+> the `djura.fragility_converter` import path still work — the latter with a
+> `DeprecationWarning` — and are removed in 3.0.
 
 Extras combine, so several applications can be installed at once:
 
@@ -236,7 +242,7 @@ print(djura.cite(all=True))
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `edp_im`                        | Shahnazaryan, D., & O'Reilly, G. J. (2024). *Next-generation non-linear and collapse prediction models for short- to long-period systems via machine learning methods*. **Engineering Structures**, 306, 117801. doi:[10.1016/j.engstruct.2024.117801](https://doi.org/10.1016/j.engstruct.2024.117801) |
 | `vulnerability_modeller`        | O'Reilly, G. J., & Shahnazaryan, D. (2024). *On the utility of story loss functions for regional seismic vulnerability modeling and risk assessment*. **Earthquake Spectra**, 40(3), 1933–1955. doi:[10.1177/87552930241245940](https://doi.org/10.1177/87552930241245940) |
-| `fragility_converter`           | O'Reilly, G. J., Ozsarac, V., & Shahnazaryan, D. (2025). *Conversion of seismic fragility and vulnerability models to alternative intensity measures for regional risk analysis*. **Earthquake Spectra** (Under Review). |
+| `im_conversion`                 | O'Reilly, G. J., Ozsarac, V., & Shahnazaryan, D. (2025). *Conversion of seismic fragility and vulnerability models to alternative intensity measures for regional risk analysis*. **Earthquake Spectra** (Under Review). |
 | `slf`                           | Shahnazaryan, D., Ozsarac, V., & O'Reilly, G. J. (2025). *The Role of Story Loss Functions in Regional Seismic Vulnerability Modelling and Risk Assessment*. 10th International Conference on Computational Methods in Structural Dynamics and Earthquake Engineering (COMPDYN 2025), Rhodes, Greece, Jun. 2025, pp. 780–804. doi: [10.7712/120125.12447.25302](https://doi.org/10.7712/120125.12447.25302)                    |
 
 A `CITATION.cff` file is provided so that GitHub renders a "Cite this repository" button automatically.

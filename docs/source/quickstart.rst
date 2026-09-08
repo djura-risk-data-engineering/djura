@@ -20,7 +20,7 @@ Submodule imports
    from djura import edp_im
    from djura import vulnerability_modeller
    from djura import slf
-   from djura import fragility_converter
+   from djura import im_conversion
 
 Citations
 ---------

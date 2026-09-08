@@ -74,8 +74,19 @@ record_selection = [
 # command is uniform across applications and stays stable if that changes.
 hazard_consistency = []
 
-# djura.fragility_converter - fragility/vulnerability conversion across IMs.
+# djura.im_conversion - fragility/vulnerability conversion across IMs.
 # Imports djura.record_selection, so it needs that application's packages.
+im_conversion = [
+    "numba (>=0.59)",
+    "pandas (>=2.2)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "shapely (>=2.1.2,<3.0.0)",
+    "statsmodels (>=0.14.6,<0.15.0)",
+]
+
+# Deprecated alias of im_conversion, kept so that installs pinned to the
+# pre-2.0.1 name keep resolving. Duplicated rather than self-referencing for
+# the reason given above. Removed in 3.0.
 fragility_converter = [
     "numba (>=0.59)",
     "pandas (>=2.2)",

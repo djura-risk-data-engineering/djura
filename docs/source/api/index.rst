@@ -9,5 +9,5 @@ API reference
    edp_im
    vulnerability_modeller
    slf
-   fragility_converter
+   im_conversion
    data_loader
