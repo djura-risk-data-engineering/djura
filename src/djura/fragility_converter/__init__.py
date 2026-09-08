@@ -12,9 +12,10 @@ Scheduled for removal in djura 3.0.
 import sys
 import warnings
 
-from ..im_conversion import FF, FFApproximate, __citation__, cite
-from ..im_conversion import ff as _ff
-from ..im_conversion import ff_approximate as _ff_approximate
+from .. import im_conversion as _im_conversion
+from ..im_conversion import FF, FFApproximate, cite
+
+__citation__ = _im_conversion.__citation__
 
 warnings.warn(
     "djura.fragility_converter is deprecated and will be removed in djura "
@@ -25,7 +26,7 @@ warnings.warn(
 )
 
 # Make the old dotted paths importable without shipping stub modules.
-sys.modules[f"{__name__}.ff"] = _ff
-sys.modules[f"{__name__}.ff_approximate"] = _ff_approximate
+sys.modules[f"{__name__}.ff"] = _im_conversion.ff
+sys.modules[f"{__name__}.ff_approximate"] = _im_conversion.ff_approximate
 
 __all__ = ["FF", "FFApproximate", "cite"]
