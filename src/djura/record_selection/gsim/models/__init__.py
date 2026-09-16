@@ -93,7 +93,13 @@ from .campbell_bozorgnia_2014 import (
     CampbellBozorgnia2014HighQJapanSite,
     CampbellBozorgnia2014JapanSite,
     CampbellBozorgnia2014LowQ,
-    CampbellBozorgnia2014LowQJapanSite)
+    CampbellBozorgnia2014LowQJapanSite,
+    CampbellBozorgnia2019,
+    CampbellBozorgnia2019HighQ,
+    CampbellBozorgnia2019HighQJapanSite,
+    CampbellBozorgnia2019JapanSite,
+    CampbellBozorgnia2019LowQ,
+    CampbellBozorgnia2019LowQJapanSite)
 from .boore_2020 import BooreEtAl2020
 from .bozorgnia_campbell_2016 import BozorgniaCampbell2016
 # Global GMPE: PGA, PGV, PGD, SA, Sa_avg2, Sa_avg3, FIV3, Ds575, Ds595

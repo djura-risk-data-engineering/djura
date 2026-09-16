@@ -6,6 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `CampbellBozorgnia2014` and its five attenuation and site variants now
+  predict `IA` and `CAV` as well as `PGA`, `PGV` and `SA`, using the
+  coefficients of Campbell & Bozorgnia (2019), which share the CB14
+  functional form. The between- and within-event dispersions of these two
+  intensity measures use that paper's magnitude-dependent correlation with
+  PGA in place of CB14's period-dependent `rholny`.
+- `CampbellBozorgnia2019`, `…HighQ`, `…LowQ`, `…JapanSite`,
+  `…HighQJapanSite` and `…LowQJapanSite`, exported from
+  `djura.record_selection.gsim.models`. They are the models above declaring
+  the geometric mean rather than RotD50 as the horizontal component
+  definition, which is the component Campbell & Bozorgnia (2019) regress.
+
+  The medians and all three dispersions are verified against the reference
+  tables of the OpenQuake Engine for both intensity measures and all six
+  variants.
+
+  `IA` is reported in m/s and `CAV` in g·s, matching the package's other
+  models for those two intensity measures. The published coefficients
+  predict CAV in m/s, so its median is divided by the standard gravity on
+  the way out, exactly as `SandikkayaAkkar2017…` converts from its own
+  published cm/s. The engine applies no such conversion, so its `CAV` for
+  this model is a factor of 9.80665 larger.
+
+  The `PGA`, `PGV` and `SA` predictions of the 2014 classes are unchanged.
+
 ### Fixed
 
 - `DavalosEtAl2020` now returns its predictions in the same form as every
