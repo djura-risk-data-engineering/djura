@@ -50,8 +50,11 @@ class DavalosEtAl2020(GMPE):
 
         Returns
         -------
-        numpy.ndarray and float
-            Means and stadard deviations
+        numpy.ndarray
+            Means of the logarithm of FIV3, of shape (n_sites,)
+        list of numpy.ndarray
+            Total, inter-event and intra-event lognormal standard
+            deviations, in that order
 
         Reference
         -------
@@ -81,15 +84,17 @@ class DavalosEtAl2020(GMPE):
             C = pd.concat(
                 [C, new_col], sort=False).sort_index()
 
-        mag = np.array(ctx.mag).reshape(-1, 1)
-        rjb = np.array(ctx.rjb).reshape(-1, 1)
+        mag = np.atleast_1d(np.asarray(ctx.mag, dtype=float))
+        rjb = np.atleast_1d(np.asarray(ctx.rjb, dtype=float))
 
-        if mag < C['Mh'][period]:
-            f_e = C['e1'][period] + C['e2'][period] * \
-                (mag - C['Mh'][period]) + C['e3'][period] * \
-                (mag - C['Mh'][period])**2
-        else:
-            f_e = C['e1'][period] + C['e4'][period] * (mag - C['Mh'][period])
+        # The magnitude scaling is hinged at Mh, and the branch is chosen
+        # per site rather than for the array as a whole
+        dmag = mag - C['Mh'][period]
+        f_e = np.where(
+            dmag < 0.0,
+            C['e1'][period] + C['e2'][period] * dmag
+            + C['e3'][period] * dmag**2,
+            C['e1'][period] + C['e4'][period] * dmag)
 
         r_ref = 1
         r = np.sqrt(rjb**2 + C['h'][period]**2)
@@ -102,7 +107,11 @@ class DavalosEtAl2020(GMPE):
         inter_std = C['tau'][period]
         total_std = C['sigma'][period]
 
-        return mean_ln, intra_std, inter_std, total_std
+        return mean_ln, [
+            np.array([total_std]),
+            np.array([inter_std]),
+            np.array([intra_std])
+        ]
 
     COEFFS = np.array([[0.1, 4.6192, 1.0157, -0.1090, -0.0572, 6.300, -1.5617,
                         0.1189, 3.9605, 0.41, 0.34, 0.53],

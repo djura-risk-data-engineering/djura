@@ -6,6 +6,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `DavalosEtAl2020` now returns its predictions in the same form as every
+  other ground motion model — a one-dimensional array of means and a list
+  of the total, inter-event and intra-event standard deviations in that
+  order — rather than a two-dimensional array of means followed by a flat
+  triple in the opposite order. Three consequences:
+
+  - Selecting on `FIV3` no longer raises `ValueError: setting an array
+    element with a sequence` under NumPy 2. The two-dimensional means made
+    `GCIM` assign a size-one array where it expected a scalar, which NumPy
+    tolerated until 1.24 and rejects from 2.0.
+  - `GCIM` now uses the total standard deviation of `FIV3`. The
+    non-conforming return sent it down a fallback branch that read the
+    intra-event value instead, which is 19 % to 24 % smaller depending on
+    the period, so `FIV3` targets and the record suites conditioned on
+    them were narrower than intended.
+  - The model accepts a context with more than one site. The hinge of the
+    magnitude scaling was selected with an `if` on the magnitude array,
+    which raised for any multi-site context and, for a single site,
+    applied one branch to the whole array.
+
+  Medians for a single scenario are unchanged.
+
 ## [2.0.1] - 2026-09-08
 
 ### Changed
