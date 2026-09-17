@@ -258,7 +258,7 @@ The CAV–duration correlations `bradley2011_ds575_cav` and
 | `kohrangi2020_sav_sav` | SA_vert vs SA_vert | T = 0.01–10 s | Kohrangi, M., Papadopoulos, A. N., Bazzurro, P., & Vamvatsikos, D. (2020). Correlation of spectral acceleration values of vertical and horizontal ground motion pairs. *Earthquake Spectra*, 36(4). DOI: [10.1177/8755293020919416](https://doi.org/10.1177/8755293020919416) |
 | `kohrangi2020_sav_sah` | SA (horizontal) vs SA_vert | T = 0.01–10 s | as above |
 | `kohrangi2020_sah_pgvv` | SA (horizontal) vs PGV_vert | T = 0.01–10 s | as above |
-| `kohrangi2020_sav_pgav` | SA_vert vs PGA_vert | T = 0.01–10 s | as above |
+| `kohrangi2020_sav_pgvh` | SA_vert vs PGV (horizontal) | T = 0.01–10 s | as above |
 | `kohrangi2020_sav_pgvv` | SA_vert vs PGV_vert | T = 0.01–10 s | as above |
 | `kohrangi2020_sav_ds575` | SA_vert vs Ds5-75 | T = 0.01–10 s | as above |
 | `kohrangi2020_sav_ds595` | SA_vert vs Ds5-95 | T = 0.01–10 s | as above |

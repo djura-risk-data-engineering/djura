@@ -107,7 +107,7 @@ CORRELATION_MODELS = {
     "SA-PGV_vert": ["kohrangi2020_sah_pgvv"],
     "SA_vert-Ds575": ["kohrangi2020_sav_ds575"],
     "SA_vert-Ds595": ["kohrangi2020_sav_ds595"],
-    "SA_vert-PGA_vert": ["kohrangi2020_sav_pgav"],
+    "SA_vert-PGV": ["kohrangi2020_sav_pgvh"],
     "SA_vert-PGV_vert": ["kohrangi2020_sav_pgvv"]
 }
 

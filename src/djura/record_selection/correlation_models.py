@@ -1487,7 +1487,7 @@ def kohrangi2020_sav_ds595(T):
     return _kohrangi2020_sa_im(T, a, b)
 
 
-def kohrangi2020_sav_pgav(T):
+def kohrangi2020_sav_pgvh(T):
     """
     Vertical spectral acceleration SAV(T) vs horizontal peak ground
     velocity PGVH correlation — Eq. (12) and Table 1 ('SAV-PGVH') of
