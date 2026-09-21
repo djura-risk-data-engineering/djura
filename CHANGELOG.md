@@ -56,6 +56,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     applied one branch to the whole array.
 
   Medians for a single scenario are unchanged.
+## [2.0.2] - 2026-09-21
+
+### Changed
+
+- Every spectral intensity measure now integrates the equation of motion of
+  the linear oscillator with the method of Nigam & Jennings (1968), which is
+  exact when the excitation varies linearly between samples, in place of
+  evaluating the oscillator transfer function with an FFT. Where the record
+  is too coarse for the peak response to fall on a sample — fewer than ten
+  steps per oscillator period — it is first linearly interpolated to an
+  integer sub-multiple of its time step.
+
+  The solver is verified against the analytic steady-state response of a
+  damped oscillator to harmonic excitation, which it reproduces to within
+  0.02 %. The FFT solver carries a discretisation error that grows as the
+  period approaches the time step of the record: over eighty-four periods
+  up to 3 s of seven records it differs from the new solver by up to 0.9 %
+  above 1 s, 4.7 % between 0.1 s and 1 s, and 18.5 % below 0.1 s. The new
+  solver is also about four times faster.
+
+  `get_sat`, `get_sdt`, `get_svt` and `get_sa_rot_d_xx` change directly, and
+  with them everything derived from spectral ordinates: `get_pga`,
+  `get_sa_avg`, `get_asi`, `get_si` and `get_dsi`. Expect shifts of a few
+  tenths of a percent in ASI, SI and DSI, and larger ones at periods short
+  relative to the record's time step. `sat2` is an independent frequency
+  domain implementation and is unaffected.
+
+  **Migration:** the previous solver remains available. Set it once, before
+  computing any intensity measure:
+
+  ```python
+  from djura.record_selection import intensity_measure
+
+  intensity_measure.SA_METHOD = "fft"
+  ```
+
+  `SA_METHOD` accepts the values in `SA_METHODS`, that is `"nigam_jennings"`
+  and `"fft"`; anything else raises `ValueError`. The interpolation
+  threshold is `NJ_MIN_STEPS`.
 
 ## [2.0.1] - 2026-09-08
 

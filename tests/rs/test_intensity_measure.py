@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 import numpy as np
 
+from djura.record_selection import intensity_measure as im_module
 from djura.record_selection.intensity_measure import IntensityMeasure
 
 path = Path(__file__).resolve().parent
@@ -190,11 +191,11 @@ class TestIntensityMeasure:
         "dt, damping, delta_period, expected", [
             (0.005, 0.05, 0.01, 0.265),
             (0.002, 0.05, 0.01, 0.148),
-            (0.010, 0.05, 0.01, 0.233),
-            (0.005, 0.02, 0.01, 0.358),
+            (0.010, 0.05, 0.01, 0.232),
+            (0.005, 0.02, 0.01, 0.357),
             (0.005, 0.10, 0.01, 0.197),
             (0.005, 0.05, 0.005, 0.265),
-            (0.005, 0.05, 0.050, 0.271),
+            (0.005, 0.05, 0.050, 0.270),
         ]
     )
     def test_get_asi(self, model: IntensityMeasure, record, dt, damping,
@@ -205,13 +206,13 @@ class TestIntensityMeasure:
 
     @pytest.mark.parametrize(
         "dt, damping, delta_period, expected", [
-            (0.005, 0.05, 0.01, 80.88),
-            (0.002, 0.05, 0.01, 29.22),
-            (0.010, 0.05, 0.01, 152.76),
-            (0.005, 0.02, 0.01, 107.52),
-            (0.005, 0.10, 0.01, 60.04),
-            (0.005, 0.05, 0.005, 80.88),
-            (0.005, 0.05, 0.050, 81.17),
+            (0.005, 0.05, 0.01, 80.86),
+            (0.002, 0.05, 0.01, 29.23),
+            (0.010, 0.05, 0.01, 152.70),
+            (0.005, 0.02, 0.01, 107.46),
+            (0.005, 0.10, 0.01, 60.03),
+            (0.005, 0.05, 0.005, 80.87),
+            (0.005, 0.05, 0.050, 81.15),
         ]
     )
     def test_get_si(self, model: IntensityMeasure, record, dt, damping,
@@ -225,7 +226,7 @@ class TestIntensityMeasure:
             (0.005, 0.05, 0.01, 46.06),
             (0.002, 0.05, 0.01, 8.26),
             (0.010, 0.05, 0.01, 114.44),
-            (0.005, 0.02, 0.01, 58.69),
+            (0.005, 0.02, 0.01, 58.68),
             (0.005, 0.10, 0.01, 36.03),
             (0.005, 0.05, 0.005, 46.06),
             (0.005, 0.05, 0.050, 46.06),
@@ -316,3 +317,66 @@ class TestIntensityMeasure:
         ei = model.get_ei(record, 0.005, 1.0, 0.05)
 
         assert ei == pytest.approx(0.1932, abs=0.01)
+
+
+class TestSaMethod:
+    """The non-default oscillator solver selected by ``SA_METHOD``.
+
+    The Nigam-Jennings default is exercised by the tests above."""
+
+    @pytest.fixture
+    def model(self):
+        return IntensityMeasure()
+
+    @pytest.fixture
+    def record(self):
+        return np.loadtxt(
+            path / "assets/records/RSN288_ITALY_A-BRZ000.AT2").transpose()
+
+    @pytest.fixture
+    def fft(self, monkeypatch):
+        monkeypatch.setattr(im_module, "SA_METHOD", "fft")
+
+    def test_solvers_agree_on_a_resolved_period(self, model, record):
+        """Both solvers integrate the same oscillator, so they must agree
+        wherever the time step resolves the response"""
+        solved = {}
+        for method in im_module.SA_METHODS:
+            with pytest.MonkeyPatch.context() as mp:
+                mp.setattr(im_module, "SA_METHOD", method)
+                solved[method] = model.get_sat(1.0, record, 0.005, 0.05)
+
+        assert solved["nigam_jennings"] == pytest.approx(
+            solved["fft"], rel=0.01)
+
+    @pytest.mark.usefixtures("fft")
+    def test_zero_period_returns_pga(self, model, record):
+        assert model.get_sat(0.0, record, 0.005, 0.05) == \
+            pytest.approx(np.max(np.abs(record)))
+
+    @pytest.mark.usefixtures("fft")
+    def test_vector_and_scalar_periods_match(self, model, record):
+        periods = np.array([0.02, 0.2, 2.0])
+        vector = model.get_sat(periods, record, 0.005, 0.05)
+        scalar = [model.get_sat(t, record, 0.005, 0.05) for t in periods]
+
+        assert isinstance(vector, np.ndarray)
+        assert vector == pytest.approx(scalar)
+
+    @pytest.mark.usefixtures("fft")
+    def test_derived_measures_follow_the_solver(self, model, record):
+        """Sd and Sv are scaled from Sa, so they must track the switch"""
+
+        sa = model.get_sat(1.0, record, 0.005, 0.05)
+        omega = 2 * np.pi
+
+        assert model.get_sdt(record, 0.005, 1.0, 0.05) == \
+            pytest.approx(sa * model.g / omega ** 2)
+        assert model.get_svt(record, 0.005, 1.0, 0.05) == \
+            pytest.approx(sa * model.g / omega)
+
+    def test_unknown_solver_raises(self, model, record, monkeypatch):
+        monkeypatch.setattr(im_module, "SA_METHOD", "duhamel")
+
+        with pytest.raises(ValueError, match="Unknown oscillator solver"):
+            model.get_sat(1.0, record, 0.005, 0.05)

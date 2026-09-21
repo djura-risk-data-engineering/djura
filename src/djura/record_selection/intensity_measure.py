@@ -4,7 +4,7 @@ from typing import List, Union
 import warnings
 
 import numpy as np
-from scipy.signal import butter, lfilter, find_peaks
+from scipy.signal import butter, cont2discrete, lfilter, find_peaks, ss2tf
 from scipy.integrate import cumulative_trapezoid, trapezoid
 
 
@@ -17,6 +17,21 @@ SI_PERIOD_RANGE = (0.1, 2.5)
 
 #: Period range over which DSI is defined in [s], Bradley (2011)
 DSI_PERIOD_RANGE = (2.0, 5.0)
+
+#: Solver used for the linear oscillator by every spectral intensity
+#: measure. ``"nigam_jennings"`` integrates the equation of motion exactly
+#: for a piecewise linear excitation; ``"fft"`` evaluates the transfer
+#: function in the frequency domain and is kept for reproducing results
+#: predating this release. Set it once, before computing any intensity
+#: measure.
+SA_METHOD = "nigam_jennings"
+
+#: Solvers accepted by :data:`SA_METHOD`
+SA_METHODS = ("fft", "nigam_jennings")
+
+#: Minimum integration steps per oscillator period. Below this the peak
+#: response falls between samples, so the record is linearly interpolated.
+NJ_MIN_STEPS = 10
 
 
 def _get_integration_periods(
@@ -121,6 +136,79 @@ class IntensityMeasure:
 
         return h, fas
 
+    @staticmethod
+    def _nj_interpolate(
+        acc: np.ndarray, dt: float, period: float
+    ) -> tuple[np.ndarray, float]:
+        """Linearly interpolate to an integer sub-multiple of the time step,
+        so that the oscillator is integrated with at least
+        :data:`NJ_MIN_STEPS` steps per period"""
+        factor = int(np.ceil(dt / (period / NJ_MIN_STEPS)))
+        if factor <= 1:
+            return acc, dt
+
+        n_pts = len(acc)
+        return (
+            np.interp(np.arange(factor * n_pts) / factor,
+                      np.arange(n_pts), acc),
+            dt / factor,
+        )
+
+    def _nj_signal(
+        self, acc: List[float], dt: float, period: float, damping: float
+    ) -> tuple[np.ndarray, float]:
+        """Pseudo-acceleration response time series of a linear oscillator
+
+        The equation of motion is discretised with a first order hold, which
+        is exact when the excitation varies linearly between samples, i.e.
+        the method of Nigam and Jennings (1968).
+
+        References
+        ----------
+        Nigam N.C. and P.C. Jennings, 1968. Digital calculation of response
+        spectra from strong-motion earthquake records. National Science
+        Foundation.
+
+        Returns
+        -------
+        tuple[numpy.ndarray, float]
+            Response time series in [g] and the time step it is sampled at,
+            which is smaller than dt whenever the record was interpolated
+        """
+        acc, step = self._nj_interpolate(
+            np.asarray(acc, dtype=float), dt, period)
+
+        omega = 2 * np.pi / period
+        state = (
+            np.array([[0., 1.], [-omega ** 2, -2 * damping * omega]]),
+            np.array([[0.], [-1.]]),
+            np.array([[1., 0.]]),
+            [[0.]],
+        )
+        a_d, b_d, c_d, d_d, _ = cont2discrete(state, step, method="foh")
+        num, den = ss2tf(a_d, b_d, c_d, d_d)
+
+        return omega ** 2 * lfilter(num[0], den, acc), step
+
+    def _sat_nigam_jennings(
+        self, period: Union[float, np.ndarray], acc: List[float], dt: float,
+        damping: float
+    ) -> Union[float, np.ndarray]:
+        """Sa(period, damping) in [g] by exact piecewise linear integration"""
+        pga = np.max(np.abs(np.asarray(acc, dtype=float)))
+        periods = np.atleast_1d(np.asarray(period, dtype=float))
+
+        if dt == 0 and np.any(periods != 0.):
+            raise ValueError("Time step must not be zero!")
+
+        sa = np.array([
+            pga if t <= 0. else np.max(np.abs(
+                self._nj_signal(acc, dt, t, damping)[0]))
+            for t in periods
+        ])
+
+        return float(sa[0]) if np.ndim(period) == 0 else sa
+
     def get_sat(
             self, period: Union[float, np.array], acc: List[float], dt: float,
             damping: float) -> Union[float, np.array]:
@@ -142,7 +230,20 @@ class IntensityMeasure:
         -------
         Union[float, np.array]
             Sa(period, damping) in [g], if T=0, Sa = PGA
+
+        Raises
+        ------
+        ValueError
+            SA_METHOD is not one of SA_METHODS
         """
+        if SA_METHOD not in SA_METHODS:
+            raise ValueError(
+                f"Unknown oscillator solver {SA_METHOD!r}, "
+                f"expected one of {SA_METHODS}")
+
+        if SA_METHOD == "nigam_jennings":
+            return self._sat_nigam_jennings(period, acc, dt, damping)
+
         h, fas = self._fft_signal(acc, dt, period, damping)
 
         if isinstance(period, (float, int)):
@@ -176,12 +277,10 @@ class IntensityMeasure:
         float
             Sd(period, damping) in [m]
         """
-        h, fas = self._fft_signal(acc, dt, period, damping)
-
         # circular frequency
         omega = 2 * np.pi / period
 
-        sa = max(abs(np.real(np.fft.ifft(np.multiply(h, fas)))))
+        sa = self.get_sat(period, acc, dt, damping)
         return sa * self.g / omega ** 2
 
     def get_svt(self, acc: List[float], dt: float, period: float,
@@ -206,12 +305,10 @@ class IntensityMeasure:
         float
             Sv(period, damping) in [m/s]
         """
-        h, fas = self._fft_signal(acc, dt, period, damping)
-
         # circular frequency
         omega = 2 * np.pi / period
 
-        sa = max(abs(np.real(np.fft.ifft(np.multiply(h, fas)))))
+        sa = self.get_sat(period, acc, dt, damping)
         return sa * self.g / omega
 
     def get_pga(self, acc: List[float]) -> float:
@@ -497,11 +594,20 @@ class IntensityMeasure:
         # rotation [deg]
         theta = np.linspace(0, 180, num_theta)
 
-        # get response
-        h, fas = self._fft_signal(acc1, dt, period, damping)
-        resp1 = np.real(np.fft.ifft(np.multiply(h, fas)))
-        h, fas = self._fft_signal(acc2, dt, period, damping)
-        resp2 = np.real(np.fft.ifft(np.multiply(h, fas)))
+        # get response, on a grid shared by both components
+        if SA_METHOD not in SA_METHODS:
+            raise ValueError(
+                f"Unknown oscillator solver {SA_METHOD!r}, "
+                f"expected one of {SA_METHODS}")
+
+        if SA_METHOD == "nigam_jennings":
+            resp1 = self._nj_signal(acc1, dt, period, damping)[0]
+            resp2 = self._nj_signal(acc2, dt, period, damping)[0]
+        else:
+            h, fas = self._fft_signal(acc1, dt, period, damping)
+            resp1 = np.real(np.fft.ifft(np.multiply(h, fas)))
+            h, fas = self._fft_signal(acc2, dt, period, damping)
+            resp2 = np.real(np.fft.ifft(np.multiply(h, fas)))
         resp1 = resp1.reshape(len(resp1), 1)
         resp2 = resp2.reshape(len(resp2), 1)
 
