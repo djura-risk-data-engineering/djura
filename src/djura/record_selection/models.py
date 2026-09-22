@@ -198,6 +198,30 @@ class CampbellBozorgnia2014LowQJapanSiteModel(CampbellBozorgnia2014Model):
     pass
 
 
+class CampbellBozorgnia2019Model(CampbellBozorgnia2014Model):
+    pass
+
+
+class CampbellBozorgnia2019HighQModel(CampbellBozorgnia2014Model):
+    pass
+
+
+class CampbellBozorgnia2019HighQJapanSiteModel(CampbellBozorgnia2014Model):
+    pass
+
+
+class CampbellBozorgnia2019JapanSiteModel(CampbellBozorgnia2014Model):
+    pass
+
+
+class CampbellBozorgnia2019LowQModel(CampbellBozorgnia2014Model):
+    pass
+
+
+class CampbellBozorgnia2019LowQJapanSiteModel(CampbellBozorgnia2014Model):
+    pass
+
+
 class BozorgniaCampbell2016Model(BaseModel):
     SJ: bool = Field(default=False)
     sgn: int = Field(default=0)
