@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-09-22
+
 ### Added
 
 - `CampbellBozorgnia2014` and its five attenuation and site variants now
@@ -56,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     applied one branch to the whole array.
 
   Medians for a single scenario are unchanged.
+
 ## [2.0.2] - 2026-09-21
 
 ### Changed
