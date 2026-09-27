@@ -452,7 +452,7 @@ class IntensityMeasure:
         return resp
 
     def get_fiv3(self, acc: List[float], dt: float, tn: float,
-                 alpha: float = 0.7, beta: float = 0.85):
+                 alpha: float = 0.7, beta: float = 1.0):
         """Get the filtered incremental velocity IM for a ground motion
 
         References
@@ -461,6 +461,10 @@ class IntensityMeasure:
         in intensity measures for seismic collapse estimation.
         Earthquake Engineering & Structural Dynamics 2019; 48(12): 1384-1405.
         DOI: 10.1002/eqe.3205.
+        Dávalos, H., & Miranda, E. (2020). Evaluation of FIV3 as an Intensity
+        Measure for Collapse Estimation of Moment-Resisting Frame Buildings.
+        Journal of Structural Engineering, 146(10).
+        https://doi.org/10.1061/(asce)st.1943-541x.0002781
 
         Parameters
         ----------
@@ -473,7 +477,7 @@ class IntensityMeasure:
         alpha : float
             Period factor, by default 0.7
         beta : float
-            Cut-off frequency factor, by default 0.85
+            Cut-off frequency factor, by default 1.0
 
         Returns
         ----------
