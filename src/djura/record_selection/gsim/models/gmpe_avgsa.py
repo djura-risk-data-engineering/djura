@@ -454,7 +454,7 @@ class AristeidouCorrelationModel(BaseAvgSACorrelationModel):
             _data = generate_function(x, biases[i], weights[i])
             x = activation(_data)
 
-        return float(x)
+        return float(np.asarray(x).ravel()[0])
 
 
 CORRELATION_FUNCTION_HANDLES = {
