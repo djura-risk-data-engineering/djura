@@ -6,7 +6,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.2] - 2026-09-22
+## [2.1.0] - 2026-09-27
+
+### Added
+
+- `djura.signal_processing`, installed with
+  `pip install "djura[signal_processing]"`. It reads NGA and ESM records and
+  computes their intensity measures: peaks, energies, durations, response
+  spectra, Sa_avg, FIV3 and spectrum intensities. `Component` handles a
+  single trace; `GroundMotion` gives RotDxx of any measure for a horizontal
+  pair. It also provides baseline correction, Butterworth filtering, Newmark
+  and exact SDOF solvers, and pulse classification after Shahi & Baker
+  (2014). Pulse classification needs PyWavelets, which the extra installs.
+  `djura.cite("signal_processing")` returns the record_selection paper.
+
+### Changed
+
+- `IntensityMeasure.get_fiv3` defaults to `beta=1.0` instead of `0.85`,
+  following Dávalos & Miranda (2020). Pass `beta=0.85` to reproduce earlier
+  values.
+- GCIM record selection uses a faster greedy search. It takes the same
+  arguments and gives the same outputs.
+
+### Fixed
+
+- The GCIM selection penalty for records below mu - 3 sigma was inverted, so
+  it penalised values above the lower bound instead of below it.
+- `AristeidouCorrelationModel` raised an error under NumPy 2, where `float()`
+  no longer accepts a (1, 1) array.
+
+## [2.0.3] - 2026-09-22
 
 ### Added
 
