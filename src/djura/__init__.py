@@ -22,7 +22,8 @@ __citation__ = """\
 """ % __version__
 
 _SUBMODULES = ("record_selection", "hazard_consistency", "edp_im",
-               "vulnerability_modeller", "slf", "im_conversion")
+               "vulnerability_modeller", "slf", "im_conversion",
+               "signal_processing")
 
 # Renamed submodules, still accepted by :func:`cite`. Removed in 3.0.
 _SUBMODULE_ALIASES = {"fragility_converter": "im_conversion"}
