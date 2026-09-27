@@ -7,7 +7,7 @@ from statsmodels.distributions.empirical_distribution import ECDF
 import re
 
 from .constants import MECHANISM_MAP, SUPPORTED_IMS, UNKNOWN_MECHANISM
-from .numba_utils import greedy_algorithm
+from .numba_utils import greedy_algorithm_fast
 from .utilities import random_multivariate_normal
 # from .utilities import compute_ks_error
 
@@ -261,7 +261,7 @@ class _GCIMSelect:
                 # filtered_ln_imi_db = ln_imi_db
                 # filtered_sf = sf[rec]
                 # db_idxs = np.arange(len(filtered_sf))
-                sel_rec_id, dev_total = greedy_algorithm(
+                sel_rec_id, dev_total = greedy_algorithm_fast(
                     scaled_imi, filtered_sf, mu_imi, sigma_imi, rec_id,
                     filtered_ln_imi_db, num_records, self.ERROR_WEIGHTS,
                     self.PENALTY, db_idxs, alpha, im_weights,
