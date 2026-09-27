@@ -91,7 +91,7 @@ def greedy_algorithm(
                 )) * penalty
 
                 dev_total += np.sum(np.abs(
-                    np.exp(imi_trial[r]) > np.exp(mu_imi - 3.0 * sigma_imi)
+                    np.exp(imi_trial[r]) < np.exp(mu_imi - 3.0 * sigma_imi)
                 )) * penalty
 
         if dev_total < dev_min:
