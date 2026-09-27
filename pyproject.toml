@@ -98,6 +98,14 @@ fragility_converter = [
 # djura.slf - storey loss function generation.
 slf = ["pandas (>=2.2)"]
 
+# djura.signal_processing - ground-motion record processing and intensity
+# measures. PyWavelets is for pulse classification; plotting a pulse also
+# needs the plot extra.
+signal_processing = [
+    "numba (>=0.59)",
+    "PyWavelets (>=1.6)",
+]
+
 # djura.vulnerability_modeller - seismic vulnerability and loss modelling.
 vulnerability_modeller = [
     "pwlf (>=2.5.2,<3.0.0)",
@@ -128,6 +136,7 @@ all = [
     "numba (>=0.59)",
     "pandas (>=2.2)",
     "pwlf (>=2.5.2,<3.0.0)",
+    "PyWavelets (>=1.6)",
     "pyyaml (>=6.0.3,<7.0.0)",
     "requests (>=2.32)",
     "shapely (>=2.1.2,<3.0.0)",

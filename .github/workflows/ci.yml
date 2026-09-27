@@ -38,7 +38,7 @@ jobs:
       # the submodules under test.
       APP_EXTRAS: >-
         --extras "record_selection hazard_consistency im_conversion
-        vulnerability_modeller edp_im slf"
+        vulnerability_modeller edp_im slf signal_processing"
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
