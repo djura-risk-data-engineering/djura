@@ -309,55 +309,55 @@ class Component:
         return self._reductions(periods, name in EXTRA_FIELDS)[name]
 
     def sd_rel(self, periods: np.ndarray) -> np.ndarray:
-        """Spectral (relative) displacement [cm]."""
+        """Relative displacement response spectrum [cm]."""
         return self._field(periods, "sd_rel")
 
     def sd(self, periods: np.ndarray) -> np.ndarray:
-        """Spectral displacement [cm]; alias of :meth:`sd_rel`."""
+        """Displacement response spectrum [cm]; alias of :meth:`sd_rel`."""
         return self.sd_rel(periods)
 
     def psv(self, periods: np.ndarray) -> np.ndarray:
-        """Pseudo-spectral velocity [cm/s]."""
+        """Pseudo-velocity response spectrum [cm/s]."""
         periods = ims._as_periods(periods, self.dtype)
         omega = (2.0 * np.pi / periods).astype(self.dtype)
         return self.sd_rel(periods) * omega
 
     def sv(self, periods: np.ndarray) -> np.ndarray:
-        """Spectral velocity [cm/s]; alias of :meth:`psv`."""
+        """Velocity response spectrum [cm/s]; alias of :meth:`psv`."""
         return self.psv(periods)
 
     def psa(self, periods: np.ndarray) -> np.ndarray:
-        """Pseudo-spectral acceleration [g]."""
+        """Pseudo-acceleration response spectrum [g]."""
         periods = ims._as_periods(periods, self.dtype)
         omega = (2.0 * np.pi / periods).astype(self.dtype)
         return self.psv(periods) * omega / self.dtype.type(G_TO_CM)
 
     def sa(self, periods: np.ndarray) -> np.ndarray:
-        """Spectral acceleration [g]; alias of :meth:`psa`."""
+        """Acceleration response spectrum [g]; alias of :meth:`psa`."""
         return self.psa(periods)
 
     def sv_rel(self, periods: np.ndarray) -> np.ndarray:
-        """Spectral (relative) velocity [cm/s]."""
+        """Relative velocity response spectrum [cm/s]."""
         return self._field(periods, "sv_rel")
 
     def sa_rel(self, periods: np.ndarray) -> np.ndarray:
-        """Relative acceleration [g]."""
+        """Relative acceleration response spectrum [g]."""
         return self._field(periods, "sa_rel")
 
     def sa_abs(self, periods: np.ndarray) -> np.ndarray:
-        """Absolute acceleration [g]."""
+        """Absolute acceleration response spectrum [g]."""
         return self._field(periods, "sa_abs")
 
     def sv_abs(self, periods: np.ndarray) -> np.ndarray:
-        """Absolute velocity [cm/s]."""
+        """Absolute velocity response spectrum [cm/s]."""
         return self._field(periods, "sv_abs")
 
     def sd_abs(self, periods: np.ndarray) -> np.ndarray:
-        """Absolute displacement [cm]."""
+        """Absolute displacement response spectrum [cm]."""
         return self._field(periods, "sd_abs")
 
     def ei_rel(self, periods: np.ndarray) -> np.ndarray:
-        """Relative input energy per unit mass [m2/s2].
+        """Relative input energy spectrum per unit mass [m2/s2].
 
         ``-integral(a_g du)``, from the relative energy equation of Uang and
         Bertero (1990).
@@ -381,7 +381,7 @@ class Component:
         return self._field(periods, "ei_rel")
 
     def ei_abs(self, periods: np.ndarray) -> np.ndarray:
-        """Absolute input energy per unit mass [m2/s2].
+        """Absolute input energy spectrum per unit mass [m2/s2].
 
         ``integral(a_abs du_g)``, from the absolute energy equation of Uang
         and Bertero (1990).
