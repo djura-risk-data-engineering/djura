@@ -129,6 +129,7 @@ class PulseClassifier:
         Run the multi-component pulse classification algorithm.
 
         This method:
+
         1. Computes continuous wavelet transforms of the two velocity
            components over a set of scales.
         2. Searches iteratively for up to five dominant pulse candidates,

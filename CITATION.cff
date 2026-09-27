@@ -60,7 +60,9 @@ references:
     conference:
       name: COMPDYN 2025
     year: 2025
-    notes: "Submodules: djura.record_selection, djura.hazard_consistency"
+    notes: >-
+      Submodules: djura.record_selection, djura.hazard_consistency,
+      djura.signal_processing
 
   - type: conference-paper
     title: >-

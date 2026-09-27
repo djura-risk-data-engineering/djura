@@ -36,10 +36,11 @@ def lrha(
         Mass of the SDOF system (default is 1).
     mode : {'numpy', 'numba', 'numba-parallel', 'auto'}, optional
         Method used for calculation:
+
         - 'numpy': Reference NumPy-only implementation (slowest).
         - 'numba': Numba JIT-compiled single-loop version (fast).
-        - 'numba-parallel': Parallelized version for multiple periods.
-        (fastest for large n2)
+        - 'numba-parallel': Parallelized version for multiple periods
+          (fastest for large n2).
         - 'auto': Automatically selects best mode based on problem size.
     formulation : Literal['incremental', 'direct']
         - 'incremental' : Newmark-beta method with incremental formulation.
@@ -73,8 +74,8 @@ def lrha(
     - Linear Acceleration Method: Gamma = 1/2, Beta = 1/6
     - Average Acceleration Method: Gamma = 1/2, Beta = 1/4
     - Average acceleration method is unconditionally stable,
-    whereas linear acceleration method is stable only if dt/Tn <= 0.551
-    Linear acceleration method is preferable if stable due to its accuracy.
+      whereas linear acceleration method is stable only if dt/Tn <= 0.551
+      Linear acceleration method is preferable if stable due to its accuracy.
     """
 
     if precision == 32:

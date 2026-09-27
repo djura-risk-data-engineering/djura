@@ -41,6 +41,7 @@ other copyleft scientific tools (e.g. `openquake.engine`).
 | `djura.im_conversion`             | Fragility/vulnerability model conversion across IMs       |
 | `djura.vulnerability_modeller`    | Seismic vulnerability and loss modelling (incl. ML models)|
 | `djura.slf`                       | Storey loss function generation                           |
+| `djura.signal_processing`         | Ground motion record processing and intensity measures    |
 
 ## Installation
 
@@ -62,6 +63,7 @@ pip install "djura[edp_im]"                  # EDP-IM prediction
 pip install "djura[im_conversion]"           # fragility/vulnerability conversion
 pip install "djura[vulnerability_modeller]"  # vulnerability and loss modelling
 pip install "djura[slf]"                     # storey loss functions
+pip install "djura[signal_processing]"       # record processing and IMs
 ```
 
 > [!NOTE]
@@ -129,9 +131,39 @@ from djura import hazard_consistency
 from djura import edp_im
 from djura import vulnerability_modeller
 from djura import slf
+from djura import signal_processing
 ```
 
 (Per-submodule quickstarts will be added as code is migrated in.)
+
+## Signal processing
+
+`djura.signal_processing` reads ground motion records and computes their
+intensity measures: peaks, energies, durations, response spectra, Sa_avg,
+FIV3 and spectrum intensities, for single components or as RotDxx of a
+horizontal pair. It also provides baseline correction, Butterworth
+filtering, and pulse classification after Shahi and Baker (2014).
+
+```python
+from djura import signal_processing as sig
+
+dt, npts, desc, t, acc1 = sig.read_nga("RSN179_IMPVALL.H_H-E04140.AT2")
+_, _, _, _, acc2 = sig.read_nga("RSN179_IMPVALL.H_H-E04230.AT2")
+
+# One component: scalar measures are properties, spectral ones are methods
+gm = sig.Component(acc1, dt, unit="g")
+gm.pga, gm.pgv, gm.ia, gm.ds595        # g, cm/s, m/s, s
+gm.psa([0.2, 1.0, 2.0])                # g
+
+# A horizontal pair: RotDxx of any measure
+pair = sig.GroundMotion(acc1, acc2, dt, unit="g")
+sa50, sa100 = pair.rotd("psa", [50, 100], [0.2, 1.0, 2.0])
+pair.tpulse                            # pulse period, s (needs PyWavelets)
+```
+
+Units of every measure are listed in `sig.units.IM_UNITS`. See the
+[signal processing example](https://djura.readthedocs.io/en/latest/examples/signal_processing.html)
+for more.
 
 ## Bundled dataset
 

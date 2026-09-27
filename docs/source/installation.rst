@@ -41,6 +41,8 @@ the submodule:
      - :mod:`djura.vulnerability_modeller`
    * - ``pip install "djura[slf]"``
      - :mod:`djura.slf`
+   * - ``pip install "djura[signal_processing]"``
+     - :mod:`djura.signal_processing`
 
 .. note::
 

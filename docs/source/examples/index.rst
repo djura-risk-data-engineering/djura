@@ -17,5 +17,6 @@ self-contained and can be run locally after ``pip install djura``.
    im_conversion
    edp_im
    slf
+   signal_processing
    vulnerability_modeller
    djura_tools

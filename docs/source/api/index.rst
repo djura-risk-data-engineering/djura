@@ -10,4 +10,5 @@ API reference
    vulnerability_modeller
    slf
    im_conversion
+   signal_processing
    data_loader

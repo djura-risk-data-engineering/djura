@@ -745,17 +745,17 @@ class GroundMotion:
         Every intensity measure has a RotDxx definition, so this takes any of
         them and routes to the cheapest implementation available:
 
-        ==========================  ===========================  ===========
-        measure                     route                        cost
-        ==========================  ===========================  ===========
-        ``sd_rel``, ``psv``, ``psa``convex hull                  1 hull
-        the seven extras            convex hull, quadratic form  6 hulls
-        ``pga``, ``pgv``, ``pgd``   rotate the integrated series 1 rotation
-        ``sa_avg``                  slice the cached grid        no solve
-        ``fiv3``                    filter once per period       2 filters
-        ``si``, ``asi``, ``dsi``    integrate the rotated        no solve
-        anything else               evaluate per angle           180 evals
-        ==========================  ===========================  ===========
+        ============================  ============================  ==========
+        measure                       route                         cost
+        ============================  ============================  ==========
+        ``sd_rel``, ``psv``, ``psa``  convex hull                   1 hull
+        the seven extras              convex hull, quadratic form   6 hulls
+        ``pga``, ``pgv``, ``pgd``     rotate the integrated series  1 rotation
+        ``sa_avg``                    slice the cached grid         no solve
+        ``fiv3``                      filter once per period        2 filters
+        ``si``, ``asi``, ``dsi``      integrate the rotated         no solve
+        anything else                 evaluate per angle            180 evals
+        ============================  ============================  ==========
 
         ``pga``, ``pgv`` and ``pgd`` share one cached rotation.
 
