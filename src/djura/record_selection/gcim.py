@@ -280,7 +280,9 @@ class GCIM:
                 weight_ids += list(_gsim.values())
                 gsim_kwargs.append(_kwargs)
 
-            src_gmm_weights = lt_weights[weight_ids].reshape(1, -1)[-1]
+            # Sum of the weights of the realizations using each GMM
+            src_gmm_weights = np.array(
+                [lt_weights[ids].sum() for ids in weight_ids])
 
             for imt in _imts:
                 if imt == "Sa_avg" and self.data['avg-sa'] is None:
