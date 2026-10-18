@@ -413,7 +413,8 @@ class GCIM:
 
             ``mag`` is one example context parameter; ``weight`` is the rupture
             weight (sum must be 1.0). If omitted, provide ``total-weights``
-            under the ``gmms`` key instead.
+            under the ``gmms`` key instead. ``gmms`` lists the GMM IDs of the
+            rupture; if omitted, all GMMs are used.
         gmms : List[dict]
             Ground motion models associated with each IM type.
             The weights are optional; if omitted, provide total weights under
@@ -817,7 +818,8 @@ class GCIM:
             if "rake" not in rupture.keys():
                 self.data["ruptures"][i]["rake"] = 0.0
 
-            if not self.USE_DISAGGREGATION_DATA:
+            # A rupture without its own GMMs is paired with all of them
+            if not self.USE_DISAGGREGATION_DATA and "gmms" not in rupture:
                 self.data["ruptures"][i]["gmms"] = np.arange(
                     len(self.data["gmms"])).tolist()
 
@@ -829,9 +831,42 @@ class GCIM:
         # In case of True, Weights of ruptures will be inferred from OQ
         # results during target creation
         if not self.USE_DISAGGREGATION_DATA:
+            self._validate_rupture_gmms(imi_types, im_star)
             # Ensure the weights of cases associated with each GMM equal to 1.0
             self.data["total-weights"] = self._validate_weights(
                 self.data["ruptures"], self.data["gmms"])
+
+    def _validate_rupture_gmms(self, imi_types: List[str], im_star: dict):
+        """Ensure the GMMs paired with each rupture cover IM* and every IMi
+
+        Parameters
+        ----------
+        imi_types : List[str]
+            IM types of the IMi
+        im_star : dict
+            Conditional IM, None for unconditional selection
+
+        Raises
+        ------
+        ValueError
+            If a rupture has no GMM for one of the required IM types
+        """
+        required = set(imi_types)
+        if im_star is not None and self.conditional:
+            required.add(im_star["type"])
+
+        for i, rupture in enumerate(self.data["ruptures"]):
+            covered = set()
+            for gmm_id in rupture["gmms"]:
+                gmm = get_list_id(self.data["gmms"], "ID", gmm_id, "GMM")
+                covered.update(im for im in gmm if im != "ID")
+
+            missing = required - covered
+            if missing:
+                raise ValueError(
+                    f"Rupture {i} is paired with GMMs {rupture['gmms']}, "
+                    f"which provide no model for {sorted(missing)}"
+                )
 
     def _validate_weights(self, ruptures: List[dict], gmms: List[dict]):
         """Validate weights of rupture scenarios
