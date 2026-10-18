@@ -303,16 +303,25 @@ class GCIM:
         req_params = dis_oq['required-parameters']
         ruptures = []
 
-        for ctx_id, ctx in enumerate(ctx_by_grp.values()):
+        for ctx_id, (grp_id, ctx) in enumerate(ctx_by_grp.items()):
             gmm_ids = list(range(
                 ctx_id * len(_imts),
                 (ctx_id + 1) * len(_imts)
             ))
+            # Parameters required by the GMMs of this group
+            grp_params = dis_oq['data'].get(grp_id, {}).get(
+                'required-parameters', req_params)
+            grp_params = [p for p in grp_params if p in ctx.dtype.names]
 
             for row in ctx:
                 ctx_i = {}
-                for param in req_params:
-                    ctx_i[param] = getattr(row, param)
+                for param in grp_params:
+                    value = getattr(row, param)
+                    # NaN: not required by the GMMs of this group
+                    if isinstance(value, (float, np.floating)) \
+                            and np.isnan(value):
+                        continue
+                    ctx_i[param] = value
 
                 # Add probs and occurrence rates too
                 ctx_i['occurrence_rate'] = getattr(row, 'occurrence_rate')
