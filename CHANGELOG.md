@@ -6,6 +6,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Ruptures in a GCIM input can be paired with their own GMMs through
+  `"gmms"` IDs, e.g. the GMMs of their tectonic region. Ruptures without
+  them use all GMMs. The key was previously ignored and every rupture used
+  all GMMs.
+- GCIM inputs are checked so that the GMMs of each rupture cover IM* and
+  every IMi, raising an error otherwise.
+
+### Fixed
+
+- GCIM exact conditional targets built from full PSHA context data (i.e.,
+  `dis_oq`) were wrong with more than one GMM or logic tree branch: each GMM
+  took the weight of a single realization instead of the sum over the
+  realizations using it, scenario weights were not matched to their
+  scenarios, and the weights were not normalised, so the target missed IM*.
+- With full PSHA context data, each source group now uses the rupture
+  parameters its own GMMs require. Groups whose GMMs need more (e.g. `dip`,
+  `ztor` and `rx` for ChiouYoungs2008) had them replaced by estimates.
+  Contexts must be built with the matching djura-tools release to carry
+  the parameters of each group.
+- `FF` (fragility and vulnerability conversion) with full PSHA context data
+  normalised the weights of each GMM separately, so they summed to the
+  number of GMMs. They are now normalised over all GMMs, with the same
+  fixes to GMM weights and rupture parameters as above. Single-GMM results
+  are unchanged.
+
 ## [2.1.0] - 2026-09-27
 
 ### Added
