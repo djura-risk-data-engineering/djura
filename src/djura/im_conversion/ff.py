@@ -240,7 +240,9 @@ class FF(_GCIM):
                 weight_ids += list(_gsim.values())
                 gsim_kwargs.append(_kwargs)
 
-            src_gmm_weights = lt_weights[weight_ids].reshape(1, -1)[0]
+            # Sum of the weights of the realizations using each GMM
+            src_gmm_weights = np.array(
+                [lt_weights[ids].sum() for ids in weight_ids])
 
             for imt in _imts:
                 if imt == "Sa_avg" and self.data['avg-sa'] is None:
@@ -261,16 +263,25 @@ class FF(_GCIM):
         req_params = dis_oq['required-parameters']
         ruptures = []
 
-        for ctx_id, ctx in enumerate(ctx_by_grp.values()):
+        for ctx_id, (grp_id, ctx) in enumerate(ctx_by_grp.items()):
             gmm_ids = list(range(
                 ctx_id * len(_imts),
                 (ctx_id + 1) * len(_imts)
             ))
+            # Parameters required by the GMMs of this group
+            grp_params = dis_oq['data'].get(grp_id, {}).get(
+                'required-parameters', req_params)
+            grp_params = [p for p in grp_params if p in ctx.dtype.names]
 
             for row in ctx:
                 ctx_i = {}
-                for param in req_params:
-                    ctx_i[param] = getattr(row, param)
+                for param in grp_params:
+                    value = getattr(row, param)
+                    # NaN: not required by the GMMs of this group
+                    if isinstance(value, (float, np.floating)) \
+                            and np.isnan(value):
+                        continue
+                    ctx_i[param] = value
 
                 # Add probs and occurrence rates too
                 ctx_i['occurrence_rate'] = getattr(row, 'occurrence_rate')
@@ -545,14 +556,14 @@ class FF(_GCIM):
                         eps_im_star['ws'][g] = [_ws]
 
         if self.USE_FULL_PSHA:
-            # Normalize weights to sum to 1 for each IM2 value
-            for g in eps_im_star['ws'].keys():
-                eps_im_star['ws'][g] = np.asarray(eps_im_star['ws'][g])
-                sum_along_axis0 = np.sum(eps_im_star['ws'][g], axis=0,
-                                         keepdims=True)
-                sum_along_axis0[sum_along_axis0 < self.NEGLIGIBLE] = \
-                    self.NEGLIGIBLE
-                eps_im_star['ws'][g] = eps_im_star['ws'][g] / sum_along_axis0
+            # Normalize weights of all GMMs to sum to 1 for each IM2 value
+            ws = eps_im_star['ws']
+            for g in ws:
+                ws[g] = np.asarray(ws[g])
+            total = sum(np.sum(w, axis=0, keepdims=True) for w in ws.values())
+            total[total < self.NEGLIGIBLE] = self.NEGLIGIBLE
+            for g in ws:
+                ws[g] = ws[g] / total
 
         # Used in the case where GMM does not apply to IM2
         # Not sure about this... this is an approximation for convenience
@@ -614,7 +625,7 @@ class FF(_GCIM):
                 # Weights from occurrence rates of ruptures
                 # For a single GMM
                 weights = self._get_weight_disaggregation(
-                    eps_im_star, gmms_dict[im_type])
+                    eps_im_star, scenarios[im_type])
 
             else:
                 # Logic tree weights

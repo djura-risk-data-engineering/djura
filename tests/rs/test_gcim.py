@@ -53,6 +53,8 @@ class TestGCIM:
             ("input15", True, False),
             ("input16", True, False),
             ("input18", True, True),
+            # ruptures paired with their own GMMs
+            ("input19", True, False),
         ]
     )
     def test_gcim(self, filename, conditional, data_create):

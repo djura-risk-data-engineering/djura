@@ -195,7 +195,8 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
                 # Weights from occurrence rates of ruptures
                 # For a single GMM
                 weights = self._get_weight_disaggregation(
-                    eps_im_star, gmms_dict[im_type])
+                    eps_im_star, scenarios[im_type])
+                weights = weights / weights.sum(axis=0)
 
             else:
                 # Logic tree weights

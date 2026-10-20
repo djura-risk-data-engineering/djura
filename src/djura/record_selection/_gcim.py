@@ -956,25 +956,17 @@ class _GCIM:
         return [sc[par] for sc in scenarios]
 
     @staticmethod
-    def _get_weight_disaggregation(eps_im_star: dict, gmms: dict):
-        ws_sample = np.asarray(next(iter(eps_im_star['ws'].values())))
-        if ws_sample.ndim == 1:
-            ws_sample = ws_sample[:, np.newaxis]
-        weights = np.zeros((len(gmms['names']) * (len(eps_im_star) - 1),
-                            ws_sample.shape[1]))
+    def _get_weight_disaggregation(eps_im_star: dict, scenarios: List[dict]):
+        """Disaggregation weight of each scenario, in scenario order"""
+        position = {}
+        weights = []
+        for scenario in scenarios:
+            gmm = scenario["gmm"]
+            k = position.get(gmm, 0)
+            position[gmm] = k + 1
+            weights.append(np.asarray(eps_im_star['ws'][gmm][k], dtype=float))
 
-        start_idx = 0
-        # The logic tree leaf weight is carried by the values themselves,
-        # having been applied where eps_im_star['ws'] was assembled
-        for gmm in gmms['names']:
-            ws_list = np.asarray(eps_im_star['ws'][gmm])
-            if ws_list.ndim == 1:
-                ws_list = ws_list[:, np.newaxis]
-            end_idx = start_idx + ws_list.shape[0]
-            weights[start_idx:end_idx, :] = ws_list
-            start_idx = end_idx
-
-        return weights.squeeze()
+        return np.asarray(weights).squeeze()
 
     def _calculate_epsilon_for_rup(
             self, im_star_value, means, sigmas, weights):
