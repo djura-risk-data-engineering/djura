@@ -3,7 +3,7 @@
 from typing import Tuple, List
 from itertools import combinations
 from scipy.interpolate import interp1d
-from scipy.special import ndtr
+from scipy.special import ndtr, ndtri
 import numpy as np
 
 from ..utilities import get_func_args
@@ -1030,6 +1030,27 @@ class _GCIM:
         # ``SF(x) = (CDF(b) - CDF(a) - CDF(x) + CDF(a)) / Z``,
         # ``SF(x) = (CDF(b) - CDF(x)) / Z``.
         return ((phi_b - ndtr(epsilon)) / z).clip(0., 1.)
+
+    @staticmethod
+    def _truncnorm_pdf(phi_b, epsilon):
+        """
+        Probability density of the standard normal distribution truncated
+        symmetrically at ``ndtri(phi_b)``, the counterpart of
+        ``_truncnorm_sf``.
+
+        phi_b:
+            ndtr(truncation_level); assume phi_b > .5
+        epsilon:
+            Values at which the density is evaluated
+
+        Returns
+        ----------
+            Density, zero beyond the truncation level
+        """
+        z = phi_b * 2. - 1.
+        epsilon = np.asarray(epsilon, dtype=float)
+        pdf = np.exp(-0.5 * epsilon ** 2) / np.sqrt(2. * np.pi) / z
+        return np.where(np.abs(epsilon) <= ndtri(phi_b), pdf, 0.)
 
     @staticmethod
     def _find_gmm_by_key(gmms, im_type, gmm_ids):
