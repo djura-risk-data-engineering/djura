@@ -131,13 +131,25 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
                     # Logic tree leaf weight
                     lt_weight = rup_gmms['weights'][_g_idx]
 
-                    _poe = self._truncnorm_sf(
-                        add_data_for_dis['phi_b'], eps_im_star[i][g]
-                    )
-                    ws = -log((1 - ruptures[i]['probs']) ** _poe) / \
-                        add_data_for_dis['inv_time']
-                    ws /= -log(1 - add_data_for_dis['poe_for_selection']) / \
-                        add_data_for_dis['inv_time']
+                    if add_data_for_dis.get('occurrence', False):
+                        # Rate of IM occurring at IM*: the density of IM
+                        # replaces its probability of exceedance. The common
+                        # 1 / IM* factor cancels when the weights are
+                        # normalised (Fox et al. 2016)
+                        _pdf = self._truncnorm_pdf(
+                            add_data_for_dis['phi_b'], eps_im_star[i][g]
+                        ) / sigma_im_star[i][g]
+                        ws = -log(1 - ruptures[i]['probs']) * _pdf / \
+                            add_data_for_dis['inv_time']
+                    else:
+                        _poe = self._truncnorm_sf(
+                            add_data_for_dis['phi_b'], eps_im_star[i][g]
+                        )
+                        ws = -log((1 - ruptures[i]['probs']) ** _poe) / \
+                            add_data_for_dis['inv_time']
+                        ws /= -log(
+                            1 - add_data_for_dis['poe_for_selection']) / \
+                            add_data_for_dis['inv_time']
 
                     if g in eps_im_star['ws']:
                         eps_im_star['ws'][g].append(ws * lt_weight)

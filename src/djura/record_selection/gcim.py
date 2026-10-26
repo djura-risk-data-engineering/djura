@@ -76,6 +76,10 @@ class GCIM:
         "im_weights": [],
         "max_scaling_factor": 3.0,
         "add_data_for_dis": None,
+        # Weight the ruptures of an OpenQuake context (dis_oq) by their
+        # contribution to IM occurring at IM* instead of exceeding it
+        # (Fox et al. 2016)
+        "occurrence": False,
     }
 
     def __init__(
@@ -334,6 +338,7 @@ class GCIM:
             "inv_time": dis_oq['invtime'],
             "phi_b": dis_oq["phi_b"],
             "poe_for_selection": poe_for_selection,
+            "occurrence": bool(self.data.get("occurrence", False)),
         }
 
     def _set_parent(self):
