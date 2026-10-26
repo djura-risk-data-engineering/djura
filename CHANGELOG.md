@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- GCIM exact conditional targets built from full PSHA context data
+  (`dis_oq`) can weight ruptures by occurrence instead of exceedance, with
+  `"occurrence": True` in the input. By default (`False`) ruptures are
+  weighted by their rate of exceeding IM*, following Lin et al. (2013); with
+  occurrence, each rupture is weighted by the density of IM at IM* instead,
+  following Fox et al. (2016).
+
 ## [2.2.0] - 2026-10-20
 
 ### Added
