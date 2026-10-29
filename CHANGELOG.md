@@ -14,6 +14,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   weighted by their rate of exceeding IM*, following Lin et al. (2013); with
   occurrence, each rupture is weighted by the density of IM at IM* instead,
   following Fox et al. (2016).
+- Verification of the ground motion models against the verification tables
+  of the OpenQuake Engine 3.23.0, the version they were adapted from: 195
+  checks over 87 models, with OpenQuake's own tolerances. It runs on request
+  for the models named, e.g.
+  `pytest tests/rs/gsim_verification --gsim BooreEtAl2014`, and downloads
+  only their tables. See the new "Verification against OpenQuake" page of the
+  documentation.
+
+### Fixed
+
+- GCIM selection never picked the record at index 0 of the database in its
+  initial record matching, as that record was taken to be already selected.
+- The validation cases looked for the bundled dataset under
+  `src/djura/record_selection/assets/` and were skipped, as it is downloaded
+  to `~/.cache/djura/`. They now read it from the cache, and the validation
+  documentation explains how to fetch it.
+- `--plot`, `--report` and `--plot-dir` of the validation cases were not
+  recognised when pytest was run from the repository root.
+- The equation (15)/(16) scaling comparison of the Bradley (2012) validation
+  case failed on macOS. It compared a single random draw, whose realisations
+  differ between platforms, and now compares the median over 20 seeds.
 
 ## [2.2.0] - 2026-10-20
 

@@ -71,7 +71,7 @@ these tests also carry:
 Options
 -------
 
-Two options are registered by ``tests/rs/validations/conftest.py``.
+Three options are registered by ``tests/conftest.py``.
 
 ``--report``
    Write a Markdown table of every computed quantity against its published
@@ -93,9 +93,14 @@ For example::
 Data the cases need
 -------------------
 
-The **record database** is the bundled dataset, which is downloaded
-automatically on first use; see :doc:`../../dataset`. A case skips with a
-message if the database it needs is absent. Each case names it for the duration
+The **record database** is the bundled dataset, read from the cache it is
+downloaded to on first use, ``~/.cache/djura/``; see :doc:`../../dataset`. The
+cases do not download it themselves, so fetch it once beforehand::
+
+   python -c "from djura.data_loader import load_data; load_data()"
+
+A case skips with a message if the database it needs is absent. Each case names
+it for the duration
 of the run and restores whatever ``DJURA_METADATA_PATH`` held before, so no
 environment setup is needed and an existing value is not disturbed. Where a
 case can also be run against a database that is not distributed with djura, it

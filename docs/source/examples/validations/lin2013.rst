@@ -66,7 +66,7 @@ Record databases
    to the metadata format djura expects, and supplied through the
    ``DJURA_METADATA_PATH`` environment variable. Nothing in the package
    installs, downloads or redistributes a third-party database beyond the
-   bundled one (``flatfile_shallow_v1.pickle``).
+   bundled one.
 
    See :doc:`../../custom_metadata` for the expected schema.
 
@@ -78,8 +78,8 @@ of the prospective record set is isolated:
    # a Californian database, supplied by the user
    export DJURA_METADATA_PATH=/path/to/user_flatfile.pickle
 
-   # the bundled dataset, downloaded by djura on first use
-   export DJURA_METADATA_PATH=/path/to/flatfile_shallow_v1.pickle
+   # the bundled dataset, read from the djura cache, ~/.cache/djura/
+   python -c "from djura.data_loader import load_data; load_data()"
 
 The article used an earlier database than either run, so neither reproduces
 its record list. The user-supplied Californian run is the nearer analogue;

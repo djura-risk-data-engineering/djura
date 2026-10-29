@@ -155,7 +155,7 @@ class _GCIMSelect:
         sf = np.zeros((num_records, total_rec))
         unscaled_imi = np.zeros((num_records, num_im))
         scaled_imi = np.zeros((num_records, num_im))
-        rec_id = np.zeros(num_records, dtype=int)
+        rec_id = np.full(num_records, -1, dtype=int)
         rec_rsn = np.zeros(num_records, dtype=int)
         sf_opt = np.zeros(num_records)
         residuals = np.zeros((num_records, total_rec))

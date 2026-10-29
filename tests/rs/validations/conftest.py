@@ -1,5 +1,6 @@
 """
-Options shared by the validation cases.
+Fixtures shared by the validation cases. Their options are registered in
+'tests/conftest.py'.
 
 The figures of the articles being replicated can be redrawn from the results
 of the validation runs, which is useful when a comparison is being judged by
@@ -15,27 +16,6 @@ directory is given with '--plot-dir'.
 from pathlib import Path
 
 import pytest
-
-
-def pytest_addoption(parser):
-    """Register the plotting and reporting options"""
-    group = parser.getgroup("validations")
-    group.addoption(
-        "--plot",
-        action="store_true",
-        default=False,
-        help="redraw the figures of the articles being replicated")
-    group.addoption(
-        "--report",
-        action="store_true",
-        default=False,
-        help="tabulate the computed values against the published ones")
-    group.addoption(
-        "--plot-dir",
-        action="store",
-        default=None,
-        help="directory to write the figures and tables to, by default "
-             "'_plots' alongside the validation cases")
 
 
 def _output_directory(request):
