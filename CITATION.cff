@@ -15,7 +15,7 @@ authors:
     given-names: Volkan
   - family-names: O'Reilly
     given-names: Gerard J.
-license: AGPL-3.0-only
+license: AGPL-3.0-or-later
 doi: 10.60756/DJURA-HD26
 identifiers:
   - type: doi

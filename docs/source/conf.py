@@ -1,6 +1,7 @@
 import os
 import sys
 import warnings
+from importlib.metadata import PackageNotFoundError, version as _version
 
 sys.path.insert(0, os.path.abspath("../../src"))
 
@@ -14,7 +15,12 @@ warnings.filterwarnings(
 project = "djura"
 copyright = "2025–2026, Djura | Risk - Data - Engineering S.r.l."
 author = "Djura | Risk - Data - Engineering S.r.l."
-release = "0.1.0"
+# The installed package carries the version derived from the git tag
+try:
+    release = _version("djura")
+except PackageNotFoundError:
+    release = "0.0.0+unknown"
+version = ".".join(release.split(".")[:2])
 
 extensions = [
     "sphinx.ext.autodoc",
