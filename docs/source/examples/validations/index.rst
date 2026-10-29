@@ -71,7 +71,7 @@ these tests also carry:
 Options
 -------
 
-Two options are registered by ``tests/rs/validations/conftest.py``.
+Three options are registered by ``tests/conftest.py``.
 
 ``--report``
    Write a Markdown table of every computed quantity against its published
