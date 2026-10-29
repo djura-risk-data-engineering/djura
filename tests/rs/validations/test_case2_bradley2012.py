@@ -189,6 +189,12 @@ PUBLISHED_SCALE_FACTOR = {"sa_only": 1.9, "sa_cav_ds": 1.1}
 NUM_RECORDS = 30
 MAX_SCALING_FACTOR = 10
 
+#: Seeds over which the scale factors are compared. A single draw is not
+#: enough: the realisations, and with them the suite, change with the seed
+#: and with the platform's LAPACK, and about one draw in eight reverses the
+#: ordering
+SCALING_SEEDS = range(1, 21)
+
 
 def read_ruptures(level):
     """Rupture scenarios of one exceedance level"""
@@ -360,6 +366,29 @@ def suites(bundled_database):
     return out
 
 
+@pytest.fixture(scope="module")
+def scale_factors(bundled_database):
+    """Scale factors of the two suites of section 4.2 for every seed
+
+    Returns
+    -------
+    dict
+        Per weight vector, one array of scale factors per seed
+    """
+    out = {}
+    for vector in ("sa_only", "sa_cav_ds"):
+        gcim = GCIM(build_input("10% in 50 yr", vector), conditional=True)
+        gcim.create()
+        out[vector] = []
+        for seed in SCALING_SEEDS:
+            gcim.data["seed"] = seed
+            gcim.select()
+            out[vector].append(np.asarray(
+                gcim.records["selected_scaled_best"]["sf"], float))
+
+    return out
+
+
 @pytest.mark.slow
 class TestCase2:
 
@@ -396,21 +425,19 @@ class TestCase2:
                 assert suite_median(suites[vector], im) == pytest.approx(
                     expected, rel=0.2), f"{im} under {vector}"
 
-    def test_equation_16_needs_less_scaling(self, suites):
-        """Table 2, the second finding: the fuller vector scales less
+    def test_equation_16_needs_less_scaling(self, scale_factors):
+        """Table 2: the fuller vector scales less
 
         The article reports a median amplitude scale factor of 1.9 against 1.1.
-        The levels depend on the database, the ordering does not.
+        The levels depend on the database, the ordering does not. It is
+        compared on the median over seeds, a single suite being one draw.
         """
         factors = {
-            vector: float(np.median(np.asarray(
-                records["selected_scaled_best"]["sf"], float)))
-            for vector, records in suites.items()
+            vector: float(np.median([np.median(sf) for sf in suites]))
+            for vector, suites in scale_factors.items()
         }
-        largest = max(
-            float(np.asarray(records["selected_scaled_best"]["sf"],
-                             float).max())
-            for records in suites.values())
+        largest = max(float(sf.max()) for suites in scale_factors.values()
+                      for sf in suites)
 
         assert factors["sa_only"] > factors["sa_cav_ds"]
         assert largest < MAX_SCALING_FACTOR, \
