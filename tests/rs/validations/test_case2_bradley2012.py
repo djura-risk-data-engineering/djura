@@ -88,9 +88,9 @@ from djura.record_selection.gsim import models as gsim_models
 #: module carries the marker
 pytestmark = pytest.mark.validation
 
-#: The bundled database, the default of the record selector
-DATABASE = (Path(__file__).resolve().parents[3]
-            / "src/djura/record_selection/assets/flatfile_shallow_v1.pickle")
+#: The bundled database, the default of the record selector, as cached by
+#: djura.data_loader on first use
+DATABASE = data_loader._cache_path()
 
 DEAGGREGATION = (Path(__file__).resolve().parent
                  / "assets/bradley2012_deagg_sa3pt0.json")
@@ -317,7 +317,8 @@ def bundled_database():
     process, so that cache is invalidated on the way in and out.
     """
     if not DATABASE.exists():
-        pytest.skip(f"{DATABASE.name} is not available")
+        pytest.skip(f"{DATABASE} is not cached, fetch it with "
+                    "djura.data_loader.load_data()")
 
     previous_path = os.environ.get("DJURA_METADATA_PATH")
     previous_metadata = data_loader._metadata
