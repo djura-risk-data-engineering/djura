@@ -1,7 +1,8 @@
 """
-Command-line options of the validation cases under 'tests/rs/validations'.
+Command-line options of the validation cases under 'tests/rs/validations' and
+of the GMM verification under 'tests/rs/gsim_verification'.
 
-Registered here rather than beside the cases, since pytest reads options only
+Registered here rather than beside the tests, since pytest reads options only
 from conftest files it loads at startup, which a run from the repository root
 does not reach that deep.
 """
@@ -26,3 +27,9 @@ def pytest_addoption(parser):
         default=None,
         help="directory to write the figures and tables to, by default "
              "'_plots' alongside the validation cases")
+    parser.getgroup("gsim verification").addoption(
+        "--gsim",
+        action="store",
+        default=None,
+        help="comma-separated djura GMMs to verify against the OpenQuake "
+             "verification tables")
