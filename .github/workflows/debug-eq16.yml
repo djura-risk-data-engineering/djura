@@ -1,0 +1,96 @@
+name: Debug equation 16 scaling
+
+# Temporary: reproduces test_equation_16_needs_less_scaling across platforms
+# and dependency resolutions. Delete once the macOS discrepancy is explained.
+on:
+  push:
+    branches: [debug/eq16-macos]
+  workflow_dispatch:
+
+jobs:
+  eq16:
+    name: ${{ matrix.os }} / py${{ matrix.python-version }} / ${{ matrix.install }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # 'locked' installs poetry.lock, as CI does; 'pip' resolves the
+          # newest dependencies, as `pip install -e ".[record_selection]"` does
+          - {os: macos-latest, python-version: "3.11", install: pip}
+          - {os: macos-latest, python-version: "3.11", install: locked}
+          - {os: macos-latest, python-version: "3.12", install: locked}
+          - {os: ubuntu-latest, python-version: "3.12", install: locked}
+          - {os: windows-latest, python-version: "3.12", install: locked}
+
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache bundled dataset
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.cache/djura
+          key: djura-flatfile-data-v1
+
+      - name: Install (poetry.lock)
+        if: matrix.install == 'locked'
+        run: |
+          pipx install poetry && pipx inject poetry "poetry-dynamic-versioning[plugin]"
+          poetry config virtualenvs.in-project true
+          poetry install --with dev --without docs --extras record_selection --no-interaction
+          echo "PY=.venv/$([ '${{ runner.os }}' = Windows ] && echo Scripts || echo bin)/python" >> "$GITHUB_ENV"
+
+      - name: Install (pip, newest dependencies)
+        if: matrix.install == 'pip'
+        run: |
+          python -m pip install -e ".[record_selection]" pytest
+          echo "PY=python" >> "$GITHUB_ENV"
+
+      - name: Versions
+        run: |
+          git log -1 --oneline
+          $PY -m pip list 2>/dev/null | grep -iE '^(numpy|scipy|numba|pandas|djura) '
+
+      - name: Fetch dataset
+        run: |
+          $PY -c "from djura.data_loader import load_data, _cache_path, _sha256; load_data(); print(_cache_path(), _sha256(_cache_path()))"
+
+      - name: Scale factors
+        run: |
+          $PY - <<'EOF'
+          import importlib.util, os
+          import numpy as np
+          spec = importlib.util.spec_from_file_location(
+              "case2", "tests/rs/validations/test_case2_bradley2012.py")
+          case2 = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(case2)
+          os.environ["DJURA_METADATA_PATH"] = str(case2.DATABASE)
+          for vector in ("sa_only", "sa_cav_ds"):
+              gcim = case2.GCIM(case2.build_input("10% in 50 yr", vector),
+                                conditional=True)
+              gcim.create()
+              gcim.select()
+              sf = np.asarray(gcim.records["selected_scaled_best"]["sf"], float)
+              print(f"{vector}: median={np.median(sf):.3f} "
+                    f"min={sf.min():.3f} max={sf.max():.3f}")
+              print("  rsn:", list(gcim.records["selected_scaled_best"]["rsn"]))
+          EOF
+
+      - name: Run test
+        run: |
+          $PY -m pytest "tests/rs/validations/test_case2_bradley2012.py::TestCase2::test_equation_16_needs_less_scaling" -m validation -v -W "error::RuntimeWarning" || true
+          $PY -m pytest "tests/rs/validations/test_case2_bradley2012.py::TestCase2::test_equation_16_needs_less_scaling" -m validation -v
