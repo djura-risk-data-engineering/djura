@@ -789,8 +789,9 @@ class _GCIM:
             im_pair = f"{im}-{im}"
 
             if im_pair not in corr:
-                # Period-independent
-                cov[im].fill(1)
+                # Period-independent, so a single variance per scenario. The
+                # unconditional correlation matrix carries no entry for it
+                cov[im][:, 0, 0] = np.square(sigmas[im][0])
                 continue
 
             _corr = corr[im_pair]
