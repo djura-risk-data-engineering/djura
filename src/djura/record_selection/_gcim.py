@@ -923,29 +923,16 @@ class _GCIM:
             Exact sigmas
             Exact covariance
         """
-        # Loop over each case
-        var_imi_case = np.zeros((covs.shape[1], covs.shape[0]))
+        weights = np.asarray(weights, dtype=float)
 
-        for i, weight in enumerate(weights):
-            variance = np.diagonal(covs[i])
-            mean = means[:, i]
-            var_imi_case[:, i] = weight * (variance + (mean_exact - mean) ** 2)
+        # Covariance of the mixture, the weighted covariance of each case
+        # plus the spread of the case means about the combined mean. Being a
+        # weighted sum of covariance matrices it needs no correction, and its
+        # diagonal is the exact variance of each IMi
+        deviation = means - np.asarray(mean_exact)[:, None]
+        cov_exact = np.einsum("i,ijk->jk", weights, covs) \
+            + (deviation * weights) @ deviation.T
 
-        # Case index does not matter, as the diagonal terms will be of interest
-        cov_exact = covs[0, :, :]
-        var_imi_rup = np.sum(var_imi_case, 1)
-        cov_exact[np.eye(cov_exact.shape[0]) == 1] = var_imi_rup
-
-        # Avoid positive semi-definite covariance matrix with several
-        # eigenvalues being exactly zero
-        # See: https://stackoverflow.com/questions/41515522/numpy-positive-semi-definite-warning!  # noqa
-        min_eig = np.min(np.real(np.linalg.eigvals(cov_exact)))
-        if min_eig < 0:
-            cov_exact -= 2 * min_eig * np.eye(*cov_exact.shape)
-            # Add a small multiple of the identity matrix
-            # cov_exact += self.NEGLIGIBLE * np.eye(*cov_exact.shape)
-        # Get the diagonal, i.e., the variance,
-        # then estimate the standard deviation
         sigma_exact = np.sqrt(np.diagonal(cov_exact))
 
         return sigma_exact, cov_exact
