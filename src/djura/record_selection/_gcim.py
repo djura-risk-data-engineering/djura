@@ -26,6 +26,10 @@ _OQ = OQ()
 class _GCIM:
     NEGLIGIBLE = 1e-16
 
+    #: Non-exceedance probabilities of the quantiles of the GCIM mixture
+    #: stored with the target: the 16th percentile, median and 84th
+    MIXTURE_PROBABILITIES = (0.16, 0.5, 0.84)
+
     def __init__(
         self, metadata: dict, use_disaggregation: bool = False
     ) -> None:
@@ -936,6 +940,78 @@ class _GCIM:
         sigma_exact = np.sqrt(np.diagonal(cov_exact))
 
         return sigma_exact, cov_exact
+
+    def calc_mixture_quantiles(
+        self, means: np.ndarray, sigmas: np.ndarray, weights: List[float],
+        probabilities: List[float] = None,
+    ) -> np.ndarray:
+        """Quantiles of lnIMi under the GCIM distribution, the mixture of
+        the lognormal distributions of all cases
+
+        Unlike exp(mu_lnIMi), the median of the lognormal distribution with
+        the mean and variance of the mixture, these are the quantiles of the
+        mixture itself, e.g. its median and 16th and 84th percentiles
+
+        Parameters
+        ----------
+        means : np.ndarray
+            Mean of lnIMi for each case, (n_periods, n_cases)
+        sigmas : np.ndarray
+            Standard deviation of lnIMi for each case, (n_periods, n_cases)
+        weights : List[float]
+            Weights for each case
+        probabilities : List[float], optional
+            Non-exceedance probabilities of the quantiles, by default
+            MIXTURE_PROBABILITIES
+
+        Returns
+        -------
+        np.ndarray
+            Quantiles of lnIMi, (n_probabilities, n_periods)
+        """
+        if probabilities is None:
+            probabilities = self.MIXTURE_PROBABILITIES
+        probabilities = np.asarray(probabilities, dtype=float)[:, None]
+        means = np.atleast_2d(means)
+        sigmas = np.maximum(np.atleast_2d(sigmas), self.NEGLIGIBLE)
+        weights = np.asarray(weights, dtype=float)
+        weights = weights / weights.sum()
+
+        # The mixture CDF has no inverse in closed form. Each quantile is
+        # found by Newton's method, started from the quantile of the
+        # lognormal with the same mean and variance, and kept within a
+        # bracket every case lies within: a step leaving the bracket is
+        # replaced by bisection
+        shape = (len(probabilities), means.shape[0])
+        lower = np.broadcast_to(np.min(means - 10 * sigmas, axis=1), shape)
+        upper = np.broadcast_to(np.max(means + 10 * sigmas, axis=1), shape)
+
+        mean = means @ weights
+        sigma = np.sqrt((sigmas ** 2 + (means - mean[:, None]) ** 2)
+                        @ weights)
+        x = np.clip(mean + ndtri(probabilities) * sigma, lower, upper)
+
+        for _ in range(100):
+            z = (x[..., None] - means) / sigmas
+            cdf = ndtr(z) @ weights
+            pdf = (np.exp(-z ** 2 / 2) / sigmas) @ weights / np.sqrt(2 * np.pi)
+
+            # Converged once the CDF matches or the bracket has closed, the
+            # latter where the CDF is flat between well separated cases
+            if np.all((np.abs(cdf - probabilities) < 1e-12)
+                      | (upper - lower < 1e-12)):
+                break
+
+            below = cdf < probabilities
+            lower = np.where(below, x, lower)
+            upper = np.where(below, upper, x)
+
+            with np.errstate(divide="ignore", invalid="ignore"):
+                newton = x - (cdf - probabilities) / pdf
+            inside = np.isfinite(newton) & (newton > lower) & (newton < upper)
+            x = np.where(inside, newton, (lower + upper) / 2)
+
+        return x
 
     def _get_supported_parameters(self, which: str):
         return _OQ._get_supported_parameters(which)

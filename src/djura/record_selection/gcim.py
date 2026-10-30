@@ -553,6 +553,13 @@ class GCIM:
               and GMMs
             - ``IMi``: ground motion intensity measures (IMs)
             - ``correlations``: correlation matrices between all IMi types
+            - ``mixture_probabilities``: non-exceedance probabilities of the
+              quantiles below, the 16th percentile, median and 84th
+            - ``mixture_quantiles_lnIMi``: quantiles of lnIMi under the
+              GCIM distribution itself, the mixture of all rupture
+              scenarios and GMMs, of shape (n_probabilities, n_periods).
+              Its median, exp of the middle row, differs from
+              exp(``mu_lnIMi``) where the mixture is skewed
 
         'data' : dict
             Extra information during intermediate calculations

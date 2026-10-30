@@ -240,6 +240,14 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
                 weights_imi[im_type]
             )
 
+        # Quantiles of the GCIM mixture itself, e.g. its median, which
+        # differ from those of the lognormal with its mean and variance
+        quantiles = {
+            im_type: self.calc_mixture_quantiles(
+                means, sigma_imstar_rup[im_type], weights_imi[im_type])
+            for im_type, means in mu_imstar_rup.items()
+        }
+
         # Collect the output
         self.output_create["im-star"] = im_star
         self.output_create["corr_imi_imj"] = rho_imi_im_star
@@ -254,6 +262,8 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
             "correlations": corr_cond,
             "combined_correlations": _corr_cond,
             "im_idxs": _im_idxs,
+            "mixture_probabilities": list(self.MIXTURE_PROBABILITIES),
+            "mixture_quantiles_lnIMi": quantiles,
         }
         self.output_create["target"] = target
 
