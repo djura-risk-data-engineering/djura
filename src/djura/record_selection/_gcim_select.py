@@ -487,6 +487,12 @@ class _GCIMSelect:
         Kolmogorov-Smirnov residual against the GCIM mixture is kept
         (Equation 11). There is no greedy optimisation.
 
+        The target is one distribution, the weighted mixture of all branches
+        (rupture and GMM pairs). Each realisation, one per record, is drawn
+        from a single branch picked by weight, so at most 'num_records'
+        branches enter a suite. This samples the mixture without bias, but
+        the branches picked vary between replicates.
+
         Returns
         -------
         np.ndarray
@@ -647,6 +653,7 @@ class _GCIMSelect:
         factor = scale[:, None] * eig_vec * np.sqrt(eig_val)
         z = rng.standard_normal((num_records, num_imi)) @ factor.T
 
+        # One branch per realisation, picked by weight
         mu = np.zeros((num_records, num_imi))
         sigma = np.zeros((num_records, num_imi))
         for n in range(num_records):
