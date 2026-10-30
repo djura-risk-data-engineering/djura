@@ -2,7 +2,7 @@
 # Copyright (C) 2025-2026 Djura | Risk - Data - Engineering S.r.l.
 from typing import List
 import numpy as np
-from scipy.stats import lognorm, kstest, ksone, skew
+from scipy.stats import lognorm, kstest, ksone, norm, skew
 from statsmodels.distributions.empirical_distribution import ECDF
 import re
 
@@ -52,6 +52,10 @@ class _GCIMSelect:
     # Tolerance in %
     TOLERANCE = 10.0
 
+    # Log-standard deviation below which an IMi is taken as fixed, as IM* is
+    # in a conditional target
+    SIGMA_FIXED = 1e-6
+
     def __init__(
         self,
         output_create: dict,
@@ -75,13 +79,18 @@ class _GCIMSelect:
         im_weights: List[float],
         max_scaling_factor: float,
         greedy_loops: int,
+        selection_algorithm: str = "baker_lee2018",
     ) -> None:
         """Ground motion record suite selection based on GCIM distribution
 
         Parameters
         ----------
         nreplicate : int
-            Number of replicates
+            Number of replicates. With 'baker_lee2018', the number of sets of
+            realisations, of which the one closest to the target is kept
+            before records are matched. With 'bradley2012', the number of
+            complete suites selected, of which the one with the smallest
+            Kolmogorov-Smirnov residual is kept
         num_records : int
             Number of records to select
         context_limits : dict
@@ -96,8 +105,19 @@ class _GCIMSelect:
             Maximum scaling factor allowed, and the smallest allowed is
             its reciprocal
         greedy_loops : int
-            Number of greedy loops to run
+            Number of greedy loops to run, used by 'baker_lee2018' only
+        selection_algorithm : str, optional
+            'baker_lee2018', by default, follows Jayaram et al. (2011) and
+            Baker and Lee (2018), drawing realisations from a lognormal
+            distribution with the mean and covariance of the GCIM
+            distribution. Or
+            'bradley2012', following Bradley (2012), drawing each realisation
+            from a rupture scenario sampled from the disaggregation
         """
+        if selection_algorithm not in ("baker_lee2018", "bradley2012"):
+            raise ValueError(
+                f"Unknown selection algorithm '{selection_algorithm}', use "
+                "'baker_lee2018' or 'bradley2012'")
 
         nreplicate = int(nreplicate)
         num_records = int(num_records)
@@ -140,161 +160,26 @@ class _GCIMSelect:
         imi_db, mu_imi, sigma_imi, correlations, alpha, covariance = \
             self._combine_imi(im_known, target, alpha_hash, total_rec)
 
-        # Generate random realizations of IMi (num_records, num_imi)
-        realization = self._simulate(
-            nreplicate, num_records, mu_imi, covariance, sigma_imi, seed)
-
         # Scaling factors
         self.scaling = max_scaling_factor != 1.0
-
-        # Ln of IMi of the entire database
-        ln_imi_db = np.log(imi_db)
-        total_rec, num_im = ln_imi_db.shape
-
-        # initialize
-        sf = np.zeros((num_records, total_rec))
-        unscaled_imi = np.zeros((num_records, num_im))
-        scaled_imi = np.zeros((num_records, num_im))
-        rec_id = np.full(num_records, -1, dtype=int)
-        rec_rsn = np.zeros(num_records, dtype=int)
-        sf_opt = np.zeros(num_records)
-        residuals = np.zeros((num_records, total_rec))
-        residuals_opt = np.zeros(num_records)
-
-        for rec in range(num_records):
-            # Retrieve scaling factors for all prospective records
-            sf[rec] = self._get_scaling_factors(
-                im_star_db, ln_imi_db, total_rec, alpha, alpha_hash,
-                realization[rec])
-
-            # Filter based on requested scaling factor bounds
-            residuals[rec] = self._compute_residuals(
-                max_scaling_factor, sf[rec], residuals[rec],
-                ln_imi_db, realization[rec], im_weights, alpha
-            )
-
-            # Select the record ID with the smallest residual
-            # with respect to the realization
-            _min_id = np.argmin(residuals[rec])
-
-            if _min_id in rec_id:
-                unique_value_found = False
-                # to avoid repeated records
-                _sorted_ids = np.argsort(residuals[rec])
-                for value in _sorted_ids:
-                    if value not in rec_id:
-                        rec_id[rec] = value
-                        unique_value_found = True
-                        break
-
-                if not unique_value_found:
-                    # If all failed
-                    rec_id[rec] = _min_id
-            else:
-                rec_id[rec] = _min_id
-
-            # Get RSN
-            rec_rsn[rec] = rsn[rec_id[rec]]
-
-            # Get the corresponding scaling factor and minimum residual
-            sf_opt[rec] = sf[rec][rec_id[rec]]
-            residuals_opt[rec] = residuals[rec][rec_id[rec]]
-
-            # Get the unscaled IMi, each entry has shape (n_imi,)
-            unscaled_imi[rec] = ln_imi_db[rec_id[rec]]
-
-            # Compute the scaled IMi, each entry has shape (n_imi,)
-            scaled_imi[rec] = np.log(
-                np.exp(unscaled_imi[rec]) * sf_opt[rec] ** alpha
-            )
-
-            # Set IMs of already selected records to a large value
-            # to force very large residuals
-            ln_imi_db[rec_id[rec], :] = 10.0
-
-        # Redefine ln(imi)
         ln_imi_db = np.log(imi_db)
 
-        # Every record has to be usable at a scaling factor the caller allows.
-        # Records are taken by increasing residual and one at most once, so a
-        # pool holding fewer records within those bounds than the number
-        # requested fills the remaining slots from outside them
-        outside = (sf_opt < 1 / max_scaling_factor) \
-            | (sf_opt > max_scaling_factor)
-        if np.any(outside):
-            raise ValueError(
-                f"{int(np.sum(outside))} of the {num_records} requested "
-                "records could only be matched by scaling beyond the maximum "
-                f"scaling factor of {max_scaling_factor}. Raise "
-                "'max_scaling_factor', ask for fewer records, or broaden the "
-                "selection criteria")
+        if selection_algorithm == "bradley2012":
+            realization, rec_id, sf_opt, scaled_imi, cdfs = \
+                self._select_bradley2012(
+                    nreplicate, num_records, im_star_db, ln_imi_db, alpha,
+                    alpha_hash, correlations, im_weights,
+                    max_scaling_factor, seed)
+        else:
+            realization, rec_id, sf_opt, scaled_imi = \
+                self._select_baker_lee2018(
+                    nreplicate, num_records, mu_imi, sigma_imi, covariance,
+                    seed, imi_db, im_star_db, alpha, alpha_hash, im_weights,
+                    max_scaling_factor, greedy_loops)
+            cdfs = None
 
-        # Compute the initial error
-        im_weights = np.array(im_weights)
-        dev_mean = (np.mean(scaled_imi, axis=0) - mu_imi) * im_weights
-        dev_stddev = (np.std(scaled_imi, axis=0) - sigma_imi) * im_weights
-        # dev_skew = np.nan_to_num(
-        #     skew(scaled_imi, axis=0), nan=0.0) * im_weights
-        dev_total = self.ERROR_WEIGHTS[0] * np.sum(dev_mean ** 2) \
-            + self.ERROR_WEIGHTS[1] * np.sum(dev_stddev ** 2) \
-            # + self.ERROR_WEIGHTS[2] * np.sum(dev_skew ** 2)
-
-        # Greedy subset modification algorithm
-        for _ in range(greedy_loops):
-
-            for rec in range(num_records):
-                # -> this needs to be made more efficient
-                sel_rec_id = rec_id[rec]
-                scaled_imi = np.delete(scaled_imi, rec, 0)
-                rec_id = np.delete(rec_id, rec)
-
-                # Use records that are within the scaling factor bounds
-                mask = (1 / max_scaling_factor <= sf[rec]) \
-                    * (sf[rec] <= max_scaling_factor)
-                filtered_ln_imi_db = ln_imi_db[mask]
-                filtered_sf = sf[rec][mask]
-
-                # Database indexes of corresponding records
-                db_idxs = np.column_stack(np.where(mask))
-                db_idxs = np.reshape(db_idxs, (db_idxs.shape[0], ))
-
-                # filtered_ln_imi_db = ln_imi_db
-                # filtered_sf = sf[rec]
-                # db_idxs = np.arange(len(filtered_sf))
-                sel_rec_id, dev_total = greedy_algorithm_fast(
-                    scaled_imi, filtered_sf, mu_imi, sigma_imi, rec_id,
-                    filtered_ln_imi_db, num_records, self.ERROR_WEIGHTS,
-                    self.PENALTY, db_idxs, alpha, im_weights,
-                    sel_rec_id, dev_total
-                )
-
-                # Add the record information to the outputs
-                sf_opt[rec] = sf[rec][sel_rec_id]
-
-                # Update the sample IMi. 'sel_rec_id' indexes the database,
-                # as it does for the scaling factor above, so the intensities
-                # are read straight from it. The greedy algorithm returns the
-                # record it was given when no candidate improves on it, and
-                # that record is not among the ones within the scaling bounds
-                # whenever the pool is too small to fill every slot from them
-                scaled_imi = np.concatenate((
-                    scaled_imi[:rec],
-                    ln_imi_db[sel_rec_id].reshape(1, ln_imi_db.shape[1])
-                    + np.log(sf_opt[rec] ** alpha),
-                    scaled_imi[rec:]
-                ), axis=0)
-
-                rec_id = np.concatenate((
-                    rec_id[:rec], np.array([sel_rec_id]), rec_id[rec:]
-                ))
-
-            # Estimate errors
-            median_error, std_error = self._estimate_errors(
-                scaled_imi, mu_imi, sigma_imi)
-
-            if median_error <= self.TOLERANCE and std_error <= self.TOLERANCE:
-                # If errors are within a tolerable limit, stop algorithm
-                break
+        median_error, std_error = self._estimate_errors(
+            scaled_imi, mu_imi, sigma_imi)
 
         # Get the unscaled IMis
         unscaled_imi = np.exp(ln_imi_db[rec_id])
@@ -303,7 +188,7 @@ class _GCIMSelect:
         # KS tests
         ks_tests = self._perform_ks_tests(
             mu_imi, sigma_imi, realization,
-            unscaled_imi, scaled_imi, ks_alpha
+            unscaled_imi, scaled_imi, ks_alpha, cdfs
         )
 
         # ECDFs
@@ -407,10 +292,442 @@ class _GCIMSelect:
             self.selected_scaled_best['context'][_arg + "_selecRec"] = _val
 
         self.selected_scaled_best.update(ks_tests)
+        self.selected_scaled_best['selection_algorithm'] = selection_algorithm
+        if selection_algorithm == "bradley2012":
+            # Equation 11 of Bradley (2012) for the suite kept
+            self.selected_scaled_best['ks_residual'] = self.ks_residual
+
+    def _select_baker_lee2018(
+            self, nreplicate, num_records, mu_imi, sigma_imi, covariance,
+            seed, imi_db, im_star_db, alpha, alpha_hash, im_weights,
+            max_scaling_factor, greedy_loops):
+        """Selection following Jayaram et al. (2011) and Baker and Lee
+        (2018)
+
+        Realisations are drawn from a multivariate lognormal distribution with
+        the target mean and covariance, a record is matched to each, and a
+        greedy optimisation improves the match of the sample mean and
+        standard deviation of the suite to the target.
+
+        Returns
+        -------
+        np.ndarray
+            Realisations, in log space (num_records, num_imi)
+        np.ndarray
+            Database indices of the selected records
+        np.ndarray
+            Scaling factor of each selected record
+        np.ndarray
+            Scaled IMi of the selected records, in log space
+        """
+        # Generate random realizations of IMi (num_records, num_imi)
+        realization = self._simulate(
+            nreplicate, num_records, mu_imi, covariance, sigma_imi, seed)
+
+        # Scaling factors
+        self.scaling = max_scaling_factor != 1.0
+
+        # Ln of IMi of the entire database
+        ln_imi_db = np.log(imi_db)
+        total_rec, num_im = ln_imi_db.shape
+
+        # initialize
+        sf = np.zeros((num_records, total_rec))
+        unscaled_imi = np.zeros((num_records, num_im))
+        scaled_imi = np.zeros((num_records, num_im))
+        rec_id = np.full(num_records, -1, dtype=int)
+        sf_opt = np.zeros(num_records)
+        residuals = np.zeros((num_records, total_rec))
+        residuals_opt = np.zeros(num_records)
+
+        for rec in range(num_records):
+            # Retrieve scaling factors for all prospective records
+            sf[rec] = self._get_scaling_factors(
+                im_star_db, ln_imi_db, total_rec, alpha, alpha_hash,
+                realization[rec])
+
+            # Filter based on requested scaling factor bounds
+            residuals[rec] = self._compute_residuals(
+                max_scaling_factor, sf[rec], residuals[rec],
+                ln_imi_db, realization[rec], im_weights, alpha
+            )
+
+            # Select the record ID with the smallest residual
+            # with respect to the realization
+            _min_id = np.argmin(residuals[rec])
+
+            if _min_id in rec_id:
+                unique_value_found = False
+                # to avoid repeated records
+                _sorted_ids = np.argsort(residuals[rec])
+                for value in _sorted_ids:
+                    if value not in rec_id:
+                        rec_id[rec] = value
+                        unique_value_found = True
+                        break
+
+                if not unique_value_found:
+                    # If all failed
+                    rec_id[rec] = _min_id
+            else:
+                rec_id[rec] = _min_id
+
+            # Get the corresponding scaling factor and minimum residual
+            sf_opt[rec] = sf[rec][rec_id[rec]]
+            residuals_opt[rec] = residuals[rec][rec_id[rec]]
+
+            # Get the unscaled IMi, each entry has shape (n_imi,)
+            unscaled_imi[rec] = ln_imi_db[rec_id[rec]]
+
+            # Compute the scaled IMi, each entry has shape (n_imi,)
+            scaled_imi[rec] = np.log(
+                np.exp(unscaled_imi[rec]) * sf_opt[rec] ** alpha
+            )
+
+            # Set IMs of already selected records to a large value
+            # to force very large residuals
+            ln_imi_db[rec_id[rec], :] = 10.0
+
+        # Redefine ln(imi)
+        ln_imi_db = np.log(imi_db)
+
+        # Every record has to be usable at a scaling factor the caller allows.
+        # Records are taken by increasing residual and one at most once, so a
+        # pool holding fewer records within those bounds than the number
+        # requested fills the remaining slots from outside them
+        outside = (sf_opt < 1 / max_scaling_factor) \
+            | (sf_opt > max_scaling_factor)
+        if np.any(outside):
+            raise ValueError(
+                f"{int(np.sum(outside))} of the {num_records} requested "
+                "records could only be matched by scaling beyond the maximum "
+                f"scaling factor of {max_scaling_factor}. Raise "
+                "'max_scaling_factor', ask for fewer records, or broaden the "
+                "selection criteria")
+
+        # Compute the initial error
+        im_weights = np.array(im_weights)
+        dev_mean = (np.mean(scaled_imi, axis=0) - mu_imi) * im_weights
+        dev_stddev = (np.std(scaled_imi, axis=0) - sigma_imi) * im_weights
+        # dev_skew = np.nan_to_num(
+        #     skew(scaled_imi, axis=0), nan=0.0) * im_weights
+        dev_total = self.ERROR_WEIGHTS[0] * np.sum(dev_mean ** 2) \
+            + self.ERROR_WEIGHTS[1] * np.sum(dev_stddev ** 2) \
+            # + self.ERROR_WEIGHTS[2] * np.sum(dev_skew ** 2)
+
+        # Greedy subset modification algorithm
+        for _ in range(greedy_loops):
+
+            for rec in range(num_records):
+                # -> this needs to be made more efficient
+                sel_rec_id = rec_id[rec]
+                scaled_imi = np.delete(scaled_imi, rec, 0)
+                rec_id = np.delete(rec_id, rec)
+
+                # Use records that are within the scaling factor bounds
+                mask = (1 / max_scaling_factor <= sf[rec]) \
+                    * (sf[rec] <= max_scaling_factor)
+                filtered_ln_imi_db = ln_imi_db[mask]
+                filtered_sf = sf[rec][mask]
+
+                # Database indexes of corresponding records
+                db_idxs = np.column_stack(np.where(mask))
+                db_idxs = np.reshape(db_idxs, (db_idxs.shape[0], ))
+
+                # filtered_ln_imi_db = ln_imi_db
+                # filtered_sf = sf[rec]
+                # db_idxs = np.arange(len(filtered_sf))
+                sel_rec_id, dev_total = greedy_algorithm_fast(
+                    scaled_imi, filtered_sf, mu_imi, sigma_imi, rec_id,
+                    filtered_ln_imi_db, num_records, self.ERROR_WEIGHTS,
+                    self.PENALTY, db_idxs, alpha, im_weights,
+                    sel_rec_id, dev_total
+                )
+
+                # Add the record information to the outputs
+                sf_opt[rec] = sf[rec][sel_rec_id]
+
+                # Update the sample IMi. 'sel_rec_id' indexes the database,
+                # as it does for the scaling factor above, so the intensities
+                # are read straight from it. The greedy algorithm returns the
+                # record it was given when no candidate improves on it, and
+                # that record is not among the ones within the scaling bounds
+                # whenever the pool is too small to fill every slot from them
+                scaled_imi = np.concatenate((
+                    scaled_imi[:rec],
+                    ln_imi_db[sel_rec_id].reshape(1, ln_imi_db.shape[1])
+                    + np.log(sf_opt[rec] ** alpha),
+                    scaled_imi[rec:]
+                ), axis=0)
+
+                rec_id = np.concatenate((
+                    rec_id[:rec], np.array([sel_rec_id]), rec_id[rec:]
+                ))
+
+            # Estimate errors
+            median_error, std_error = self._estimate_errors(
+                scaled_imi, mu_imi, sigma_imi)
+
+            if median_error <= self.TOLERANCE and std_error <= self.TOLERANCE:
+                # If errors are within a tolerable limit, stop algorithm
+                break
+
+        return realization, rec_id, sf_opt, scaled_imi
+
+    def _select_bradley2012(
+            self, nreplicate, num_records, im_star_db, ln_imi_db, alpha,
+            alpha_hash, correlations, im_weights, max_scaling_factor, seed):
+        """Selection following Bradley (2012)
+
+        Each realisation is drawn from the rupture scenario, and the GMM, it
+        is sampled for (Section 3.2), and the record matched to it is the one
+        with the smallest residual normalised by the standard deviation of
+        that scenario (Equation 10). The whole selection is repeated
+        'nreplicate' times and the suite with the smallest
+        Kolmogorov-Smirnov residual against the GCIM mixture is kept
+        (Equation 11). There is no greedy optimisation.
+
+        Returns
+        -------
+        np.ndarray
+            Realisations of the suite kept, in log space
+            (num_records, num_imi)
+        np.ndarray
+            Database indices of the selected records
+        np.ndarray
+            Scaling factor of each selected record
+        np.ndarray
+            Scaled IMi of the selected records, in log space
+        List[Callable]
+            CDF of the GCIM mixture of each IMi
+        """
+        im_weights = np.asarray(im_weights, dtype=float)
+        num_imi = ln_imi_db.shape[1]
+
+        components = self._mixture_components(
+            self.output_create["target"]["im_idxs"])
+        cdfs = self._mixture_cdfs(components, num_imi)
+
+        # An IMi fixed by the conditioning, as IM* is, has no distribution to
+        # compare the suite with
+        fixed = np.zeros(num_imi, dtype=bool)
+        for comp in components:
+            fixed[comp["cols"]] = np.all(
+                comp["sigma"] < self.SIGMA_FIXED, axis=0)
+
+        best = None
+        for rep in range(max(nreplicate, 1)):
+            # Offset by the replicate index, as for the LHS realisations, a
+            # zero seed randomising every draw
+            rng = np.random.default_rng(seed + rep if seed else None)
+
+            realization, sigma = self._simulate_realization_mixture(
+                components, correlations, num_records, rng)
+
+            rec_id, sf_opt, scaled_imi = self._match_records(
+                realization, sigma, im_star_db, ln_imi_db, alpha, alpha_hash,
+                im_weights, max_scaling_factor)
+
+            # Equation 11, the weighted sum of squared KS statistics
+            ks_stat = np.array([
+                0.0 if fixed[i] else kstest(np.exp(scaled_imi[:, i]),
+                                            cdfs[i])[0]
+                for i in range(num_imi)])
+            residual = np.sum(im_weights * ks_stat ** 2)
+
+            if best is None or residual < best[0]:
+                best = (residual, realization, rec_id, sf_opt, scaled_imi)
+
+        self.ks_residual = best[0]
+
+        return best[1], best[2], best[3], best[4], cdfs
+
+    def _mixture_components(self, im_idxs):
+        """Branches of the GCIM mixture of each IMi type
+
+        Parameters
+        ----------
+        im_idxs : dict
+            Columns of the IMi vector occupied by each IMi type
+
+        Returns
+        -------
+        List[dict]
+            For each IMi type, the columns it occupies ('cols') and, for each
+            branch, i.e. rupture scenario and GMM, its rupture ('rup'), its
+            weight ('w'), and the mean ('mu') and standard deviation
+            ('sigma') of the IMi in each column, of shape (n_branches, n_cols)
+        """
+        # A conditional target stores the branches conditioned on IM*
+        data = self.output_create["data"]
+        key = "lnIMi_lnIMj_rup" if "mu_lnIMi_lnIMj_rup" in data \
+            else "lnIMi_rup"
+
+        components = []
+        for im, cols in im_idxs.items():
+            # Stored with a row per column and a column per branch
+            mu = np.atleast_2d(np.asarray(data[f"mu_{key}"][im], dtype=float))
+            sigma = np.atleast_2d(
+                np.asarray(data[f"sigma_{key}"][im], dtype=float))
+            weights = np.asarray(data["weights_imi"][im], dtype=float)
+
+            components.append({
+                "cols": np.asarray(cols, dtype=int),
+                "rup": np.asarray(data["rup_ids_imi"][im], dtype=int),
+                "w": weights / weights.sum(),
+                "mu": mu.T,
+                "sigma": sigma.T,
+            })
+
+        return components
+
+    def _mixture_cdfs(self, components, num_imi):
+        """CDF of the GCIM mixture of each IMi, one callable per column
+
+        The mixture weights the lognormal distribution of every branch by the
+        probability of that branch (Bradley 2012, Equation 1)
+        """
+        cdfs = [None] * num_imi
+        for comp in components:
+            for k, col in enumerate(comp["cols"]):
+                cdfs[col] = self._mixture_cdf(
+                    comp["w"], comp["mu"][:, k], comp["sigma"][:, k])
+
+        return cdfs
+
+    @staticmethod
+    def _mixture_cdf(weights, mu, sigma):
+        """CDF of a mixture of lognormal distributions"""
+        sigma = np.maximum(sigma, 1e-12)
+
+        def cdf(x):
+            ln_x = np.log(np.maximum(
+                np.atleast_1d(np.asarray(x, dtype=float)), 1e-300))
+            return norm.cdf((ln_x[:, None] - mu) / sigma) @ weights
+
+        return cdf
+
+    def _simulate_realization_mixture(
+            self, components, corr, num_records, rng):
+        """Realisations of the IMi vector from the GCIM mixture
+
+        A rupture is drawn from P(Rup|IM*) for every realisation, then a GMM
+        for each IMi type from the branches of that rupture, and the
+        realisation is drawn from the multivariate lognormal distribution of
+        those branches (Bradley 2012, Section 3.2). The correlations do not
+        depend on the rupture or the GMM, so the correlated standard normal
+        variates are drawn once.
+
+        Returns
+        -------
+        np.ndarray
+            Realisations, in log space (num_records, num_imi)
+        np.ndarray
+            Standard deviation of the branch each entry was drawn from
+        """
+        num_imi = corr.shape[0]
+
+        # Probability of each rupture. Every IMi type spreads it over its own
+        # GMMs, so it is summed within each type and averaged over them
+        rups = np.unique(np.concatenate([comp["rup"] for comp in components]))
+        p_rup = np.zeros(len(rups))
+        for comp in components:
+            p_rup += np.array([comp["w"][comp["rup"] == r].sum()
+                               for r in rups])
+        p_rup /= p_rup.sum()
+
+        # Correlated standard normal variates. The correlation matrix
+        # assembled from several models is not always positive semi-definite,
+        # so its negative eigenvalues are clipped and the result rescaled to
+        # a unit diagonal, which leaves the standard deviation of every
+        # branch untouched
+        eig_val, eig_vec = np.linalg.eigh(corr)
+        eig_val = np.clip(eig_val, 0, None)
+        scale = 1 / np.sqrt((eig_vec ** 2) @ eig_val)
+        factor = scale[:, None] * eig_vec * np.sqrt(eig_val)
+        z = rng.standard_normal((num_records, num_imi)) @ factor.T
+
+        mu = np.zeros((num_records, num_imi))
+        sigma = np.zeros((num_records, num_imi))
+        for n in range(num_records):
+            rup = rng.choice(rups, p=p_rup)
+
+            for comp in components:
+                # GMM of this IMi type, among the branches of that rupture.
+                # A type without weight on the rupture draws from all of its
+                # branches instead
+                weights = comp["w"] * (comp["rup"] == rup)
+                if weights.sum() <= 0:
+                    weights = comp["w"]
+                branch = rng.choice(len(weights), p=weights / weights.sum())
+
+                mu[n, comp["cols"]] = comp["mu"][branch]
+                sigma[n, comp["cols"]] = comp["sigma"][branch]
+
+        return mu + sigma * z, sigma
+
+    def _match_records(
+            self, realization, sigma, im_star_db, ln_imi_db, alpha,
+            alpha_hash, im_weights, max_scaling_factor):
+        """Record with the smallest residual for each realisation
+
+        The residual of each IMi is normalised by the standard deviation of
+        the branch the realisation was drawn from (Bradley 2012, Equation 10).
+        IMi fixed by the conditioning are left out, and a record is selected
+        once at most.
+
+        Returns
+        -------
+        np.ndarray
+            Database indices of the selected records
+        np.ndarray
+            Scaling factor of each selected record
+        np.ndarray
+            Scaled IMi of the selected records, in log space
+        """
+        num_records = realization.shape[0]
+        total_rec = ln_imi_db.shape[0]
+
+        rec_id = np.full(num_records, -1, dtype=int)
+        sf_opt = np.zeros(num_records)
+        for n in range(num_records):
+            sf = self._get_scaling_factors(
+                im_star_db, ln_imi_db, total_rec, alpha, alpha_hash,
+                realization[n])
+
+            fixed = sigma[n] < self.SIGMA_FIXED
+            weights = np.where(
+                fixed, 0.0, im_weights / np.where(fixed, 1.0, sigma[n]) ** 2)
+
+            residuals = self._compute_residuals(
+                max_scaling_factor, sf, np.empty(total_rec), ln_imi_db,
+                realization[n], weights, alpha)
+            residuals[rec_id[:n]] = np.inf
+
+            best = int(np.argmin(residuals))
+            if residuals[best] >= self.LARGE:
+                raise ValueError(
+                    "Too few records can be matched within the maximum "
+                    f"scaling factor of {max_scaling_factor} to select "
+                    f"{num_records}. Raise 'max_scaling_factor', ask for "
+                    "fewer records, or broaden the selection criteria")
+
+            rec_id[n] = best
+            sf_opt[n] = sf[best]
+
+        scaled_imi = ln_imi_db[rec_id] + np.log(sf_opt[:, None] ** alpha)
+
+        return rec_id, sf_opt, scaled_imi
 
     def _perform_ks_tests(
             self, mu_imi, sigma_imi, realization, unscaled_imi, scaled_imi,
-            ks_alpha):
+            ks_alpha, cdfs=None):
+        """KS tests of the realisations and of the selected suite
+
+        The target of each IMi is the lognormal distribution with its mean
+        and standard deviation, or the distribution given in 'cdfs', one
+        callable per IMi, when that is not None
+        """
 
         num_records = realization.shape[0]
         num_im = len(sigma_imi)
@@ -441,20 +758,17 @@ class _GCIMSelect:
             axis=1)
 
         for im in range(num_im):
-            cdf_theoretical[im, :] = \
-                lognorm(sigma_imi[im], scale=(median_imi[im])).cdf(
-                    x_theoretical[im, :])
+            cdf = cdfs[im] if cdfs is not None else \
+                lognorm(sigma_imi[im], scale=(median_imi[im])).cdf
+
+            cdf_theoretical[im, :] = cdf(x_theoretical[im, :])
 
             # Random realizations
             ksstat_sim[im], p_sim[im] = kstest(
-                np.exp(realization[:, im]),
-                lognorm(sigma_imi[im], scale=(median_imi[im])).cdf)
+                np.exp(realization[:, im]), cdf)
 
             # Selected scaled ground motions:
-            ksstat_scaled[im], p_scaled[im] = \
-                kstest(
-                    scaled_imi[:, im],
-                    lognorm(sigma_imi[im], scale=(median_imi[im])).cdf)
+            ksstat_scaled[im], p_scaled[im] = kstest(scaled_imi[:, im], cdf)
 
             # The critical values and the hypothesis test are
             # calculated after the for loops

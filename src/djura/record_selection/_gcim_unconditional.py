@@ -132,4 +132,7 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
             "sigma_lnIMi_rup": sigma_rup,
             "cov_lnIMi_rup": cov_rup,
             "weights_imi": weights_imi,
+            # Rupture of each branch, in the order of 'weights_imi'
+            "rup_ids_imi": {im: [sc["rup_id"] for sc in _scenarios]
+                            for im, _scenarios in scenarios.items()},
         }

@@ -53,6 +53,7 @@ class GCIM:
         # select() arguments
         "greedy-loops": 1,
         "nreplicate": 1,
+        "selection-algorithm": "baker_lee2018",
         "num_records": 40,
         "context_limits": {
             # Those keys must be present in metadata file,
@@ -597,8 +598,23 @@ class GCIM:
         **Parameters of** ``data``
 
         nreplicate : int, optional
-            Number of replicates, by default 1
-            The algorithm is repeated for nreplicate times
+            Number of replicates, by default 1. With 'baker_lee2018', the
+            number of sets of realisations drawn, of which the one closest to
+            the target is kept before records are matched. With 'bradley2012',
+            the number of complete suites selected, of which the one with the
+            smallest Kolmogorov-Smirnov residual is kept
+        greedy_loops : int, optional
+            Number of greedy optimisation passes, by default 1, stopping
+            early once the errors in the median and standard deviation are
+            within tolerance. Used by 'baker_lee2018' only
+        selection_algorithm : str, optional
+            'baker_lee2018', by default, follows Jayaram et al. (2011) and
+            Baker and Lee (2018), drawing realisations from a lognormal
+            distribution with the mean and covariance of the GCIM
+            distribution.
+            'bradley2012' follows Bradley (2012), drawing each realisation
+            from a rupture scenario sampled from the disaggregation and
+            testing the suite against the GCIM mixture
         num_records : int, optional
             Number of ground motions to be selected, by default 40
         seed : int, optional
@@ -617,7 +633,7 @@ class GCIM:
             Limiting values on context parameters; keys must be present
             in the metadata. By default ``None``. Example::
 
-                {"magnitude": [6, 7]}  # events of magnitude 6–7 only
+                {"magnitude": [6, 7]}  # events of magnitude 6-7 only
         max_scaling_factor : float, optional
             Maximum scaling factor allowed, by default 1,
             i.e. no scaling allowed
@@ -678,7 +694,8 @@ class GCIM:
 
         select_vars = [
             "nreplicate", "num_records", "context_limits", "seed",
-            "ks_alpha", "im_weights", "max_scaling_factor", "greedy_loops"
+            "ks_alpha", "im_weights", "max_scaling_factor", "greedy_loops",
+            "selection_algorithm",
         ]
 
         if isinstance(self._parent, _GCIMConditional):
