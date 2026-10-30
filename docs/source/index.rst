@@ -16,6 +16,7 @@ function generation into a single installable package.
    custom_metadata
    models
    gsim_verification
+   record_selection_algorithm
 
 .. toctree::
    :maxdepth: 1
