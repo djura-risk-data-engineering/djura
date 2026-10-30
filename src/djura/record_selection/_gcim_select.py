@@ -972,22 +972,47 @@ class _GCIMSelect:
         Returns
         -------
         np.ndarray
-            Covariance matrix, shifted where needed to keep it positive
-            semi-definite
+            Covariance matrix, positive semi-definite, with the variance of
+            every IMi as given
         """
         sigmas = np.asarray(sigmas)
+        corr = self._repair_correlation(np.asarray(corr, dtype=float))
 
         # Scaled by row and then by column, so that every entry multiplies
         # its correlation and the two stdevs in that order
         cov = (corr * sigmas[:, None]) * sigmas[None, :]
 
-        # Making sure that cov is a positive semi-definite matrix
-        w, _ = np.linalg.eigh(cov)
-        min_eig = np.min(w)
-        if min_eig < 0:
-            cov -= 2 * min_eig * np.eye(*cov.shape)
-
         return cov
+
+    @staticmethod
+    def _repair_correlation(corr):
+        """Correlation matrix made positive semi-definite where it is not
+
+        A matrix assembled from the models of several IM pairs need not be a
+        valid correlation matrix as a whole. Its negative eigenvalues are then
+        clipped to zero and the result is rescaled to a unit diagonal, which
+        changes the correlations as little as this simple correction allows
+        and leaves every variance as it is. A valid matrix is returned as it
+        is
+
+        Parameters
+        ----------
+        corr : np.ndarray
+            Correlation matrix over all IMi
+
+        Returns
+        -------
+        np.ndarray
+            Positive semi-definite correlation matrix
+        """
+        eig_val, eig_vec = np.linalg.eigh(corr)
+        if eig_val.min() >= 0:
+            return corr
+
+        repaired = (eig_vec * np.clip(eig_val, 0, None)) @ eig_vec.T
+        scale = 1 / np.sqrt(np.maximum(np.diagonal(repaired), 1e-12))
+
+        return repaired * scale[:, None] * scale[None, :]
 
     def _simulate_realization_lhs(
             self, nreplicate, num_records, mu, cov, sigma, seed):
