@@ -36,7 +36,9 @@ from the disaggregation, i.e., from the full generalised conditional intensity
 measure (GCIM) mixture rather than from a single lognormal distribution, and
 the choice among replicates is made on complete record suites, using the
 Kolmogorov-Smirnov statistic against that mixture, rather than on the
-realisations before any record is matched.
+realisations before any record is matched. The procedure of Bradley (2012) is
+also available as an option, as described in
+`Selection following Bradley (2012)`_.
 
 The algorithm is implemented using Numba (Lam et al., 2015) in Python to ensure
 accelerated and efficient ground motion selection. Each selected record is
@@ -253,6 +255,108 @@ yielding the full covariance matrix:
 
 where :math:`\sigma_{i|*} \equiv \sigma_{\ln IM_i \mid \ln IM^*}` and
 :math:`\rho_{ij|*} \equiv \rho_{\ln IM_i, \ln IM_j \mid \ln IM^*}`.
+
+Selection following Bradley (2012)
+----------------------------------
+
+The selection algorithm of Bradley (2012) is used instead of the default one
+by setting ``"selection-algorithm": "bradley2012"`` in the input file; the
+default is ``"baker_lee2018"``. The target is the same GCIM distribution, built
+from the same rupture scenarios, GMMs and weights, but it is used in full
+rather than through its mean and covariance.
+
+**Target.** Each pair of rupture scenario and GMM, called a branch below, gives
+a lognormal distribution of :math:`IM_i`, with the mean and variance of
+Equations :eq:`cm2` and :eq:`cv2` for a conditional target, or :eq:`um1` and
+:eq:`uv1` for an unconditional one. The GCIM distribution is their weighted
+mixture, by the total probability theorem, with the cumulative distribution
+function of Equation :eq:`mixcdf`.
+
+.. math::
+   :label: mixcdf
+
+   F_{IM_i \mid IM^*}(x) = \sum_{r=1}^{n_{rup}} \sum_{g=1}^{n_{gmm,r}}
+       p_r\, w_{r,g}\, \Phi\!\left(
+       \frac{\ln x - \mu_{\ln IM_i^{g}\mid \ln IM^*, rup_r}}
+            {\sigma_{\ln IM_i^{g}\mid \ln IM^*, rup_r}}\right)
+
+where :math:`\Phi` is the standard normal cumulative distribution function. The
+mixture has the mean and variance of Equations :eq:`cmf` and :eq:`cvf`, but is
+not lognormal in general: where the branch means are far apart relative to
+their standard deviations, as with several tectonic regions or a bimodal
+disaggregation, it can be skewed or multimodal. Its 16th percentile, median
+and 84th percentile are stored with the target as
+``target["mixture_quantiles_lnIMi"]``, with their probabilities in
+``target["mixture_probabilities"]``.
+
+**Realisations.** One realisation is drawn per record, in two levels (Bradley,
+2012, Section 3.2). First, a branch is picked at random in proportion to its
+weight: a rupture with probability :math:`p_r`, then, for each IM type, one of
+the GMMs of that rupture with probability :math:`w_{r,g}`. Second, the IM
+vector is drawn from the multivariate lognormal distribution of that branch,
+
+.. math::
+   :label: brel
+
+   \ln IM_i^{n} = \mu_{\ln IM_i^{g}\mid \ln IM^*, rup_r}
+       + \sigma_{\ln IM_i^{g}\mid \ln IM^*, rup_r}\, z_i^{n}
+
+where :math:`\mathbf{z}^{n}` is a standard normal vector with the correlations
+of Equation :eq:`ccorr`. A suite of :math:`N` records therefore draws on at
+most :math:`N` branches, the heavier ones often more than once, and the
+realisations taken together are a sample of the whole mixture, including the
+part of its covariance due to the spread of the branch means that Equation
+:eq:`ccov` leaves out. Where the correlation matrix assembled from several
+models is not positive semi-definite, its negative eigenvalues are clipped and
+it is rescaled to a unit diagonal, which keeps the standard deviation of every
+branch.
+
+**Record matching.** Each realisation :math:`n` is assigned the record
+:math:`m`, scaled as in the default procedure, that minimises the residual of
+Equation :eq:`bres` (Bradley, 2012, Equation 10), in which every IM is
+normalised by the standard deviation of the branch the realisation was drawn
+from.
+
+.. math::
+   :label: bres
+
+   r_{m,n} = \sum_{i=1}^{n_{IM}} w_i \left[
+       \frac{\ln IM_i^{n} - \ln IM_i^{m}}
+            {\sigma_{\ln IM_i^{g}\mid \ln IM^*, rup_r}} \right]^2
+
+where :math:`w_i` are the IM weights, ``im-weights``. The conditioning IM, whose
+standard deviation is zero, is left out, every record matching it after
+scaling. A record is selected once at most.
+
+**Choice among replicates.** The realisation and matching are repeated
+``nreplicate`` times, and the suite with the smallest residual of Equation
+:eq:`bR` is kept (Bradley, 2012, Equation 11),
+
+.. math::
+   :label: bR
+
+   R = \sum_{i=1}^{n_{IM}} w_i\, D_i^2
+
+where :math:`D_i` is the Kolmogorov-Smirnov statistic of the selected suite
+against the mixture of Equation :eq:`mixcdf` for :math:`IM_i`. There is no
+greedy optimisation, and ``greedy-loops`` is not used. In total,
+``nreplicate`` :math:`\times` ``num-records`` realisations are drawn and
+matched, so a replicate costs a complete selection; 20 to 50 replicates are
+usually sufficient. The residual of the suite kept is returned as
+``ks_residual``, and its Kolmogorov-Smirnov tests are made against the
+mixture.
+
+**Differences from the default procedure.** Both procedures share the target
+mean and variance of every IM. They differ in the shape of the distribution the
+realisations are drawn from, in the normalisation of the matching residual, in
+the choice among replicates, made on the realisations before any record is
+matched in the default procedure, and in the greedy optimisation, which only
+the default procedure applies. Where the mixture is close to lognormal, as for
+a disaggregation concentrated on scenarios with similar conditional means, the
+two targets nearly coincide. Bradley (2012) samples rupture scenarios only;
+here a branch is a pair of rupture scenario and GMM, and where IM types use
+different GMMs these are picked independently for each type, given the
+rupture.
 
 References
 ----------
