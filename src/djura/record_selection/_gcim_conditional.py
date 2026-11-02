@@ -240,6 +240,14 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
                 weights_imi[im_type]
             )
 
+        # Quantiles of the GCIM mixture itself, e.g. its median, which
+        # differ from those of the lognormal with its mean and variance
+        quantiles = {
+            im_type: self.calc_mixture_quantiles(
+                means, sigma_imstar_rup[im_type], weights_imi[im_type])
+            for im_type, means in mu_imstar_rup.items()
+        }
+
         # Collect the output
         self.output_create["im-star"] = im_star
         self.output_create["corr_imi_imj"] = rho_imi_im_star
@@ -254,6 +262,8 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
             "correlations": corr_cond,
             "combined_correlations": _corr_cond,
             "im_idxs": _im_idxs,
+            "mixture_probabilities": list(self.MIXTURE_PROBABILITIES),
+            "mixture_quantiles_lnIMi": quantiles,
         }
         self.output_create["target"] = target
 
@@ -272,4 +282,7 @@ class _GCIMConditional(_GCIM, _GCIMSelect):
             "sigma_lnIMi_lnIMj_rup": sigma_imstar_rup,
             "cov_lnIMi_lnIMj_rup": cov_imstar_rup,
             "weights_imi": weights_imi,
+            # Rupture of each branch, in the order of 'weights_imi'
+            "rup_ids_imi": {im: [sc["rup_id"] for sc in _scenarios]
+                            for im, _scenarios in scenarios.items()},
         }

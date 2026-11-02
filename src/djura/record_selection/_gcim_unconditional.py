@@ -112,6 +112,14 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
                 weights_imi[im_type]
             )
 
+        # Quantiles of the GCIM mixture itself, e.g. its median, which
+        # differ from those of the lognormal with its mean and variance
+        quantiles = {
+            im_type: self.calc_mixture_quantiles(
+                means, sigma_rup[im_type], weights_imi[im_type])
+            for im_type, means in mu_rup.items()
+        }
+
         # Collect the output
         target = {
             "mu_lnIMi": mu_exact,
@@ -121,6 +129,8 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
             "correlations": corr_dict,
             "combined_correlations": corr_arr,
             "im_idxs": _im_idxs,
+            "mixture_probabilities": list(self.MIXTURE_PROBABILITIES),
+            "mixture_quantiles_lnIMi": quantiles,
         }
         self.output_create["target"] = target
         self.output_create["correlation_models"] = \
@@ -132,4 +142,7 @@ class _GCIMUnconditional(_GCIM, _GCIMSelect):
             "sigma_lnIMi_rup": sigma_rup,
             "cov_lnIMi_rup": cov_rup,
             "weights_imi": weights_imi,
+            # Rupture of each branch, in the order of 'weights_imi'
+            "rup_ids_imi": {im: [sc["rup_id"] for sc in _scenarios]
+                            for im, _scenarios in scenarios.items()},
         }

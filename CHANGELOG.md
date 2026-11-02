@@ -4,6 +4,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- GCIM selection can follow Bradley (2012), with
+  `"selection-algorithm": "bradley2012"` in the input. Each realisation is
+  drawn from a single rupture scenario and GMM picked by weight, records are
+  matched with residuals normalised by the standard deviation of that
+  scenario, and the whole selection is repeated `nreplicate` times, keeping
+  the suite whose Kolmogorov-Smirnov residual against the GCIM mixture is
+  smallest. There is no greedy optimisation, and the Kolmogorov-Smirnov
+  tests of the suite are made against the mixture. The default,
+  `"baker_lee2018"`, is unchanged.
+- The GCIM target holds the 16th percentile, median and 84th percentile of
+  the GCIM distribution itself, the mixture of all rupture scenarios and
+  GMMs, in `target["mixture_quantiles_lnIMi"]`, with their probabilities in
+  `target["mixture_probabilities"]`. Where the mixture is skewed, its median
+  differs from `exp(mu_lnIMi)`, the median of the lognormal distribution with
+  its mean and variance.
+- The record selection algorithm page of the documentation describes the
+  Bradley (2012) procedure and how it differs from the default one.
+
+### Changed
+
+- `target["cov_lnIMi"]` is the covariance of the GCIM mixture, including the
+  spread of the scenario means. It held the covariance of the first scenario
+  with the variances of the mixture on its diagonal. The target standard
+  deviations are unchanged.
+- The documentation of `nreplicate` states that, in the default procedure,
+  only the realisations are repeated and the set closest to the target is
+  kept before records are matched. `greedy_loops` is documented.
+
+### Fixed
+
+- The unconditional GCIM target gave period-independent IMs (PGA, PGV, CAV,
+  SI, ASI, DSI, Ia, Ds575, Ds595, ...) a standard deviation close to 1
+  whenever several rupture scenarios or GMMs were combined, as every scenario
+  entered with unit variance. Conditional targets were not affected.
+- Where the correlation matrix assembled from several correlation models was
+  not positive semi-definite, the selection added the same amount to every
+  variance, drawing realisations up to 2.5 times wider than the target. The
+  correlation matrix is now corrected instead, keeping every variance, and
+  a valid matrix is left unchanged. Selections change only where the matrix
+  was not positive semi-definite.
+- Building the conditional and unconditional targets overwrote the stored
+  covariance of the first rupture scenario, and could inflate the target
+  standard deviations to make the combined covariance positive
+  semi-definite.
+
 ## [2.3.0] - 2026-10-29
 
 ### Added
