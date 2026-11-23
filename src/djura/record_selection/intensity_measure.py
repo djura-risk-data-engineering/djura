@@ -329,6 +329,12 @@ class IntensityMeasure:
     def get_pgv(self, acc: List[float], dt: float) -> float:
         """Get peak ground velocity (PGV) in [m/s]
 
+        The acceleration is integrated as given, without baseline correction or
+        filtering. Pass a processed record (baseline-corrected and band-pass
+        filtered, as distributed by ESM or PEER). On a raw record, any residual
+        offset integrates into a velocity drift and PGV is overestimated.
+
+
         Parameters
         ----------
         acc : List[float]
@@ -347,6 +353,11 @@ class IntensityMeasure:
 
     def get_pgd(self, acc: List[float], dt: float) -> float:
         """Get peak ground displacement (PGD) in [m]
+
+        The acceleration is integrated twice as given, without baseline correction
+        or filtering, so a residual offset grows quadratically. Pass a processed
+        record (baseline-corrected and band-pass filtered); PGD is also sensitive
+        to the high-pass corner chosen during processing.
 
         Parameters
         ----------

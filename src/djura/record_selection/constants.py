@@ -7,7 +7,7 @@ SUPPORTED_IM_DESCRIPTORS = {
     "Sa_avg3": "Average spectral acceleration, n=10, bounds=[0.2T, 3.0T] [g]",
     "Sa_avg": "Average spectral acceleration, Indirect",
     "PGA": "Peak ground acceleration [g]",
-    "PGV": "Peak ground velocity [cm/s]",
+    "PGV": "Peak ground velocity [m/s]",
     # "PGD": "Peak ground displacement [cm]",
     "Ds575": "Significant duration for time intervals 5-75% [seconds]",
     "Ds595": "Significant duration for time intervals 5-95% [seconds]",
