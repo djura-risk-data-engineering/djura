@@ -174,7 +174,7 @@ class SLF:
         self._group_components()
 
         # Seed
-        if seed:
+        if seed is not None:
             np.random.seed(int(seed))
 
     def _validate_inventory(self, inventory):
@@ -406,18 +406,14 @@ class SLF:
         for item in self.inventory:
             _id = item['id']
 
-            means = np.array(item['median-demand'])
-            covs = np.array(item['total-dispersion'])
-
-            # TODO, ensure that this is correct compared to PACT db
-            means = np.exp(
-                np.log(means) - 0.5 * np.log(covs ** 2 + 1)
-            )
-            std = np.log(covs ** 2 + 1) ** 0.5
-            std[std <= 0] = 0.01
+            # Lognormal fragility: median and logarithmic standard deviation
+            # (dispersion), as in FEMA P-58
+            medians = np.array(item['median-demand'], dtype=float)
+            betas = np.array(item['total-dispersion'], dtype=float)
+            betas[betas <= 0] = 0.01
 
             frag = norm.cdf(
-                np.log(self.edp_range.reshape(-1, 1) / means) / std,
+                np.log(self.edp_range.reshape(-1, 1) / medians) / betas,
                 loc=0, scale=1
             )
             frag[np.isnan(frag)] = 0
@@ -552,8 +548,9 @@ class SLF:
             for n in range(self.realizations):
                 for ds in range(num_ds + 1):
                     if ds == 0:
+                        # Float, so sampled costs are not truncated
                         repair_cost[item][n] = np.where(
-                            damage[n] == ds, ds, -1
+                            damage[n] == ds, 0.0, -1.0
                         )
 
                         continue

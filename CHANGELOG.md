@@ -52,6 +52,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   covariance of the first rupture scenario, and could inflate the target
   standard deviations to make the combined covariance positive
   semi-definite.
+- `SLF.fragility_function` read `median-demand` as a mean and
+  `total-dispersion` as a coefficient of variation, and converted them to a
+  lower median and a smaller dispersion. They are now used as the lognormal
+  median and dispersion, as documented. Storey loss functions from existing
+  inventories change.
+- `SLF.calculate_costs` stored sampled repair costs in an integer array,
+  truncating them to whole currency units. Costs are now kept as floats.
+- `SLF(seed=0)` did not set the seed, as 0 was treated as no seed.
 
 ## [2.3.0] - 2026-10-29
 
