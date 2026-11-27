@@ -232,8 +232,9 @@ class SLF:
 
             n_ds = data.damage_states
             self.max_ds = max(self.max_ds, n_ds)
-            if n_ds != len(data.total_dispesion) != \
-                    len(data.repair_cost) != len(data.cost_dispersion):
+            lengths = {len(data.median_demand), len(data.total_dispesion),
+                       len(data.repair_cost), len(data.cost_dispersion)}
+            if lengths != {n_ds}:
                 raise ValueError(
                     "There must be equal amount of columns: 'median-demand', "
                     "'total-dispersion, 'repair-cost', "

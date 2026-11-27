@@ -111,6 +111,13 @@ def test_costs_not_truncated():
     assert np.all(np.abs(sampled - 1.5) < 0.1)
 
 
+def test_mismatched_ds_lengths_raise():
+    item = _item(0.01, 0.5, 1.0)
+    item[0]["cost-dispersion"] = [0.1, 0.1]
+    with pytest.raises(ValueError):
+        SLF(item, "PSD")
+
+
 def test_seed_zero_reproducible():
     def run():
         slf = SLF(_item(0.01, 0.5, 1.0), "PSD", edp_range=np.array([0.01]),
